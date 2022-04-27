@@ -1,23 +1,20 @@
-// Create the docker image
+# Setting up the Docker SQL
+
+### 1. Create the docker image
+
 docker run -p 10005:3306 --name FriendFinderDb -e MYSQL_ROOT_PASSWORD=pass -d mysql:5.7
 
-//log in to the db
+### 2. Log in to the db
+
 mysql -u root -p
 
-// enter the password
+### 3. Enter the password
+
 pass
 
-//Create the database
-CREATE DATABASE FriendFinder;
+### 4. Create the database
 
-// Create the tables
-CREATE TABLE Users(
-UserID INT,
-Username VARCHAR(30),
-Email VARCHAR(150)
-HashedPassword VARCHAR(150)
-PRIMARY KEY (UserID)
-);
+CREATE DATABASE FriendFinder;
 
 CREATE TABLE Activities(
 ActivityID INT,
