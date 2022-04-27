@@ -14,34 +14,8 @@ pass
 
 ### 4. Create the database
 
-CREATE DATABASE FriendFinder;
+CREATE DATABASE FriendFinder_DB;
 
-CREATE TABLE Activities(
-ActivityID INT,
-Name VARCHAR(50),
-Description VARCHAR(200),
-StartTime DATETIME,
-EndTime DATETIME,
-OwnerID INT,
-PRIMARY KEY (ActivityID),
-FOREIGN KEY (OwnerID) REFERENCES Users(UserID),
-);
+### 5. Create the test database
 
-CREATE TABLE UserActivity(
-UserID INT, 
-ActivityID INT,
-PRIMARY KEY (UserID, ActivityID),
-FOREIGN KEY (UserID) REFERENCES Users(UsersID),
-FOREIGN KEY (ActivityID) REFERENCES Activities(ActivityID)
-);
-
-CREATE TABLE Comments(
-CommentID INT,
-UserID INT,
-ActivityID INT,
-Comment VARCHAR(200),
-Date DATETIME,
-PRIMARY KEY (CommentID),
-FOREIGN KEY (UserID) REFERENCES Users(UsersID),
-FOREIGN KEY (ActivityID) REFERENCES Activities(ActivityID)
-);
+CREATE DATABASE FriendFinder_Test_DB;
