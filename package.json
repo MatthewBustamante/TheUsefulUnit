@@ -1,0 +1,33 @@
+{
+  "dependencies": {
+    "express": "^4.17.3",
+    "express-framework": "^1.2.1",
+    "express-handlebars": "^6.0.5",
+    "express-list-routes": "^1.1.3",
+    "jest": "^27.5.1",
+    "jest-puppeteer": "^6.1.0",
+    "method-override": "^3.0.0",
+    "mysql2": "^2.3.3",
+    "pino-http": "^6.6.0",
+    "puppeteer": "^13.5.2",
+    "supertest": "^6.2.2",
+    "validator": "^13.7.0"
+  },
+  "name": "theusefulunit",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "jest --verbose ./tests"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MatthewBustamante/TheUsefulUnit.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/MatthewBustamante/TheUsefulUnit/issues"
+  },
+  "homepage": "https://github.com/MatthewBustamante/TheUsefulUnit#readme"
+}

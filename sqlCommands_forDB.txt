@@ -1,0 +1,1 @@
+Enter all detailed commands used to initialize the database:
