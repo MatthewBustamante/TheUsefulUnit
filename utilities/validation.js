@@ -1,6 +1,7 @@
 const VALIDATOR = require("validator");
+const ERRORS = require("./errors");
 const MIN_USERNAME_LENGTH = 6; // Minimum username length for security purposes. See https://security.stackexchange.com/questions/46875/why-is-there-a-minimum-username-length
-const MAX_USERNAME_LENGTH = 36; // Maximum username length for security purposes. See https://stackoverflow.com/questions/3797098/what-are-the-standard-minimum-and-maximum-lengths-of-username-password-and-email
+const MAX_USERNAME_LENGTH = 30; // Maximum username length for security purposes. See https://stackoverflow.com/questions/3797098/what-are-the-standard-minimum-and-maximum-lengths-of-username-password-and-email
 const INAPPROPRIATE_WORDS = [
   "fuck",
   "acrotomophilia",
@@ -69,7 +70,7 @@ const MIN_PASSWORD_SCORE = 45; // Minimum score to be a valid password
 async function isValidNewUsername(username, connection) {
   //Check that the username is alphanumeric
   if (!VALIDATOR.isAlphanumeric(username)) {
-    let error = new ValidationError();
+    let error = new ERRORS.ValidationError();
     error.message = "Username must be alphanumeric";
     throw error;
   }
@@ -79,7 +80,7 @@ async function isValidNewUsername(username, connection) {
     username.length < MIN_USERNAME_LENGTH ||
     username.length > MAX_USERNAME_LENGTH
   ) {
-    let error = new ValidationError();
+    let error = new ERRORS.ValidationError();
     error.message = `Username must be between ${MIN_USERNAME_LENGTH} and ${MAX_USERNAME_LENGTH} characters long`;
     throw error;
   }
@@ -89,7 +90,7 @@ async function isValidNewUsername(username, connection) {
     if (
       VALIDATOR.contains(username, INAPPROPRIATE_WORDS[i], { ignoreCase: true })
     ) {
-      let error = new ValidationError();
+      let error = new ERRORS.ValidationError();
       error.message = `Username cannot contain the word \"${INAPPROPRIATE_WORDS[i]}\"`;
       throw error;
     }
@@ -97,17 +98,17 @@ async function isValidNewUsername(username, connection) {
 
   // Check that the username is not already in use
   let matchingUsername;
-  let matchingUsernameCommand = `SELECT COUNT(*) FROM users WHERE username = '${username}'`;
+  let matchingUsernameCommand = `SELECT COUNT(*) FROM Users WHERE Username = '${username}'`;
   matchingUsername = await connection
     .execute(matchingUsernameCommand)
     .catch((err) => {
-      let error = new DatabaseConnectionError();
+      let error = new ERRORS.DatabaseConnectionError();
       error.message = err.message;
       throw error;
     });
 
   if (matchingUsername[0][0]["COUNT(*)"] > 0) {
-    let error = new ValidationError();
+    let error = new ERRORS.ValidationError();
     error.message = "Username already in use";
     throw error;
   }
@@ -124,7 +125,7 @@ function isValidPassword(password) {
     password.length < MIN_PASSWORD_LENGTH ||
     password.length > MAX_PASSWORD_LENGTH
   ) {
-    let error = new ValidationError();
+    let error = new ERRORS.ValidationError();
     error.message = `Password must be between ${MIN_PASSWORD_LENGTH} and ${MAX_PASSWORD_LENGTH} characters long`;
     throw error;
   }
@@ -139,7 +140,7 @@ function isValidPassword(password) {
   });
 
   if (score < MIN_PASSWORD_SCORE) {
-    let error = new ValidationError();
+    let error = new ERRORS.ValidationError();
     error.message = "Password is not strong enough";
     throw error;
   }
@@ -161,16 +162,16 @@ async function isValidNewEmail(email, connection) {
 
   // Check that the email is not already in use
   let matchingUsername;
-  let matchingUsernameCommand = `SELECT COUNT(*) FROM users WHERE email = '${email}'`;
+  let matchingUsernameCommand = `SELECT COUNT(*) FROM Users WHERE Email = '${email}'`;
   try {
     matchingUsername = await connection.execute(matchingUsernameCommand);
   } catch (err) {
-    let error = new DatabaseConnectionError();
+    let error = new ERRORS.DatabaseConnectionError();
     error.message = err.message;
     throw error;
   }
   if (matchingUsername[0][0]["COUNT(*)"] > 0) {
-    let error = new ValidationError();
+    let error = new ERRORS.ValidationError();
     error.message = "Email already in use";
     throw error;
   }
@@ -199,17 +200,9 @@ async function isValidNewUser(username, password, email, connection) {
   }
 }
 
-//#region Errors
-class ValidationError extends Error {}
-
-class DatabaseConnectionError extends Error {}
-//#endregion
-
 module.exports = {
   isValidNewUsername,
   isValidPassword,
   isValidNewEmail,
-  isValidNewUser,
-  ValidationError,
-  DatabaseConnectionError,
+  isValidNewUser
 };
