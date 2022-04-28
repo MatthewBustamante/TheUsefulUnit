@@ -31,13 +31,13 @@ app.use(httpLogger);
 
 // Make sure errorController is last!
 //TODO: add the remaining controllers
-const controllers = ['homeController', 'errorController'] 
+const controllers = ['homeController'] 
 
 // Register routes from all controllers 
 //  (Assumes a flat directory structure and common 'routeRoot' / 'router' export)
 controllers.forEach((controllerName) => {
     try {
-        const controllerRoutes = require('./controllers/' + controllerName);
+        const controllerRoutes = require('../controllers/' + controllerName);
         app.use(controllerRoutes.routeRoot, controllerRoutes.router);
     } catch (error) {
         //fail gracefully if no routes for this controller
