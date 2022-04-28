@@ -6,7 +6,7 @@ docker run -p 10005:3306 --name FriendFinderDb -e MYSQL_ROOT_PASSWORD=pass -d my
 
 ### 2. Log in to the container
 
-docker container exec -it FriendFinder bash
+docker container exec -it FriendFinderDb bash
 
 ### 3. Log in to the db
 
