@@ -18,12 +18,6 @@ async function initialize(dbname, reset) {
     password: "pass",
     database: dbname,
   })
-    // .then(() => {
-    //   LOGGER.info("Connection to the database created");
-    // })
-    // .catch((error) => {
-    //   LOGGER.error(new ERRORS.DatabaseConnectionError());
-    // });
 
   // If the reset flag is set, reset the database
   if (reset) {
@@ -65,7 +59,7 @@ async function initialize(dbname, reset) {
 
   // Create the UserActivity table
   sqlQuery =
-    "CREATE TABLE UserActivity(UserID INT, ActivityID INT, PRIMARY KEY (UserID, ActivityID), FOREIGN KEY (UserID) REFERENCES Users(UsersID), FOREIGN KEY (ActivityID) REFERENCES Activities(ActivityID));";
+    "CREATE TABLE UserActivity(UserID INT, ActivityID INT, PRIMARY KEY (UserID, ActivityID), FOREIGN KEY (UserID) REFERENCES Users (UserID), FOREIGN KEY (ActivityID) REFERENCES Activities(ActivityID));";
   await connection
     .execute(sqlQuery)
     .then(LOGGER.info("Created table UserActivity"))
@@ -75,7 +69,7 @@ async function initialize(dbname, reset) {
 
   // Create the Comments TABLE
   sqlQuery =
-    "CREATE TABLE Comments(CommentID INT, UserID INT, ActivityID INT, Comment VARCHAR(200), Date DATETIME, PRIMARY KEY (CommentID), FOREIGN KEY (UserID) REFERENCES Users(UsersID), FOREIGN KEY (ActivityID) REFERENCES Activities(ActivityID));";
+    "CREATE TABLE Comments(CommentID INT, UserID INT, ActivityID INT, Comment VARCHAR(200), Date DATETIME, PRIMARY KEY (CommentID), FOREIGN KEY (UserID) REFERENCES Users (UserID), FOREIGN KEY (ActivityID) REFERENCES Activities(ActivityID));";
   await connection
     .execute(sqlQuery)
     .then(LOGGER.info("Created table Comments"))
