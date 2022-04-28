@@ -4,18 +4,22 @@
 
 docker run -p 10005:3306 --name FriendFinderDb -e MYSQL_ROOT_PASSWORD=pass -d mysql:5.7
 
-### 2. Log in to the db
+### 2. Log in to the container
+
+docker container exec -it FriendFinder bash
+
+### 3. Log in to the db
 
 mysql -u root -p
 
-### 3. Enter the password
+### 4. Enter the password
 
 pass
 
-### 4. Create the database
+### 5. Create the database
 
 CREATE DATABASE FriendFinder_DB;
 
-### 5. Create the test database
+### 6. Create the test database
 
 CREATE DATABASE FriendFinder_Test_DB;
