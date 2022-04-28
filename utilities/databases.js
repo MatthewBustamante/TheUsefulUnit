@@ -1,5 +1,5 @@
 const LOGGER = require("./logger");
-const MYSQL = require("mysql");
+const MYSQL = require("mysql2/promise");
 const ERRORS = require("./errors");
 
 let connection;
@@ -18,12 +18,12 @@ async function initialize(dbname, reset) {
     password: "pass",
     database: dbname,
   })
-    .then(() => {
-      LOGGER.info("Connection to the database created");
-    })
-    .catch((error) => {
-      LOGGER.error(new ERRORS.DatabaseConnectionError());
-    });
+    // .then(() => {
+    //   LOGGER.info("Connection to the database created");
+    // })
+    // .catch((error) => {
+    //   LOGGER.error(new ERRORS.DatabaseConnectionError());
+    // });
 
   // If the reset flag is set, reset the database
   if (reset) {
