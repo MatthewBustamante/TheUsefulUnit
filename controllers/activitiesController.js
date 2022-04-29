@@ -1,5 +1,5 @@
 const express = require('express');
-const { P } = require('pino');
+const pino = require('pino');
 const model = require('../models/activitiesModel');
 const router = express.Router();
 const routeRoot = '/';
