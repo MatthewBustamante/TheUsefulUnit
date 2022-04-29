@@ -11,7 +11,7 @@ const routeRoot = '/';
  * @param {*} response 
  */
 async function showRegisterForm(request, response) {
-
+    logger.info('Showing registration form');
 }
 router.get('/register', showRegisterForm);
 
@@ -22,7 +22,7 @@ router.get('/register', showRegisterForm);
  * @param {*} response 
  */
 async function createUser(request, response) {
-
+    logger.info('User has created a new account');
 }
 router.post('/register', createUser);
 
@@ -33,7 +33,7 @@ router.post('/register', createUser);
  * @param {*} response 
  */
 async function showLoginForm(request, response) {
-
+    logger.info('Showing login form');
 }
 router.get('/login', showLoginForm);
 
@@ -44,7 +44,7 @@ router.get('/login', showLoginForm);
  * @param {*} response 
  */
 async function authenticateUser(request, response) {
-
+    logger.info('Authenticating user');
 }
 router.post('/login', authenticateUser);
 
@@ -55,7 +55,7 @@ router.post('/login', authenticateUser);
  * @param {*} response 
  */
 async function showUser(request, response) {
-
+    logger.info('Showing user account page');
 }
 router.get('/user', showUser);
 
@@ -66,7 +66,7 @@ router.get('/user', showUser);
  * @param {*} response 
  */
 async function updateUser(request, response) {
-
+    logger.info('Updating user settings');
 }
 router.put('/users/:id', updateUser);
 
@@ -77,7 +77,7 @@ router.put('/users/:id', updateUser);
  * @param {*} response 
  */
 async function deleteUser(request, response) {
-
+    logger.info('Deleting user');
 }
 router.delete('/users/:id', deleteUser);
 
