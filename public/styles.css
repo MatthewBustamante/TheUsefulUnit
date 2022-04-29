@@ -12,3 +12,20 @@ body {
     flex: 1;
     margin-top: 10rem;
 }
+
+.feature-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 4rem;
+    height: 4rem;
+    margin-bottom: 1rem;
+    font-size: 2rem;
+    color: #fff;
+    border-radius: .75rem;
+}
+
+.bi {
+    vertical-align: -.125em;
+    fill: currentColor;
+}
