@@ -11,7 +11,7 @@ const routeRoot = '/';
  * @param {*} response 
  */
 async function createActivity(request, response) {
-
+    logger.info('User has created an activity);
 }
 router.post('/activity', createActivity);
 
@@ -22,7 +22,7 @@ router.post('/activity', createActivity);
  * @param {*} response 
  */
 async function showActivity(request, response) {
-
+    logger.info('App has shown an activity');
 }
 router.get('/activity/:id', showActivity);
 
@@ -33,7 +33,7 @@ router.get('/activity/:id', showActivity);
  * @param {*} response 
  */
 async function showAllActivities(request, response) {
-
+    logger.info('App has shown all activities');
 }
 router.get('/activities', showAllActivities);
 
@@ -44,7 +44,7 @@ router.get('/activities', showAllActivities);
  * @param {*} response 
  */
 async function deleteActivity(request, response) {
-
+    logger.info('User has deleted an activity');
 }
 router.delete('/activities/:id', deleteActivity);
 
