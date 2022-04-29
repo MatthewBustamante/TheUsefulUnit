@@ -5,17 +5,6 @@ const router = express.Router();
 const routeRoot = '/';
 
 /**
- * Handles GET '/register'
- * Directs the user to the sign-up page.
- * @param {*} request 
- * @param {*} response 
- */
-async function showRegisterForm(request, response) {
-    logger.info('Showing registration form');
-}
-router.get('/register', showRegisterForm);
-
-/**
  * Handles POST '/register'
  * Creates a new user account.
  * @param {*} request 
@@ -25,17 +14,6 @@ async function createUser(request, response) {
     logger.info('User has created a new account');
 }
 router.post('/register', createUser);
-
-/**
- * Handles GET '/login'
- * Directs the user to the login form.
- * @param {*} request 
- * @param {*} response 
- */
-async function showLoginForm(request, response) {
-    logger.info('Showing login form');
-}
-router.get('/login', showLoginForm);
 
 /**
  * Handles POST '/login'
