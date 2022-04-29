@@ -62,9 +62,7 @@ router.delete('/users/:id', deleteUser);
 module.exports = {
     router,
     routeRoot,
-    showRegisterForm,
     createUser,
-    showLoginForm,
     authenticateUser,
     showUser,
     updateUser,
