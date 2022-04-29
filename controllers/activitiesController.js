@@ -1,5 +1,5 @@
 const express = require('express');
-const pino = require('pino');
+const logger = require('../logger');
 const model = require('../models/activitiesModel');
 const router = express.Router();
 const routeRoot = '/';
