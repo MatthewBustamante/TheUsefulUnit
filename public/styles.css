@@ -29,3 +29,48 @@ body {
     vertical-align: -.125em;
     fill: currentColor;
 }
+
+.navbar {
+    background-color: #6DAFFE;
+}
+
+.navbar-left, .navbar-right {
+    display: flex;
+    justify-content: flex-start;
+    margin-right: 2.5em;
+}
+
+.nav-item {
+    list-style-type: none;
+    font-size: large;
+}
+
+.nav-link {
+    text-decoration: none;
+    color: #FFFFFF;
+}
+
+.nav-link:hover {
+    background-color: #2f72c5;
+    border-radius: 0.25em;
+    color: #FFFFFF;
+}
+
+.navbar {
+    background-color: #437FC7;
+    color: #FFFFFF;
+}
+
+@media screen and (max-width: 600px) {
+    .navbar {
+        display: block;
+    }
+
+    .navbar-left, .navbar-right {
+        display: block;
+    }
+
+    .nav-item {
+        text-align: center;
+    }
+}

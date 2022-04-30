@@ -11,7 +11,7 @@ const routeRoot = '/';
  * @param {*} response 
  */
 async function createActivity(request, response) {
-    logger.info('User has created an activity);
+    logger.info('User has created an activity');
 }
 router.post('/activity', createActivity);
 
