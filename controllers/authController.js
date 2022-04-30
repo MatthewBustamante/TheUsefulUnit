@@ -115,8 +115,25 @@ router.post('/login', login);
  * @param {*} request 
  * @param {*} response 
  */
- async function logout(request, response) {
+async function logout(request, response) {
     logger.info('Authentication controller called (logout)');
+    
+    const authenticatedSession = authenticateUser(request);
+    
+    if (!authenticatedSession) {
+        //response.sendStatus(401); // Unauthorized access
+        logger.info("User is not logged in");
+        response.redirect('/');
+        return;
+    }
+  
+    delete sessions[authenticatedSession.sessionId]
+
+    logger.info("Logged out user " + authenticatedSession.userSession.username);
+
+    response.cookie("sessionId", "", { expires: new Date() }); // "erase" cookie by forcing it to expire.
+
+    response.redirect('/');
 }
 
 router.post('/logout', logout);
