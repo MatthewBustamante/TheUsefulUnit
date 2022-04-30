@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "bcrypt": "^5.0.1",
+    "cookie-parser": "^1.4.6",
     "express": "^4.18.0",
     "express-framework": "^1.0.1",
     "express-handlebars": "^6.0.5",
@@ -12,6 +13,7 @@
     "pino-http": "^6.6.0",
     "puppeteer": "^13.5.2",
     "supertest": "^6.2.2",
+    "uuid": "^8.3.2",
     "validator": "^13.7.0"
   },
   "name": "theusefulunit",
