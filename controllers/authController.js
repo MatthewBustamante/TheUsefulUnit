@@ -75,7 +75,7 @@ async function login(request, response) {
 
             //Hashes entered password then compares it to the hashed password on the database
             if (expectedPassword && await bcrypt.compare(request.body.password, expectedPassword)) {
-                console.log("Successful login for user " + username);
+                logger.info("Successful login for user " + username);
           
                 // Create a session object that will expire in 2 minutes
                 const sessionId = createSession(username, 2);
