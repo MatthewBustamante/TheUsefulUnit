@@ -1,30 +1,12 @@
 const express = require('express');
 const logger = require('../logger');
 const model = require('../models/usersModel');
+
+//Used to refresh session and authenticate pages/actions
+const authController = require('../controllers/authController');
+
 const router = express.Router();
 const routeRoot = '/';
-
-/**
- * Handles POST '/register'
- * Creates a new user account.
- * @param {*} request 
- * @param {*} response 
- */
-async function createUser(request, response) {
-    logger.info('User has created a new account');
-}
-router.post('/register', createUser);
-
-/**
- * Handles POST '/login'
- * Authenticates the user when logging in.
- * @param {*} request 
- * @param {*} response 
- */
-async function authenticateUser(request, response) {
-    logger.info('Authenticating user');
-}
-router.post('/login', authenticateUser);
 
 /**
  * Handles GET '/user'
