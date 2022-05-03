@@ -61,16 +61,33 @@ body {
     color: #FFFFFF;
 }
 
+.hamburger {
+    display: none;
+}
+
 @media screen and (max-width: 600px) {
     .navbar {
-        display: block;
+        display: flex;
     }
 
-    .navbar-left, .navbar-right {
-        display: block;
+    .navbar-left .nav-item:not(:first-child) {
+        display: none;
     }
 
-    .nav-item {
-        text-align: center;
+    .navbar-right {
+        display: none;
+    }
+
+    .hamburger {
+        display: flex;
+        justify-content: center;
+        margin-right: 3rem;
+    }
+
+    .hamburger-menu div {
+        width: 35px;
+        height: 5px;
+        background-color: #6DAFFE;
+        margin: 6px 0;
     }
 }
