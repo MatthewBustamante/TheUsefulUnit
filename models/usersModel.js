@@ -2,7 +2,6 @@ const DATABASES = require("../utilities/databases");
 const validator = require("../utilities/validation");
 const ERRORS = require("../utilities/errors");
 const logger = require('../logger');
-const validator = require('validator');
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
 let connection = DATABASES.connection;
