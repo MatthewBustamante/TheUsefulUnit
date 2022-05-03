@@ -23,6 +23,9 @@ app.use(bodyParser.urlencoded({
 app.use(express.json());
 app.use(express.static('public'))
 
+const cookieParser = require('cookie-parser');
+app.use(cookieParser());
+
 // Http request logs will go to same location as main logger
 const httpLogger = pinohttp({
     logger: logger
