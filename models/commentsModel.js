@@ -3,8 +3,6 @@ const validator = require("../utilities/validation");
 const ERRORS = require("../utilities/errors");
 const logger = require('../logger');
 
-let connection = DATABASES.getConnection();
-
 /**
  * Creates a new coment and adds it to the database
  * @param {*} userID
@@ -13,6 +11,8 @@ let connection = DATABASES.getConnection();
  * @returns the comment object
  */
 async function createComment(userID, activityID, comment) {
+    let connection = DATABASES.getConnection();
+
     logger.info("Comment model called (Create)");
 
     if (comment == undefined || !validator.isValidComment(comment)) {
@@ -43,6 +43,5 @@ async function createComment(userID, activityID, comment) {
 }
 
 module.exports = {
-    connection,
     createComment
 };
