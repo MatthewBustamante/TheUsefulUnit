@@ -5,13 +5,26 @@ const router = express.Router();
 const routeRoot = '/';
 
 /**
+ * Handles GET '/activity'
+ * Shows add activity page
+ * @param {*} request 
+ * @param {*} response 
+ */
+ async function showAddActivityForm(request, response) {
+    logger.info('Activities controller called (add activity page)');
+
+    response.render("addActivity.hbs");
+}
+router.get('/activity', showAddActivityForm);
+
+/**
  * Handles POST '/activity'
  * Calls the model to create a new activity.
  * @param {*} request 
  * @param {*} response 
  */
 async function createActivity(request, response) {
-    logger.info('User has created an activity);
+    logger.info('User has created an activity');
 }
 router.post('/activity', createActivity);
 
@@ -54,5 +67,6 @@ module.exports = {
     createActivity,
     showActivity,
     showAllActivities,
-    deleteActivity
+    deleteActivity,
+    showAddActivityForm
 }

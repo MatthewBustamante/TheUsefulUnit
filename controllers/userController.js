@@ -44,8 +44,6 @@ router.delete('/users/:id', deleteUser);
 module.exports = {
     router,
     routeRoot,
-    createUser,
-    authenticateUser,
     showUser,
     updateUser,
     deleteUser
