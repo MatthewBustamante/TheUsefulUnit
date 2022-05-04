@@ -34,7 +34,7 @@ app.use(httpLogger);
 
 // Make sure errorController is last!
 //TODO: add the remaining controllers
-const controllers = ['homeController','userController', 'errorController'] 
+const controllers = ['homeController', 'authController', 'userController', 'errorController'] 
 
 
 // Register routes from all controllers 

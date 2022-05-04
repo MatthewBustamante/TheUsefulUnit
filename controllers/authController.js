@@ -30,14 +30,17 @@ class Session {
      try {
         logger.info('Authentication controller called (create user)');
 
-        if (request.body.identifier != undefined && request.body.password != undefined) {
+        if (request.body.username != undefined && request.body.email  != undefined && request.body.password != undefined && request.body.password2 != undefined) {
             //User gets created with logic to hash password within the model
-            let user = await userModel.createUser(request.body.identifier, request.body.password);
+            let user = await userModel.createUser(request.body.username, request.body.email, request.body.password, request.body.password2);
+
+            //Render success page
+            response.send(user);
+
+            logger.info("Authentication controller: Successfully created user");
+
+            return;
         }
-
-        //Render success page
-
-        logger.info("Authentication controller: Successfully created user");
      } catch(error) {
         if(error instanceof errors.DatabaseConnectionError || error instanceof errors.DatabaseReadError || error instanceof errors.DatabaseWriteError){
             //Server error
