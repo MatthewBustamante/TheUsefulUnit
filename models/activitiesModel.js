@@ -2,7 +2,6 @@ const DATABASES = require("../utilities/databases");
 const validator = require("../utilities/validation");
 const ERRORS = require("../utilities/errors");
 const logger = require("../utilities/logger");
-let connection = DATABASES.connection;
 
 /**
  * Creates a new activity in the database
@@ -14,6 +13,7 @@ let connection = DATABASES.connection;
  * @returns the new activity object
  */
 async function createActivity(name, description, startTime, endTime, ownerID) {
+    const connection = DATABASES.connection;
     //create a new activity in the database
     const sqlQuery = `INSERT INTO Activities (Name, Description, StartTime, EndTime, OwnerID) VALUES ('${name}', '${description}', '${startTime}', '${endTime}', '${ownerID}')`;
     try {
@@ -42,6 +42,7 @@ async function createActivity(name, description, startTime, endTime, ownerID) {
  * @returns the activity with the given id
  */
 async function getOneActivity(activityID) {
+    const connection = DATABASES.connection;
     const sqlQuery = `SELECT * FROM Activities WHERE ActivityID = ${activityID}`;
     try {
         const result = await connection.execute(sqlQuery);
@@ -57,6 +58,7 @@ async function getOneActivity(activityID) {
  * @returns all the activities in the database
  */
 async function getAllActivities() {
+    const connection = DATABASES.connection;
     const sqlQuery = `SELECT * FROM Activities`;
     try {
         const result = await connection.execute(sqlQuery);
@@ -73,6 +75,7 @@ async function getAllActivities() {
  * @returns all the users in the given activity
  */
 async function getUsersInActivity(activityID) {
+    const connection = DATABASES.connection;
     const sqlQuery = `SELECT Username FROM Users WHERE UserID IN (SELECT UserID from UserActivity where ActivityID = ${activityID})`;
     try {
         const result = await connection.execute(sqlQuery);
@@ -89,6 +92,7 @@ async function getUsersInActivity(activityID) {
  * @param {*} activityID id of the activity to add the user to
  */
 async function addUserToActivity(userID, activityID){
+    const connection = DATABASES.connection;
     const sqlQuery = `INSERT INTO UserActivity (UserID, ActivityID) VALUES (${userID}, ${activityID})`;
     try {
         await connection.execute(sqlQuery);
@@ -105,6 +109,7 @@ async function addUserToActivity(userID, activityID){
  * @param {*} activityID id of the activity to delete the user from
  */
 async function deleteUserFromActivity(userID, activityID){
+    const connection = DATABASES.connection;
     const sqlQuery = `DELETE FROM UserActivity WHERE UserID = ${userID} AND ActivityID = ${activityID}`;
     try {
         await connection.execute(sqlQuery);
@@ -120,6 +125,7 @@ async function deleteUserFromActivity(userID, activityID){
  * @param {*} activityID id of the activity to delete
  */
 async function deleteActivity(activityID){
+    const connection = DATABASES.connection;
     const sqlQuery = `DELETE FROM Activities WHERE ActivityID = ${activityID}`;
     try {
         await connection.execute(sqlQuery);
@@ -131,7 +137,6 @@ async function deleteActivity(activityID){
 }
 
 module.exports = {
-    connection,
     createActivity,
     getOneActivity,
     getAllActivities,

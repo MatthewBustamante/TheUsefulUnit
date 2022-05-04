@@ -4,7 +4,6 @@ const ERRORS = require("../utilities/errors");
 const logger = require('../logger');
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
-let connection = DATABASES.connection;
 
 /**
  * Creates a new user and adds it to the database
@@ -14,6 +13,8 @@ let connection = DATABASES.connection;
  * @returns the user's id, username and email that was created
  */
 async function createUser(username, email, unhashedpassword, passwordrepeat) {
+    const connection = DATABASES.connection;
+
     //check if both passwords are the same
     if (unhashedpassword !== passwordrepeat) {
         let error = new ERRORS.ValidationError();
@@ -61,7 +62,9 @@ async function createUser(username, email, unhashedpassword, passwordrepeat) {
  * @returns the user that was found
  */
 async function getUser(username, email) {
+    const connection = DATABASES.connection;
     const sqlQuery = `SELECT * FROM Users WHERE Username = '${username}' OR Email = '${email}'`;
+
     try {
         const result = await connection.execute(sqlQuery);
         return result[0][0];
@@ -81,6 +84,8 @@ async function getUser(username, email) {
  * @param {*} oldPassword old password of the user to be entered
  */
 async function UpdateUserInformations(id, username, email, firstNewPassword, secondNewPassword, oldPassword) {
+    const connection = DATABASES.connection;
+
     //updates the info for the username and email only
     if (firstNewPassword === "" && secondNewPassword === "" && oldPassword === "") {
         ValidateUserInputedWithoutPassword(username, email);
@@ -144,7 +149,9 @@ async function UpdateUserInformations(id, username, email, firstNewPassword, sec
  * @param {*} id id of the user to delete
  */
 async function DeleteUser(id) {
+    const connection = DATABASES.connection;
     const sqlQuery = `DELETE FROM Users WHERE UserID = ${id}`;
+    
     try {
         await connection.execute(sqlQuery);
         logger.info("User deleted");
