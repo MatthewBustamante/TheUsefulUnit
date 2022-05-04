@@ -3,4 +3,4 @@ const port = 1339;
 const DATABASES = require("./utilities/databases");
 
 // initialize the database and listen to the port
-DATABASES.initialize("FriendFinder_DB", false).then(app.listen(port));
+DATABASES.initialize("FriendFinder_DB", true).then(app.listen(port));
