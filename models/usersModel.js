@@ -47,7 +47,7 @@ async function createUser(username, email, unhashedpassword, passwordrepeat) {
   try {
     const userId = await connection.execute(sqlQuery2);
     logger.info("User id retrieved");
-    return { id: userId, username: username, email: email };
+    return { id: userId[0][0].UserID, username: username, email: email };
   } catch (error) {
     logger.error(error);
     throw error;
