@@ -21,9 +21,8 @@ async function createComment(userID, activityID, comment) {
         throw new ERRORS.ValidationError("Invalid comment: '" + comment + "'");
     }
 
-    //Get the date of the comment (today)
-    var today = new Date();
-    today = today.toISOString().slice(0,10);
+    //Get today's date
+    var today = new Date().toISOString().slice(0, 19).replace('T', ' ');
 
     var comment = {
         userID: userID,
