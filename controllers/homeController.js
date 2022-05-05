@@ -15,7 +15,21 @@ function showHome(request, response) {
 router.get(routeRoot, showHome);
 router.get("/home", showHome);
 
+/**
+ * Handles GET '/about'
+ * Redirects the user to an about page.
+ */
+ function showAbout(request, response) {
+    logger.info("Showing About page");
+
+    response.render('about.hbs');
+}
+
+router.get("/about", showAbout);
+
 module.exports = {
     router,
-    routeRoot
+    routeRoot,
+    showHome,
+    showAbout
 }
