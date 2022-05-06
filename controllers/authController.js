@@ -72,10 +72,10 @@ async function login(request, response) {
         if (request.body.identifier != undefined && request.body.password != undefined) {
             
             //Get user by username/email from database
-            let user = userModel.getUser(request.body.identifier);
+            let user = await userModel.getUser(request.body.identifier);
 
             //Get the hashed version of the password from database
-            const expectedPassword = user.hashedPassword;
+            const expectedPassword = user.HashedPassword;
 
             //Hashes entered password then compares it to the hashed password on the database
             if (expectedPassword && await bcrypt.compare(request.body.password, expectedPassword)) {
