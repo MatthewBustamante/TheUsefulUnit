@@ -177,6 +177,14 @@ async function isValidNewEmail(email, connection) {
   }
 }
 
+function isValidPasswordRepeat(password, passwordRepeat) {
+  if (password !== passwordRepeat) {
+    let error = new ERRORS.ValidationError();
+    error.message = "Passwords do not match";
+    throw error;
+  }
+}
+
 /**
  * Checks that the values given for a new user are valid and not already in use
  * @param {String} username is the username to be checked
@@ -185,24 +193,10 @@ async function isValidNewEmail(email, connection) {
  * @param {Connection} connection is the connection to the database
  * @returns a string that represents either "Valid" or the error message
  */
-async function isValidNewUser(username, password, email, connection) {
-  try {
-    // Check that the username is valid
-    await isValidNewUsername(username, connection);
-
-    // Check that the password is valid
-    await isValidPassword(password);
-
-    // Check that the email is valid
-    await isValidNewEmail(email, connection);
-  } catch (err) {
-    throw err;
-  }
-}
 
 module.exports = {
   isValidNewUsername,
   isValidPassword,
   isValidNewEmail,
-  isValidNewUser,
+  isValidPasswordRepeat,
 };

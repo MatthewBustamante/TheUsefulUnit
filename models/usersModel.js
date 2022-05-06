@@ -13,38 +13,25 @@ const saltRounds = 10;
  * @returns the user's id, username and email that was created
  */
 async function createUser(username, email, unhashedpassword, passwordrepeat) {
-  const connection = DATABASES.getConnection();
-
-  //check if both passwords are the same
-  if (unhashedpassword !== passwordrepeat) {
-    let error = new ERRORS.ValidationError();
-    error.message = "Passwords do not match";
-    throw error;
-  }
-  //validate the inputed values
   try {
-    validator.isValidNewUsername(username, connection);
-    validator.isValidNewEmail(email, connection);
+    const connection = DATABASES.getConnection();
+
+    //validate the inputed values
+    await validator.isValidNewUsername(username, connection);
+    await validator.isValidNewEmail(email, connection);
     validator.isValidPassword(unhashedpassword);
-  } catch (error) {
-    throw error;
-  }
+    validator.isValidPasswordRepeat(unhashedpassword, passwordrepeat);
 
-  //hash the password
-  const hashedPassword = bcrypt.hashSync(unhashedpassword, saltRounds);
+    //hash the password
+    const hashedPassword = bcrypt.hashSync(unhashedpassword, saltRounds);
 
-  //insert the user into the database
-  const sqlQuery = `INSERT INTO Users (Username, Email, HashedPassword) VALUES ('${username}', '${email}', '${hashedPassword}')`;
-  try {
+    //insert the user into the database
+    const sqlQuery = `INSERT INTO Users (Username, Email, HashedPassword) VALUES ('${username}', '${email}', '${hashedPassword}')`;
     await connection.execute(sqlQuery);
     logger.info("User created");
-  } catch (error) {
-    logger.error(error);
-    throw error;
-  }
-  //get the id of the new user
-  const sqlQuery2 = `SELECT UserID FROM Users WHERE Username = '${username}' AND Email = '${email}'`;
-  try {
+
+    //get the id of the new user
+    const sqlQuery2 = `SELECT UserID FROM Users WHERE Username = '${username}' AND Email = '${email}'`;
     const userId = await connection.execute(sqlQuery2);
     logger.info("User id retrieved");
     return { id: userId[0][0].UserID, username: username, email: email };
@@ -64,7 +51,7 @@ async function getUser(identifier) {
   const connection = DATABASES.getConnection();
   var sqlQuery;
 
-  if(identifier.includes("@")) {
+  if (identifier.includes("@")) {
     sqlQuery = `SELECT * FROM Users WHERE Email = '${identifier}'`;
   } else {
     sqlQuery = `SELECT * FROM Users WHERE Username = '${identifier}'`;
