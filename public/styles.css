@@ -10,7 +10,22 @@ body {
 
 .content {
     flex: 1;
-    margin-top: 10rem;
+    margin-top: 5rem;
+}
+
+#description {
+    resize: vertical;
+    min-height: 110px;
+    max-height: 200px;
+    margin-top: 2rem;
+}
+
+#endlabel {
+    margin-top: 1rem;
+}
+
+#datepicker {
+    margin-top: 0.5rem;
 }
 
 .feature-icon {
