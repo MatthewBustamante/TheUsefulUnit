@@ -106,9 +106,8 @@ async function login(request, response) {
           expires: sessions[sessionId].expiresAt,
         });
 
-        //Render success page
-        //Will be replaced with activities.hbs
-        response.render('home.hbs', {message: "Welcome, " + user.Username});
+        //Render success page (call home controller, validate user with cookie, calls activities view)
+        response.redirect('/home');
 
         logger.info(
           "Authentication controller: Successfully logged into user " +
