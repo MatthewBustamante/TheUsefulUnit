@@ -45,7 +45,7 @@ async function createUser(request, response) {
       );
 
       //Render success page
-      response.render("login.hbs");
+      response.render('login.hbs', {message: "Successfully created user, please log in to continue"});
 
       logger.info("Authentication controller: Successfully created user");
 
@@ -65,6 +65,7 @@ async function createUser(request, response) {
     }
 
     //Render fail page
+    response.render('register.hbs', {error: error.message, status: response.statusCode});
 
     logger.error(error.message + " (" + response.statusCode + ")");
   }
@@ -95,10 +96,10 @@ async function login(request, response) {
         expectedPassword &&
         (await bcrypt.compare(request.body.password, expectedPassword))
       ) {
-        logger.info("Successful login for user " + username);
+        logger.info("Successful login for user " + user.Username);
 
         // Create a session object that will expire in 2 minutes
-        const sessionId = createSession(username, 2);
+        const sessionId = createSession(user.Username, 2);
 
         // Save cookie that will expire.
         response.cookie("sessionId", sessionId, {
@@ -106,6 +107,8 @@ async function login(request, response) {
         });
 
         //Render success page
+        //Will be replaced with activities.hbs
+        response.render('home.hbs', {message: "Welcome, " + user.Username});
 
         logger.info(
           "Authentication controller: Successfully logged into user " +
@@ -136,6 +139,7 @@ async function login(request, response) {
     }
 
     //Render fail page
+    response.render('login.hbs', {error: error.message, status: response.statusCode});
 
     logger.error(error.message + " (" + response.statusCode + ")");
   }

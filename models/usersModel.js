@@ -47,7 +47,7 @@ async function createUser(username, email, unhashedpassword, passwordrepeat) {
   try {
     const userId = await connection.execute(sqlQuery2);
     logger.info("User id retrieved");
-    return { id: userId, username: username, email: email };
+    return { id: userId[0][0].UserID, username: username, email: email };
   } catch (error) {
     logger.error(error);
     throw error;
@@ -60,9 +60,15 @@ async function createUser(username, email, unhashedpassword, passwordrepeat) {
  * @param {*} email email of the user to look for
  * @returns the user that was found
  */
-async function getUser(username, email) {
+async function getUser(identifier) {
   const connection = DATABASES.getConnection();
-  const sqlQuery = `SELECT * FROM Users WHERE Username = '${username}' OR Email = '${email}'`;
+  var sqlQuery;
+
+  if(identifier.includes("@")) {
+    sqlQuery = `SELECT * FROM Users WHERE Email = '${identifier}'`;
+  } else {
+    sqlQuery = `SELECT * FROM Users WHERE Username = '${identifier}'`;
+  }
 
   try {
     const result = await connection.execute(sqlQuery);
