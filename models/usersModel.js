@@ -1,8 +1,8 @@
 const DATABASES = require("../utilities/databases");
 const validator = require("../utilities/validation");
 const ERRORS = require("../utilities/errors");
-const logger = require('../logger');
-const bcrypt = require('bcrypt');
+const logger = require("../logger");
+const bcrypt = require("bcrypt");
 const saltRounds = 10;
 
 /**
@@ -13,7 +13,7 @@ const saltRounds = 10;
  * @returns the user's id, username and email that was created
  */
 async function createUser(username, email, unhashedpassword, passwordrepeat) {
-    const connection = DATABASES.getConnection();
+  const connection = DATABASES.getConnection();
 
   //check if both passwords are the same
   if (unhashedpassword !== passwordrepeat) {
@@ -61,16 +61,16 @@ async function createUser(username, email, unhashedpassword, passwordrepeat) {
  * @returns the user that was found
  */
 async function getUser(username, email) {
-    const connection = DATABASES.getConnection();
-    const sqlQuery = `SELECT * FROM Users WHERE Username = '${username}' OR Email = '${email}'`;
+  const connection = DATABASES.getConnection();
+  const sqlQuery = `SELECT * FROM Users WHERE Username = '${username}' OR Email = '${email}'`;
 
-    try {
-        const result = await connection.execute(sqlQuery);
-        return result[0][0];
-    } catch (error) {
-        logger.error(error);
-        throw error;
-    }
+  try {
+    const result = await connection.execute(sqlQuery);
+    return result[0][0];
+  } catch (error) {
+    logger.error(error);
+    throw error;
+  }
 }
 
 /**
@@ -82,28 +82,38 @@ async function getUser(username, email) {
  * @param {*} secondNewPassword new password of the user to enter for the second time
  * @param {*} oldPassword old password of the user to be entered
  */
-async function UpdateUserInformations(id, username, email, firstNewPassword, secondNewPassword, oldPassword) {
-    const connection = DATABASES.getConnection();
+async function UpdateUserInformations(
+  id,
+  username,
+  email,
+  firstNewPassword,
+  secondNewPassword,
+  oldPassword
+) {
+  const connection = DATABASES.getConnection();
 
-    //updates the info for the username and email only
-    if (firstNewPassword === "" && secondNewPassword === "" && oldPassword === "") {
-        ValidateUserInputedWithoutPassword(username, email);
-        //update the user's username and email
-        const sqlQuery = `UPDATE Users SET Username = '${username}', Email = '${email}' WHERE UserID = ${id}`;
-        try {
-            await connection.execute(sqlQuery);
-            logger.info("User username and email updated");
+  //updates the info for the username and email only
+  if (
+    firstNewPassword === "" &&
+    secondNewPassword === "" &&
+    oldPassword === ""
+  ) {
+    ValidateUserInputedWithoutPassword(username, email);
+    //update the user's username and email
+    const sqlQuery = `UPDATE Users SET Username = '${username}', Email = '${email}' WHERE UserID = ${id}`;
+    try {
+      await connection.execute(sqlQuery);
+      logger.info("User username and email updated");
 
-            return { "username": username, "email": email };
-        }
-        catch (error) {
-            logger.error(error);
-            throw error;
-        }
+      return { username: username, email: email };
+    } catch (error) {
+      logger.error(error);
+      throw error;
     }
-    //updates all properties
-    //get the current password from the database and store it in a variable
-    const sqlQuery = `SELECT HashedPassword FROM Users WHERE UserID = ${id}`;
+  }
+  //updates all properties
+  //get the current password from the database and store it in a variable
+  const sqlQuery = `SELECT HashedPassword FROM Users WHERE UserID = ${id}`;
   try {
     const result = await connection.execute(sqlQuery);
     const currentPassword = result[0][0];
@@ -145,16 +155,16 @@ async function UpdateUserInformations(id, username, email, firstNewPassword, sec
  * @param {*} id id of the user to delete
  */
 async function DeleteUser(id) {
-    const connection = DATABASES.getConnection();
-    const sqlQuery = `DELETE FROM Users WHERE UserID = ${id}`;
-    
-    try {
-        await connection.execute(sqlQuery);
-        logger.info("User deleted");
-    } catch (error) {
-        logger.error(error);
-        throw error;
-    }
+  const connection = DATABASES.getConnection();
+  const sqlQuery = `DELETE FROM Users WHERE UserID = ${id}`;
+
+  try {
+    await connection.execute(sqlQuery);
+    logger.info("User deleted");
+  } catch (error) {
+    logger.error(error);
+    throw error;
+  }
 }
 
 /**
@@ -184,8 +194,8 @@ async function ValidatePasswordInputed(firstNewPassword) {
 }
 
 module.exports = {
-    createUser,
-    UpdateUserInformations,
-    DeleteUser,
-    getUser,
+  createUser,
+  UpdateUserInformations,
+  DeleteUser,
+  getUser,
 };

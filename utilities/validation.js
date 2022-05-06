@@ -204,5 +204,5 @@ module.exports = {
   isValidNewUsername,
   isValidPassword,
   isValidNewEmail,
-  isValidNewUser
+  isValidNewUser,
 };

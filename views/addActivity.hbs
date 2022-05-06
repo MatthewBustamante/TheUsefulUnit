@@ -1,49 +1,66 @@
 <body>
-   <div class="content">
-      <div class="col-md-10 mx-auto col-lg-3">
-        <form class="p-4 p-md-5 border rounded-3 bg-light">
-           <div class="form-floating mb-3">
-            <input type="text" required maxlength="60" class="form-control" id="floatingInput" name="title" placeholder="title">
-            <label for="floatingInput">Activity Title</label>
-          </div>
+  <div class="content">
+    <div class="col-md-10 mx-auto col-lg-3">
+      <form class="p-4 p-md-5 border rounded-3 bg-light">
+        <div class="form-floating mb-3">
+          <input
+            type="text"
+            required
+            maxlength="60"
+            class="form-control"
+            id="floatingInput"
+            name="title"
+            placeholder="title"
+          />
+          <label for="floatingInput">Activity Title</label>
+        </div>
 
-           <label for="start">Activity Start Time</label>
-          <div id="datepicker">
-             <input required type="datetime-local" id="start" name="start">
-          </div>
-          <label for="end" id="endlabel">Activity End Time</label>
-          <div id="datepicker">
-            <input required type="datetime-local" id="end" name="end">
-          </div>
+        <label for="start">Activity Start Time</label>
+        <div id="datepicker">
+          <input required type="datetime-local" id="start" name="start" />
+        </div>
+        <label for="end" id="endlabel">Activity End Time</label>
+        <div id="datepicker">
+          <input required type="datetime-local" id="end" name="end" />
+        </div>
 
-          <div class="form-group">
-            <textarea class="form-control" required name="description" id="description" rows="4" maxlength="1500" placeholder="Activity Description"></textarea>
-         </div>
-          <hr class="my-4">
-          <button class="w-100 btn btn-lg btn-primary" id="create" title="Click to add activity." type="submit" formmethod="POST" formaction="/activity">Add Activity</button>
-        </form>
-      </div> 
-   </div>
+        <div class="form-group">
+          <textarea
+            class="form-control"
+            required
+            name="description"
+            id="description"
+            rows="4"
+            maxlength="1500"
+            placeholder="Activity Description"
+          ></textarea>
+        </div>
+        <hr class="my-4" />
+        <button
+          class="w-100 btn btn-lg btn-primary"
+          id="create"
+          title="Click to add activity."
+          type="submit"
+          formmethod="POST"
+          formaction="/activity"
+        >Add Activity</button>
+      </form>
+    </div>
+  </div>
 
-   <script>
-      function initializeDatePickers() {
-         //Sets the 2 date pickers to default to today's date and time, sets the minimum values to be today's date
-
-         //Get today's date and format it correctly (YYY-MM-DDT:HH:MM:SS)
-         let today = new Date(new Date().toString().split('GMT')[0]+' UTC').toISOString().split('.')[0];
-
-         //Remove the seconds (the date pickers don't use seconds) (..HH:MM:SS -> ..HH:MM)
-         today = today.substring(0, today.length - 3);
-
-         //Set the value to the date pickers
-         document.getElementById('start').value = today;
-         document.getElementById('end').value = today;
-
-         //Set the minimum start and end date to be today (activiy can't start or end in the past)
-         document.getElementsByName("start")[0].setAttribute('min', today);
-         document.getElementsByName("end")[0].setAttribute('min', today);
-      }
-
-      initializeDatePickers();
-   </script>
+  <script>
+    function initializeDatePickers() { //Sets the 2 date pickers to default to
+    today's date and time, sets the minimum values to be today's date //Get
+    today's date and format it correctly (YYY-MM-DDT:HH:MM:SS) let today = new
+    Date(new Date().toString().split('GMT')[0]+'
+    UTC').toISOString().split('.')[0]; //Remove the seconds (the date pickers
+    don't use seconds) (..HH:MM:SS -> ..HH:MM) today = today.substring(0,
+    today.length - 3); //Set the value to the date pickers
+    document.getElementById('start').value = today;
+    document.getElementById('end').value = today; //Set the minimum start and
+    end date to be today (activiy can't start or end in the past)
+    document.getElementsByName("start")[0].setAttribute('min', today);
+    document.getElementsByName("end")[0].setAttribute('min', today); }
+    initializeDatePickers();
+  </script>
 </body>

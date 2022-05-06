@@ -1,21 +1,22 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const routeRoot = '/';
-const logger = require('../logger');
+const routeRoot = "/";
+const logger = require("../logger");
 
 /**
  * Renders the home page
  */
 function showHome(request, response) {
-    logger.info("Home controller called");
+  logger.info("Home controller called");
 
-    response.render('home.hbs');
+  response.render("home.hbs");
 }
 
 router.get(routeRoot, showHome);
 router.get("/home", showHome);
 
 module.exports = {
-    router,
-    routeRoot
-}
+  router,
+  routeRoot,
+  showHome,
+};
