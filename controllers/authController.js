@@ -82,15 +82,13 @@ async function login(request, response) {
   try {
     logger.info("Authentication controller called (login)");
 
-    if (
-      request.body.identifier != undefined &&
-      request.body.password != undefined
-    ) {
-      //Get user by username/email from database
-      let user = userModel.getUser(request.body.identifier);
+        if (request.body.identifier != undefined && request.body.password != undefined) {
+            
+            //Get user by username/email from database
+            let user = await userModel.getUser(request.body.identifier);
 
-      //Get the hashed version of the password from database
-      const expectedPassword = user.hashedPassword;
+            //Get the hashed version of the password from database
+            const expectedPassword = user.HashedPassword;
 
       //Hashes entered password then compares it to the hashed password on the database
       if (
