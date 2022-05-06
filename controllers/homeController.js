@@ -1,4 +1,4 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
 const routeRoot = '/';
 const logger = require('../logger');
@@ -30,6 +30,7 @@ router.get(routeRoot, showHome);
 router.get("/home", showHome);
 
 module.exports = {
-    router,
-    routeRoot
-}
+  router,
+  routeRoot,
+  showHome,
+};

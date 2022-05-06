@@ -1,0 +1,51 @@
+<body>
+  <div class="content">
+    <div class="col-md-10 mx-auto col-lg-3">
+      <form class="p-4 p-md-5 border rounded-3 bg-light">
+        <div class="form-floating mb-3">
+          <input
+            type="text"
+            required
+            minlength="6"
+            maxlength="30"
+            class="form-control"
+            id="floatingInput"
+            name="identifier"
+            placeholder="username1234"
+          />
+          <label for="floatingInput">Username or Email</label>
+        </div>
+        <div class="form-floating mb-3">
+          <input
+            type="password"
+            required
+            minlength="8"
+            maxlength="128"
+            class="form-control"
+            id="floatingPassword"
+            name="password"
+            placeholder="Password"
+          />
+          <label for="floatingPassword">Password</label>
+        </div>
+        <div class="checkbox mb-3">
+          <label>
+            <input type="checkbox" value="remember-me" name="rememberme" />
+            Remember me
+          </label>
+        </div>
+        <button
+          class="w-100 btn btn-lg btn-primary"
+          id="login"
+          title="Click to log in to your profile."
+          type="submit"
+          formmethod="POST"
+          formaction="/login"
+        >Log In</button>
+        <hr class="my-4" />
+        <small class="text-muted">Don't have an account?
+          <a href="/register">Sign up.</a></small>
+      </form>
+    </div>
+  </div>
+</body>
