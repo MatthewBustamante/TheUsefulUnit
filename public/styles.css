@@ -13,6 +13,21 @@ body {
     margin-top: 10rem;
 }
 
+#description {
+    resize: vertical;
+    min-height: 110px;
+    max-height: 200px;
+    margin-top: 2rem;
+}
+
+#endlabel {
+    margin-top: 1rem;
+}
+
+#datepicker {
+    margin-top: 0.5rem;
+}
+
 .feature-icon {
     display: inline-flex;
     align-items: center;
