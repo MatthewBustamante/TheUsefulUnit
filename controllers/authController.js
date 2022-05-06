@@ -35,7 +35,7 @@ class Session {
             let user = await userModel.createUser(request.body.username, request.body.email, request.body.password, request.body.password2);
 
             //Render success page
-            response.render('login.hbs', {message: "Successfully created user"});
+            response.render('login.hbs', {message: "Successfully created user, please log in to continue"});
 
             logger.info("Authentication controller: Successfully created user");
 
