@@ -49,18 +49,24 @@
   </div>
 
   <script>
-    function initializeDatePickers() { //Sets the 2 date pickers to default to
-    today's date and time, sets the minimum values to be today's date //Get
-    today's date and format it correctly (YYY-MM-DDT:HH:MM:SS) let today = new
-    Date(new Date().toString().split('GMT')[0]+'
-    UTC').toISOString().split('.')[0]; //Remove the seconds (the date pickers
-    don't use seconds) (..HH:MM:SS -> ..HH:MM) today = today.substring(0,
-    today.length - 3); //Set the value to the date pickers
-    document.getElementById('start').value = today;
-    document.getElementById('end').value = today; //Set the minimum start and
-    end date to be today (activiy can't start or end in the past)
-    document.getElementsByName("start")[0].setAttribute('min', today);
-    document.getElementsByName("end")[0].setAttribute('min', today); }
+    //Sets the 2 date pickers to default to today's date and time, sets the minimum values to be today's date
+    
+    function initializeDatePickers() {
+      //Get today's date and format it correctly (YYY-MM-DDT:HH:MM:SS)
+      let today = newDate(new Date().toString().split('GMT')[0]+' UTC').toISOString().split('.')[0];
+
+      //Remove the seconds (the date pickers don't use seconds) (..HH:MM:SS -> ..HH:MM)
+      today = today.substring(0, today.length - 3);
+
+      //Set the value to the date pickers
+      document.getElementById('start').value = today;
+      document.getElementById('end').value = today;
+
+      //Set the minimum start and end date to be today (activiy can't start or end in the past)
+      document.getElementsByName("start")[0].setAttribute('min', today);
+      document.getElementsByName("end")[0].setAttribute('min', today);
+    }
+    
     initializeDatePickers();
   </script>
 </body>
