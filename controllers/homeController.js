@@ -22,8 +22,13 @@ function showHome(request, response) {
     }
 
   logger.info("User " + authenticatedSession.userSession.username + " is logged in");
+
+  //Refresh the cookie to not expire
+  authController.refreshSession(request, response);
   
+  //Will be activities page when done
   //response.render('activities.hbs', {message: "Welcome, " + authenticatedSession.userSession.username});
+  
   response.render('home.hbs', {message: "Welcome, " + authenticatedSession.userSession.username});
 }
 
