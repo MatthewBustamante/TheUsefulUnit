@@ -102,9 +102,7 @@ async function login(request, response) {
         const sessionId = createSession(user.Username, 2);
 
         // Save cookie that will expire.
-        response.cookie("sessionId", sessionId, {
-          expires: sessions[sessionId].expiresAt,
-        });
+        response.cookie("sessionId", sessionId, {expires: sessions[sessionId].expiresAt, secure: true, httpOnly: true});
 
         //Render success page (call home controller, validate user with cookie, calls activities view)
         response.redirect('/home');
@@ -240,9 +238,7 @@ function refreshSession(request, response) {
 
   // Set the session cookie to the new id we generated, with a
   // renewed expiration time
-  response.cookie("sessionId", newSessionId, {
-    expires: sessions[newSessionId].expiresAt,
-  });
+  response.cookie("sessionId", newSessionId, {expires: sessions[newSessionId].expiresAt, secure: true, httpOnly: true});
 
   return newSessionId;
 }
