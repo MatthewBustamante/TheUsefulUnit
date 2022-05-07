@@ -8,6 +8,10 @@ body {
     flex-direction: column;
 }
 
+form{
+    margin: 3rem;
+}
+
 .content {
     flex: 1;
     margin-top: 5rem;
@@ -66,17 +70,18 @@ body {
 }
 
 .nav-link:hover {
-    background-color: #2f72c5;
+    background-color: #0b5ed7;;
     border-radius: 0.25em;
     color: #FFFFFF;
 }
 
 .navbar {
-    background-color: #437FC7;
+    background-color: #0D6EFD;
     color: #FFFFFF;
+    font-weight: bold;
 }
 
-@media screen and (max-width: 600px) {
+@media screen and (max-width: 650px) {
     .navbar {
         display: block;
     }
