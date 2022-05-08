@@ -13,7 +13,7 @@ const logger = require("../utilities/logger");
  * @returns the new activity object
  */
 async function createActivity(name, description, startTime, endTime, ownerID) {
-  const connection = DATABASES.connection;
+  const connection = DATABASES.getConnection();
   //create a new activity in the database
   const sqlQuery = `INSERT INTO Activities (Name, Description, StartTime, EndTime, OwnerID) VALUES ('${name}', '${description}', '${startTime}', '${endTime}', '${ownerID}')`;
   try {
@@ -48,7 +48,7 @@ async function createActivity(name, description, startTime, endTime, ownerID) {
  * @returns the activity with the given id
  */
 async function getOneActivity(activityID) {
-  const connection = DATABASES.connection;
+  const connection = DATABASES.getConnection();
   const sqlQuery = `SELECT * FROM Activities WHERE ActivityID = ${activityID}`;
   try {
     const result = await connection.execute(sqlQuery);
@@ -64,7 +64,7 @@ async function getOneActivity(activityID) {
  * @returns all the activities in the database
  */
 async function getAllActivities() {
-  const connection = DATABASES.connection;
+  const connection = DATABASES.getConnection();
   const sqlQuery = `SELECT * FROM Activities`;
   try {
     const result = await connection.execute(sqlQuery);
