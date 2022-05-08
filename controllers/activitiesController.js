@@ -63,8 +63,8 @@ async function showActivity(request, response) {
     let activity = {
       name: result.Name,
       description: result.Description,
-      startTime: result.StartTime,
-      endTime: result.EndTime,
+      startTime: result.StartTime.toString().substr(0, 21),
+      endTime: result.EndTime.toString().substr(0, 21),
       host: owner.Username
   }
   // console.log(request);
@@ -94,11 +94,12 @@ async function showAllActivities(request, response) {
 
     for(let i = 0; i < result.length; i++) {
       owner = await userModel.getUsernameByID(result[i].OwnerID);
+      let st = result[i].StartTime;
 
         activities[i] = {
           id: result[i].ActivityID,
           name: result[i].Name,
-          date: result[i].StartTime,
+          date: result[i].StartTime.toString().substr(0, 21),
           host: owner.Username
         }
     }
