@@ -171,7 +171,7 @@ async function logout(request, response) {
   response.redirect("/");
 }
 
-router.post("/logout", logout);
+router.get("/logout", logout);
 
 function createSession(username, numMinutes) {
   // Generate a random UUID as the sessionId
