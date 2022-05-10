@@ -44,7 +44,6 @@ const controllers = [
   "loginController",
   "userController",
   "signupController",
-  "activitiesController",
   "errorController",
 ];
 
