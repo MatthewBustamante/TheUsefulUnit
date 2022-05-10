@@ -42,6 +42,26 @@ async function createUser(username, email, unhashedpassword, passwordrepeat) {
 }
 
 /**
+ * Gets the user by their ID.
+ * @param {*} ID The ID of the user
+ */
+async function getUsernameByID(ID) {
+  try {
+    const connection = DATABASES.getConnection();
+    var sqlQuery = `SELECT Username FROM Users WHERE UserID = ?`;
+    let result = await connection.execute(sqlQuery, [ID]);
+
+    console.log(result);
+
+    return result[0][0];
+  }
+  catch (error) {
+    logger.error(error);
+    console.log(error);
+  }
+}
+
+/**
  * Gets the user with the given username and/or email
  * @param {*} username username of the user to look for
  * @param {*} email email of the user to look for
@@ -161,4 +181,5 @@ module.exports = {
   UpdateUserInformations,
   DeleteUser,
   getUser,
+  getUsernameByID
 };
