@@ -13,7 +13,7 @@ const saltRounds = 10;
  * @returns the user's id, username and email that was created
  */
 async function createUser(username, email, unhashedpassword, passwordrepeat) {
-    const connection = DATABASES.getConnection();
+  const connection = DATABASES.getConnection();
 
   //check if both passwords are the same
   if (unhashedpassword !== passwordrepeat) {
@@ -61,16 +61,16 @@ async function createUser(username, email, unhashedpassword, passwordrepeat) {
  * @returns the user that was found
  */
 async function getUser(username, email) {
-    const connection = DATABASES.getConnection();
-    const sqlQuery = `SELECT * FROM Users WHERE Username = '${username}' OR Email = '${email}'`;
+  const connection = DATABASES.getConnection();
+  const sqlQuery = `SELECT * FROM Users WHERE Username = '${username}' OR Email = '${email}'`;
 
-    try {
-        const result = await connection.execute(sqlQuery);
-        return result[0][0];
-    } catch (error) {
-        logger.error(error);
-        throw error;
-    }
+  try {
+    const result = await connection.execute(sqlQuery);
+    return result[0][0];
+  } catch (error) {
+    logger.error(error);
+    throw error;
+  }
 }
 
 /**
@@ -83,27 +83,27 @@ async function getUser(username, email) {
  * @param {*} oldPassword old password of the user to be entered
  */
 async function UpdateUserInformations(id, username, email, firstNewPassword, secondNewPassword, oldPassword) {
-    const connection = DATABASES.getConnection();
+  const connection = DATABASES.getConnection();
 
-    //updates the info for the username and email only
-    if (firstNewPassword === "" && secondNewPassword === "" && oldPassword === "") {
-        ValidateUserInputedWithoutPassword(username, email);
-        //update the user's username and email
-        const sqlQuery = `UPDATE Users SET Username = '${username}', Email = '${email}' WHERE UserID = ${id}`;
-        try {
-            await connection.execute(sqlQuery);
-            logger.info("User username and email updated");
+  //updates the info for the username and email only
+  if (firstNewPassword === "" && secondNewPassword === "" && oldPassword === "") {
+    ValidateUserInputedWithoutPassword(username, email);
+    //update the user's username and email
+    const sqlQuery = `UPDATE Users SET Username = '${username}', Email = '${email}' WHERE UserID = ${id}`;
+    try {
+      await connection.execute(sqlQuery);
+      logger.info("User username and email updated");
 
-            return { "username": username, "email": email };
-        }
-        catch (error) {
-            logger.error(error);
-            throw error;
-        }
+      return { "username": username, "email": email };
     }
-    //updates all properties
-    //get the current password from the database and store it in a variable
-    const sqlQuery = `SELECT HashedPassword FROM Users WHERE UserID = ${id}`;
+    catch (error) {
+      logger.error(error);
+      throw error;
+    }
+  }
+  //updates all properties
+  //get the current password from the database and store it in a variable
+  const sqlQuery = `SELECT HashedPassword FROM Users WHERE UserID = ${id}`;
   try {
     const result = await connection.execute(sqlQuery);
     const currentPassword = result[0][0];
@@ -141,20 +141,39 @@ async function UpdateUserInformations(id, username, email, firstNewPassword, sec
 }
 
 /**
- * Deletes a user from the database
- * @param {*} id id of the user to delete
+ * Deletes the user with the given id by verifying the given password
+ * @param {*} userID id of the user to delete
+ * @param {*} password password of the user to delete
  */
-async function DeleteUser(id) {
-    const connection = DATABASES.getConnection();
-    const sqlQuery = `DELETE FROM Users WHERE UserID = ${id}`;
-    
-    try {
-        await connection.execute(sqlQuery);
-        logger.info("User deleted");
-    } catch (error) {
-        logger.error(error);
-        throw error;
-    }
+async function DeleteUser(userID, password) {
+  const connection = DATABASES.getConnection();
+  
+  //get the current password from the database and store it in a variable
+  const sqlQuery = `SELECT HashedPassword FROM Users WHERE UserID = ${userID}`;
+  try {
+    const result = await connection.execute(sqlQuery);
+    const currentPassword = result[0][0];
+  } catch (error) {
+    logger.error(error);
+    throw error;
+  }
+
+  //check if the given password is the same as the given one in the database
+  if (!bcrypt.compareSync(password, currentPassword.HashedPassword)) {
+    const error = new ERRORS.ValidationError();
+    error.message = "Password given to delete the account is incorrect";
+    throw error;
+  }
+
+  //delete the user from the database
+  const sqlQuery2 = `DELETE FROM Users WHERE UserID = ${userID}`;
+  try {
+    await connection.execute(sqlQuery2);
+    logger.info("User deleted");
+  } catch (error) {
+    logger.error(error);
+    throw error;
+  }
 }
 
 /**
@@ -184,8 +203,8 @@ async function ValidatePasswordInputed(firstNewPassword) {
 }
 
 module.exports = {
-    createUser,
-    UpdateUserInformations,
-    DeleteUser,
-    getUser,
+  createUser,
+  UpdateUserInformations,
+  DeleteUser,
+  getUser,
 };
