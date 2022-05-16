@@ -2,7 +2,7 @@ const express = require("express");
 const { get } = require("express/lib/response");
 const logger = require("../logger");
 const model = require("../models/activitiesModel");
-let userModel = require("../models/usersModel");
+const userModel = require("../models/usersModel");
 const authController = require("./authController");
 const router = express.Router();
 const routeRoot = "/";
@@ -126,7 +126,6 @@ async function showActivity(request, response) {
   }
   catch (error) {
     logger.error(error);
-    console.log(error);
   }
 }
 router.get("/activity/:id", showActivity);
@@ -169,7 +168,6 @@ async function showAllActivities(request, response) {
   }
   catch (error) {
     logger.error(error);
-    console.log(error);
   }
 }
 router.get("/activities", showAllActivities);
@@ -243,7 +241,6 @@ async function deleteActivity(request, response) {
   }
   catch (error) {
     logger.error(error);
-    console.log(error);
   }
 }
 router.delete("/activities/:id", deleteActivity);
