@@ -64,6 +64,9 @@ async function getOneActivity(activityID) {
  * @returns all the activities in the database
  */
 async function getAllActivities() {
+  //method that deletes all the expired activities and their comments
+  deleteExpiredActivities();
+
   const connection = DATABASES.connection;
   const sqlQuery = `SELECT * FROM Activities`;
   try {
@@ -72,6 +75,37 @@ async function getAllActivities() {
   } catch (error) {
     logger.error(error);
     throw error;
+  }
+}
+
+/**
+ * Deletes all the expired activities and their comments
+ */
+async function deleteExpiredActivities(){
+  //get all the id's of the expired activities
+  const connection = DATABASES.connection;
+  const sqlQuery = `SELECT ActivityID FROM Activities WHERE EndTime < CURRENT_TIMESTAMP`;
+  try {
+    const expiredActivitiesIDS = await connection.execute(sqlQuery);
+    //delete the expired activities
+    for(let i = 0; i < expiredActivitiesIDS[0].length; i++){
+      const sqlQuery2 = `DELETE FROM Activities WHERE ActivityID = ${expiredActivitiesIDS[0][i].ActivityID}`;
+      await connection.execute(sqlQuery2);
+    }
+  } catch (error) {
+    logger.error(error);
+    throw error;
+  }
+
+  //delete all the comments that have expiredActivitiesIDS as their activityID
+  for(let i = 0; i < expiredActivitiesIDS[0].length; i++){
+    const sqlQuery2 = `DELETE FROM Comments WHERE ActivityID = ${expiredActivitiesIDS[0][i].ActivityID}`;
+    try {
+      await connection.execute(sqlQuery2);
+    } catch (error) {
+      logger.error(error);
+      throw error;
+    }
   }
 }
 
