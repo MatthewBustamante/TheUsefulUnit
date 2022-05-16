@@ -16,7 +16,23 @@ const routeRoot = "/";
 async function showAddActivityForm(request, response) {
   logger.info("Activities controller called (add activity page)");
 
-  response.render("addActivity.hbs");
+  const authenticatedSession = authController.authenticateUser(request);
+    
+    if (!authenticatedSession) {
+        //response.sendStatus(401); //Unauthorized access
+        logger.info("User is not logged in");
+
+        response.render("login.hbs", {error: "You must be logged in to perform that action", status: 401});
+        
+        return;
+    }
+
+  logger.info("User " + authenticatedSession.userSession.username + " is logged in");
+
+  //Refresh the cookie to not expire
+  authController.refreshSession(request, response);
+
+  response.render("addActivity.hbs", {message: "Welcome, " + authenticatedSession.userSession.username, username: authenticatedSession.userSession.username});
 }
 router.get("/activity", showAddActivityForm);
 
@@ -27,9 +43,13 @@ router.get("/activity", showAddActivityForm);
  * @param {*} response
  */
 async function createActivity(request, response) {
+  
   let session = authController.authenticateUser(request);
 
   if(session) {
+    //Refresh the cookie to not expire
+    authController.refreshSession(request, response);
+
     let user = await userModel.getUser(session.userSession.username);
   
     let name = request.body.title;
@@ -42,10 +62,10 @@ async function createActivity(request, response) {
 
     logger.info('User has created an activity');
 
-    response.render('activity.hbs', activity);
+    response.render('activity.hbs', {message: "Welcome, " + session.userSession.username, activity, username: session.userSession.username});
   }
   else {
-    response.render('login.hbs');
+    response.render('login.hbs', {error: "You must be logged in to perform that action", status: 401});
   }
 }
 router.post("/activity", createActivity);
@@ -62,7 +82,28 @@ async function showActivity(request, response) {
     let session = authController.authenticateUser(request);
 
     if(session) { 
+      //Refresh the cookie to not expire
+      authController.refreshSession(request, response);
+
       let result = await model.getOneActivity(request.params.id);
+
+      if(!result) {
+        let activities = await model.getAllActivities();
+        let owner;
+
+      for(let i = 0; i < activities.length; i++) {
+        owner = await userModel.getUsernameByID(activities[i].OwnerID);
+
+        activities[i] = {
+          id: activities[i].ActivityID,
+          name: activities[i].Name,
+          date: activities[i].StartTime.toString().substr(0, 21),
+          host: owner.Username
+        }
+      }
+
+        response.render("allActivities.hbs", {error: "Activity with id " + request.params.id + " was not found", status: 400, username: session.userSession.username, activities: activities});
+      }
     
       let owner = await userModel.getUsernameByID(result.OwnerID);
 
@@ -75,12 +116,12 @@ async function showActivity(request, response) {
         id: result.ActivityID
       }
       
-      response.render("activity.hbs", activity);
+      response.render("activity.hbs", {message: "Welcome, " + session.userSession.username, activity, username: session.userSession.username, activity: activity});
   
       logger.info("App has shown an activity");
     }
     else {
-      response.render('login.hbs');
+      response.render('login.hbs', {error: "You must be logged in to perform that action", status: 401});
     }
   }
   catch (error) {
@@ -101,32 +142,29 @@ async function showAllActivities(request, response) {
     let session = authController.authenticateUser(request);
 
     if(session) {
-      let result = await model.getAllActivities();
+      //Refresh the cookie to not expire
+      authController.refreshSession(request, response);
 
-      let activities = [];
+      let activities = await model.getAllActivities();
       let owner;
 
-      for(let i = 0; i < result.length; i++) {
-        owner = await userModel.getUsernameByID(result[i].OwnerID);
+      for(let i = 0; i < activities.length; i++) {
+        owner = await userModel.getUsernameByID(activities[i].OwnerID);
 
         activities[i] = {
-          id: result[i].ActivityID,
-          name: result[i].Name,
-          date: result[i].StartTime.toString().substr(0, 21),
+          id: activities[i].ActivityID,
+          name: activities[i].Name,
+          date: activities[i].StartTime.toString().substr(0, 21),
           host: owner.Username
         }
       }
 
-      let allActivities = {
-        activity: activities
-      }
-
-      response.render('allActivities.hbs', allActivities);
+      response.render('allActivities.hbs', {activities: activities, message: "Welcome, " + session.userSession.username, username: session.userSession.username});
 
       logger.info("App has shown all activities");
     }
     else {
-      response.render('login.hbs');
+      response.render('login.hbs', {error: "You must be logged in to perform that action", status: 401});
     }
   }
   catch (error) {
@@ -147,16 +185,19 @@ async function deleteActivity(request, response) {
     let session = authController.authenticateUser(request);
 
     if (session) {
+      //Refresh the cookie to not expire
+      authController.refreshSession(request, response);
+
       let id = request.url.charAt(request.url.length - 1);
 
       await model.deleteActivity(id);
 
-      response.render('home.hbs');
+      response.render('home.hbs', {message: "Activity deleted", username: session.userSession.username});
 
       logger.info("App has deleted an activity");
     }
     else {
-      response.render('login.hbs');
+      response.render('login.hbs', {error: "You must be logged in to perform that action", status: 401});
     }
   }
   catch (error) {

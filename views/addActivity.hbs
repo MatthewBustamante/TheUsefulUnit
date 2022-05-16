@@ -53,7 +53,7 @@
     
     function initializeDatePickers() {
       //Get today's date and format it correctly (YYY-MM-DDT:HH:MM:SS)
-      let today = newDate(new Date().toString().split('GMT')[0]+' UTC').toISOString().split('.')[0];
+      let today = new Date(new Date().toString().split('GMT')[0]+' UTC').toISOString().split('.')[0];
 
       //Remove the seconds (the date pickers don't use seconds) (..HH:MM:SS -> ..HH:MM)
       today = today.substring(0, today.length - 3);

@@ -6,14 +6,14 @@
                 <p class="lead mb-4">Click any activity to learn their availabilities and more information about it.</p>
                 <p class="lead mb-4">Can't find your activity? <a href="/activity">Create a new one</a>.</p>
                 <h2>Upcoming Activities</h2>
-                {{#each activity}}
+                {{#each activities}}
                     <div class="activitiesContainer" style="border-style:solid;">
                         <div class="col-lg-6 mx-auto" style="margin-bottom: 2em;">
-                            <h4 class="activityInfo" style="margin-top:2em"><img src="/images/edit-info.png" style="height:5%;width:5%;margin-right:0.5em;">{{name}}</h4>
-                            <h4 class="activityInfo"><img src="/images/clock.png" style="height:5%;width:5%;margin-right:0.5em">{{date}}</h4>
-                            <h4 class="activityInfo" style="margin-bottom:0.5em"><img src="/images/user.png" style="height:5%;width:5%;margin-right:0.5em">Host: {{host}}</h4>
+                            <h4 class="activityInfo" style="margin-top:2em"><img src="/images/edit-info.png" style="height:5%;width:5%;margin-right:0.5em;">{{this.name}}</h4>
+                            <h4 class="activityInfo"><img src="/images/clock.png" style="height:5%;width:5%;margin-right:0.5em">{{this.date}}</h4>
+                            <h4 class="activityInfo" style="margin-bottom:0.5em"><img src="/images/user.png" style="height:5%;width:5%;margin-right:0.5em">Host: {{this.host}}</h4>
                             <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
-                                <a role="button" class="btn btn-primary btn-lg px-4 gap-3" href="/activity/{{id}}">Learn More</a>
+                                <a role="button" class="btn btn-primary btn-lg px-4 gap-3" href="/activity/{{this.id}}">Learn More</a>
                             </div>
                         </div>
                     </div>
