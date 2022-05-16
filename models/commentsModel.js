@@ -21,15 +21,12 @@ async function getAllComments(activityID) {
  * @param {*} activityID the id of the activity the comment is associated with
  * @throws {DatabaseWriteError} if the comment does not exist
  */
-async function deleteComment(userID, activityID) {
+async function deleteComment(commentID) {
   // Get the connection to the database
   let connection = DATABASES.getConnection();
   // Remove the comment from the database
   await connection
-    .execute(`DELETE FROM Comments WHERE UserID = ? AND ActivityID = ?;`, [
-      userID,
-      activityID,
-    ])
+    .execute(`DELETE FROM Comments WHERE CommentID = ?;`, [commentID])
     .then(logger.info("Successfully deleted comment"))
     .catch((error) => {
       logger.error(new ERRORS.DatabaseWriteError(error));
