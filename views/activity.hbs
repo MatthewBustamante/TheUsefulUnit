@@ -10,9 +10,15 @@
                     <h4 class="activityInfo" style="margin-bottom:2em"><img src="/images/user.png" style="height:5%;width:5%;margin-right:0.5em">Host: {{activity.host}}</h4>
                     <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
                         {{!-- TODO: Make it so only non-joined users can see the Join button --}}
-                        <a role="button" class="btn btn-primary btn-lg px-4 gap-3" href="/activities">Join</a>
-                        <a role="button" class="btn btn-primary btn-lg px-4 gap-3" href="/activities">Show All Activities</a>
-                        <a role="button" class="btn btn-primary btn-lg px-4 gap-3" href="/activities/{{activity.id}}">Delete</a>
+                        <form role="form" type="hidden">
+                            {{#ifEquals username activity.host}}
+                            <a role="button" class="btn btn-primary btn-lg px-4 gap-3" href="/activities">Show All Activities</a>
+                            <button role="button" class="btn btn-primary btn-lg px-4 gap-3" type="submit" formmethod="POST" formaction="/activities/{{activity.id}}?_method=DELETE">Delete</button>
+                        {{else}}
+                            <a role="button" class="btn btn-primary btn-lg px-4 gap-3" href="/activities">Join</a>
+                            <a role="button" class="btn btn-primary btn-lg px-4 gap-3" href="/activities">Show All Activities</a>
+                        {{/ifEquals}}
+                        </form>
                     </div>
                 </div>
             </div>

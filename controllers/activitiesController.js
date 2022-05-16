@@ -62,7 +62,7 @@ async function createActivity(request, response) {
 
     logger.info('User has created an activity');
 
-    response.render('activity.hbs', {message: "Welcome, " + session.userSession.username, activity, username: session.userSession.username});
+    response.redirect('/activity/' + activity.id[0][0].ActivityID);
   }
   else {
     response.render('login.hbs', {error: "You must be logged in to perform that action", status: 401});
@@ -188,13 +188,54 @@ async function deleteActivity(request, response) {
       //Refresh the cookie to not expire
       authController.refreshSession(request, response);
 
-      let id = request.url.charAt(request.url.length - 1);
+      let id = request.params.id;
 
-      await model.deleteActivity(id);
+      let activity = await model.getOneActivity(id);
 
-      response.render('home.hbs', {message: "Activity deleted", username: session.userSession.username});
+      var activities;
+      var owner;
 
-      logger.info("App has deleted an activity");
+      if(!activity) {
+        activities = await model.getAllActivities();
+
+        for(let i = 0; i < activities.length; i++) {
+          owner = await userModel.getUsernameByID(activities[i].OwnerID);
+
+          activities[i] = {
+            id: activities[i].ActivityID,
+            name: activities[i].Name,
+            date: activities[i].StartTime.toString().substr(0, 21),
+            host: owner.Username
+          }
+        }
+
+        response.render("allActivities.hbs", {error: "Activity with id " + request.params.id + " was not found", status: 400, username: session.userSession.username, activities: activities});
+      }
+
+      owner = await userModel.getUsernameByID(activity.OwnerID);
+
+      if(session.userSession.username == owner.Username) {
+        logger.info("App has deleted an activity");
+
+        await model.deleteActivity(id);
+
+        activities = await model.getAllActivities();
+
+        for(let i = 0; i < activities.length; i++) {
+          owner = await userModel.getUsernameByID(activities[i].OwnerID);
+
+          activities[i] = {
+            id: activities[i].ActivityID,
+            name: activities[i].Name,
+            date: activities[i].StartTime.toString().substr(0, 21),
+            host: owner.Username
+          }
+        }
+
+        response.render("allActivities.hbs", {message: "Activity deleted", username: session.userSession.username, activities: activities});
+      } else {
+        response.render("allActivities.hbs", {error: "You are not authorized to delete this activity", status: 401, username: session.userSession.username, activities: activities});
+      }
     }
     else {
       response.render('login.hbs', {error: "You must be logged in to perform that action", status: 401});
