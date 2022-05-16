@@ -1,8 +1,8 @@
 const DATABASES = require("../utilities/databases");
 const validator = require("../utilities/validation");
 const ERRORS = require("../utilities/errors");
-const logger = require('../logger');
-const bcrypt = require('bcrypt');
+const logger = require("../logger");
+const bcrypt = require("bcrypt");
 const saltRounds = 10;
 
 /**
@@ -13,38 +13,25 @@ const saltRounds = 10;
  * @returns the user's id, username and email that was created
  */
 async function createUser(username, email, unhashedpassword, passwordrepeat) {
-  const connection = DATABASES.getConnection();
-
-  //check if both passwords are the same
-  if (unhashedpassword !== passwordrepeat) {
-    let error = new ERRORS.ValidationError();
-    error.message = "Passwords do not match";
-    throw error;
-  }
-  //validate the inputed values
   try {
-    validator.isValidNewUsername(username, connection);
-    validator.isValidNewEmail(email, connection);
+    const connection = DATABASES.getConnection();
+
+    //validate the inputed values
+    await validator.isValidNewUsername(username, connection);
+    await validator.isValidNewEmail(email, connection);
     validator.isValidPassword(unhashedpassword);
-  } catch (error) {
-    throw error;
-  }
+    validator.isValidPasswordRepeat(unhashedpassword, passwordrepeat);
 
-  //hash the password
-  const hashedPassword = bcrypt.hashSync(unhashedpassword, saltRounds);
+    //hash the password
+    const hashedPassword = bcrypt.hashSync(unhashedpassword, saltRounds);
 
-  //insert the user into the database
-  const sqlQuery = `INSERT INTO Users (Username, Email, HashedPassword) VALUES ('${username}', '${email}', '${hashedPassword}')`;
-  try {
+    //insert the user into the database
+    const sqlQuery = `INSERT INTO Users (Username, Email, HashedPassword) VALUES ('${username}', '${email}', '${hashedPassword}')`;
     await connection.execute(sqlQuery);
     logger.info("User created");
-  } catch (error) {
-    logger.error(error);
-    throw error;
-  }
-  //get the id of the new user
-  const sqlQuery2 = `SELECT UserID FROM Users WHERE Username = '${username}' AND Email = '${email}'`;
-  try {
+
+    //get the id of the new user
+    const sqlQuery2 = `SELECT UserID FROM Users WHERE Username = '${username}' AND Email = '${email}'`;
     const userId = await connection.execute(sqlQuery2);
     logger.info("User id retrieved");
     return { id: userId[0][0].UserID, username: username, email: email };
@@ -58,14 +45,25 @@ async function createUser(username, email, unhashedpassword, passwordrepeat) {
  * Gets the user with the given username and/or email
  * @param {*} username username of the user to look for
  * @param {*} email email of the user to look for
- * @returns the user that was found
+ * @returns the user that was found null if no user was found
  */
-async function getUser(username, email) {
-  const connection = DATABASES.getConnection();
-  const sqlQuery = `SELECT * FROM Users WHERE Username = '${username}' OR Email = '${email}'`;
-
+async function getUser(identifier) {
   try {
+    // Connect to the database
+    const connection = DATABASES.getConnection();
+    var sqlQuery;
+
+    // Check if the identifier is an email or a username and adapt the query accordingly
+    if (identifier.includes("@")) {
+      sqlQuery = `SELECT * FROM Users WHERE Email = '${identifier}'`;
+    } else {
+      sqlQuery = `SELECT * FROM Users WHERE Username = '${identifier}'`;
+    }
+
+    // Execute the query
     const result = await connection.execute(sqlQuery);
+
+    // return the user
     return result[0][0];
   } catch (error) {
     logger.error(error);
@@ -78,65 +76,66 @@ async function getUser(username, email) {
  * @param {*} id id of the user to update
  * @param {*} username username of the user to update
  * @param {*} email email of the user to update
- * @param {*} firstNewPassword new password of the user to enter for the first time
- * @param {*} secondNewPassword new password of the user to enter for the second time
+ * @param {*} newPassword new password of the user to enter for the first time
+ * @param {*} newPasswordRepeat new password of the user to enter for the second time
  * @param {*} oldPassword old password of the user to be entered
  */
-async function UpdateUserInformations(id, username, email, firstNewPassword, secondNewPassword, oldPassword) {
+async function UpdateUserInformations(
+  id,
+  username,
+  email,
+  newPassword,
+  newPasswordRepeat,
+  oldPassword
+) {
+  // Connect to the database
   const connection = DATABASES.getConnection();
+  try {
+    // If no information was put in to the password fields, don't update the password
+    if (newPassword === "" && newPasswordRepeat === "" && oldPassword === "") {
+      // Validate the new username and email
+      await validator.isValidNewUsername(username, connection);
+      await validator.isValidNewEmail(email, connection);
 
-  //updates the info for the username and email only
-  if (firstNewPassword === "" && secondNewPassword === "" && oldPassword === "") {
-    ValidateUserInputedWithoutPassword(username, email);
-    //update the user's username and email
-    const sqlQuery = `UPDATE Users SET Username = '${username}', Email = '${email}' WHERE UserID = ${id}`;
-    try {
+      // Update the user's username and email
+      const sqlQuery = `UPDATE Users SET Username = '${username}', Email = '${email}' WHERE UserID = ${id}`;
       await connection.execute(sqlQuery);
       logger.info("User username and email updated");
 
-      return { "username": username, "email": email };
+      return { username: username, email: email };
     }
-    catch (error) {
-      logger.error(error);
-      throw error;
-    }
-  }
-  //updates all properties
-  //get the current password from the database and store it in a variable
-  const sqlQuery = `SELECT HashedPassword FROM Users WHERE UserID = ${id}`;
-  try {
+
+    // Updates all properties
+    // Get the current password from the database and store it in a variable
+    const sqlQuery = `SELECT HashedPassword FROM Users WHERE UserID = ${id}`;
     const result = await connection.execute(sqlQuery);
     const currentPassword = result[0][0];
+
+    //check if the old password is correct
+    if (!bcrypt.compareSync(oldPassword, currentPassword.HashedPassword)) {
+      const error = new ERRORS.ValidationError();
+      error.message = "Old password is incorrect";
+      throw error;
+    }
+
+    // Validate the new user information
+    await validator.isValidNewUsername(username, connection);
+    await validator.isValidNewEmail(email, connection);
+    validator.isValidPassword(newPassword);
+    validator.isValidPasswordRepeat(newPassword, newPasswordRepeat);
+
+    //hash the new password
+    const hashedPassword = bcrypt.hashSync(newPassword, saltRounds);
+
+    //update the user's username, email, and password
+    sqlQuery = `UPDATE Users SET Username = '${username}', Email = '${email}', HashedPassword = '${hashedPassword}' WHERE UserID = ${id}`;
+    await connection.execute(sqlQuery);
+    logger.info("User username, email, and password updated");
+
+    return { username: username, email: email };
   } catch (error) {
     logger.error(error);
     throw error;
-  }
-  //check if the old password is correct
-  if (!bcrypt.compareSync(oldPassword, currentPassword.HashedPassword)) {
-    const error = new ERRORS.ValidationError();
-    error.message = "Old password is incorrect";
-    throw error;
-  }
-  //check if both new passwords are the same
-  if (firstNewPassword === secondNewPassword) {
-    //call validate functions for the parameters
-    ValidateUserInputedWithoutPassword(username, email);
-    ValidatePasswordInputed(firstNewPassword);
-
-    //hash the new password
-    const hashedPassword = bcrypt.hashSync(firstNewPassword, saltRounds);
-
-    //update the user's username, email, and password
-    const sqlQuery = `UPDATE Users SET Username = '${username}', Email = '${email}', HashedPassword = '${hashedPassword}' WHERE UserID = ${id}`;
-    try {
-      await connection.execute(sqlQuery);
-      logger.info("User username, email, and password updated");
-
-      return { username: username, email: email };
-    } catch (error) {
-      logger.error(error);
-      throw error;
-    }
   }
 }
 
@@ -145,59 +144,14 @@ async function UpdateUserInformations(id, username, email, firstNewPassword, sec
  * @param {*} userID id of the user to delete
  * @param {*} password password of the user to delete
  */
-async function DeleteUser(userID, password) {
-  const connection = DATABASES.getConnection();
-  
-  //get the current password from the database and store it in a variable
-  const sqlQuery = `SELECT HashedPassword FROM Users WHERE UserID = ${userID}`;
+async function DeleteUser(id) {
   try {
-    const result = await connection.execute(sqlQuery);
-    const currentPassword = result[0][0];
-  } catch (error) {
-    logger.error(error);
-    throw error;
-  }
-
-  //check if the given password is the same as the given one in the database
-  if (!bcrypt.compareSync(password, currentPassword.HashedPassword)) {
-    const error = new ERRORS.ValidationError();
-    error.message = "Password given to delete the account is incorrect";
-    throw error;
-  }
-
-  //delete the user from the database
-  const sqlQuery2 = `DELETE FROM Users WHERE UserID = ${userID}`;
-  try {
-    await connection.execute(sqlQuery2);
+    const connection = DATABASES.getConnection();
+    const sqlQuery = `DELETE FROM Users WHERE UserID = ${id}`;
+    await connection.execute(sqlQuery);
     logger.info("User deleted");
   } catch (error) {
     logger.error(error);
-    throw error;
-  }
-}
-
-/**
- * Validates the username and email of the inputed values
- * @param {*} username username to be validated
- * @param {*} email email to be validated
- */
-async function ValidateUserInputedWithoutPassword(username, email) {
-  try {
-    validator.isValidNewUsername(username, connection);
-    validator.isValidNewEmail(email, connection);
-  } catch (error) {
-    throw error;
-  }
-}
-
-/**
- * Validates the new password
- * @param {*} firstNewPassword
- */
-async function ValidatePasswordInputed(firstNewPassword) {
-  try {
-    validator.isValidPassword(firstNewPassword);
-  } catch (error) {
     throw error;
   }
 }

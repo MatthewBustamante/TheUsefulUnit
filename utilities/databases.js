@@ -101,7 +101,7 @@ async function initialize(dbname, reset) {
     });
 }
 
-async function getConnection() {
+function getConnection() {
   return connection;
 }
 
