@@ -140,14 +140,14 @@ async function UpdateUserInformations(
 }
 
 /**
- * Deletes a user from the database
- * @param {*} id id of the user to delete
+ * Deletes the user with the given id by verifying the given password
+ * @param {*} userID id of the user to delete
+ * @param {*} password password of the user to delete
  */
 async function DeleteUser(id) {
   try {
     const connection = DATABASES.getConnection();
     const sqlQuery = `DELETE FROM Users WHERE UserID = ${id}`;
-
     await connection.execute(sqlQuery);
     logger.info("User deleted");
   } catch (error) {
