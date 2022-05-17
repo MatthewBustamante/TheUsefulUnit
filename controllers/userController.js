@@ -7,6 +7,7 @@ const methodOverride = require('method-override');
 //Used to refresh session and authenticate pages/actions
 const authController = require("../controllers/authController");
 const bcrypt = require("bcrypt");
+const ERRORS = require("../utilities/errors");
 
 const router = express.Router();
 router.use(methodOverride('_method'));
@@ -19,23 +20,56 @@ const routeRoot = "/";
  * @param {*} response
  */
 async function showUser(request, response) {
-  logger.info("Showing user account page");
+  try {
 
-  let session = authController.authenticateUser(request);
+    logger.info("Showing user account page");
 
-  if(session) {
+    const authenticatedSession = authController.authenticateUser(request);
     
-    authController.refreshSession(request, response);
+    if (!authenticatedSession) {
+      //response.sendStatus(401); //Unauthorized access
+      logger.info("User is not logged in");
 
-    let user = await model.getUser(session.userSession.username);
-
-    let accountInfo = {
-      username: user.Username,
-      email: user.Email,
-      password: user.HashedPassword
+      response.render("login.hbs", {error: "You must be logged in to perform that action", status: 401});
+        
+      return;
     }
 
-    response.render("account.hbs", accountInfo);
+    logger.info("User " + authenticatedSession.userSession.username + " is logged in");
+
+    let session = authController.authenticateUser(request);
+
+    if(session) {
+    
+      authController.refreshSession(request, response);
+
+      let user = await model.getUser(session.userSession.username);
+
+      let accountInfo = {
+        username: user.Username,
+        email: user.Email
+      }
+
+      response.render("account.hbs", accountInfo);
+    }
+    else {
+      response.render('login.hbs', {error: "You must be logged in to perform that action", status: 401});
+    }
+  }
+  catch (error) {
+    logger.error(error);
+    if(error instanceof ERRORS.ValidationError) {
+      throw new ERRORS.ValidationError;
+    }
+    else if(error instanceof ERRORS.DatabaseConnectionError) {
+      throw new ERRORS.DatabaseConnectionError;
+    }
+    else if (error instanceof ERRORS.DatabaseWriteError) {
+      throw new ERRORS.DatabaseWriteError;
+    }
+    else {
+      throw new Error;
+    }
   }
 }
 router.get("/user", showUser);
@@ -46,24 +80,40 @@ router.get("/user", showUser);
  * @param {*} response 
  */
 async function modifyAccountPage(request, response) {
+  try {
 
-  let session = authController.authenticateUser(request);
+    let session = authController.authenticateUser(request);
 
-  if(session) {
+    if(session) {
     
-    authController.refreshSession(request, response);
+      authController.refreshSession(request, response);
 
-    let user = await model.getUser(session.userSession.username);
+      let user = await model.getUser(session.userSession.username);
 
-    let accountInfo = {
-      userID: user.UserID,
-      username: user.Username,
-      email: user.Email
+      let accountInfo = {
+        userID: user.UserID,
+        username: user.Username,
+        email: user.Email
+      }
+    
+      response.render("modifyAccount.hbs", accountInfo);
     }
-    
-    response.render("modifyAccount.hbs", accountInfo);
+    else {
+      response.render('login.hbs', {error: "You must be logged in to perform that action", status: 401});
+    }
   }
-  
+  catch (error) {
+    logger.error(error);
+    if(error instanceof ERRORS.DatabaseConnectionError) {
+      throw new ERRORS.DatabaseConnectionError;
+    }
+    else if (error instanceof ERRORS.DatabaseReadError) {
+      throw new ERRORS.DatabaseReadError;
+    }
+    else {
+      throw new Error;
+    }
+  }
 }
 router.get("/modifyaccount", modifyAccountPage);
 
@@ -74,38 +124,59 @@ router.get("/modifyaccount", modifyAccountPage);
  * @param {*} response
  */
 async function updateUser(request, response) {
-  
-  logger.info("Updating user settings");
+  try {
+    logger.info("Updating user settings");
 
-  let session = authController.authenticateUser(request);
+    let session = authController.authenticateUser(request);
 
-  if (session) {
+    if (session) {
     
-    authController.refreshSession(request, response);
+      authController.refreshSession(request, response);
 
-    let user = await model.getUser(session.userSession.username);
+      let user = await model.getUser(session.userSession.username);
 
-    const expectedPassword = user.HashedPassword;
+      const expectedPassword = user.HashedPassword;
 
-    if (expectedPassword && (await bcrypt.compare(request.body.oldPassword, expectedPassword))) {
+      if (expectedPassword && (await bcrypt.compare(request.body.oldPassword, expectedPassword))) {
       
-      await model.UpdateUserInformations(
-        user.UserID, 
-        request.body.username, 
-        request.body.email,
-        request.body.newPassword, 
-        request.body.newPasswordRepeat, 
-        request.body.oldPassword);
+        await model.UpdateUserInformations(
+          user.UserID, 
+          request.body.username, 
+          request.body.email,
+          request.body.newPassword, 
+          request.body.newPasswordRepeat, 
+          request.body.oldPassword);
         
         let accountInfo = {
           username: request.body.username,
-          email: request.body.email,
-          password: request.body.newPassword
+          email: request.body.email
         }
     
         response.render("account.hbs", accountInfo);
 
         logger.info("Finished updating user settings");
+      }
+      else {
+        throw new ERRORS.ValidationError("Invalid information provided");
+      }
+    }
+    else {
+      response.render('login.hbs', {error: "You must be logged in to perform that action", status: 401});
+    }
+  }
+  catch (error) {
+    logger.error(error);
+    if (error instanceof ERRORS.ValidationError) {
+      throw new ERRORS.ValidationError;
+    }
+    else if (error instanceof ERRORS.DatabaseConnectionError) {
+      throw new ERRORS.DatabaseConnectionError;
+    }
+    else if (error instanceof ERRORS.DatabaseWriteError) {
+      throw new ERRORS.DatabaseWriteError;
+    }
+    else {
+      throw new Error;
     }
   }
 }
@@ -118,21 +189,48 @@ router.put("/users/:id", updateUser);
  * @param {*} response
  */
 async function deleteUser(request, response) {
-  logger.info("Deleting user");
+  try {
+    logger.info("Deleting user");
 
-  let session = authController.authenticateUser(request);
+    let session = authController.authenticateUser(request);
 
-  if (session) {
+    if (session) {
     
-    let user = await model.getUser(session.userSession.username);
+      let user = await model.getUser(session.userSession.username);
 
-    await activitiesModel.deleteAllActivities(user.UserID);
+      const expectedPassword = user.HashedPassword;
 
-    await model.DeleteUser(user.UserID);
+      if (expectedPassword && (await bcrypt.compare(request.body.password, expectedPassword))) {
+        await activitiesModel.deleteAllActivities(user.UserID);
 
-    response.render("register.hbs");
+        await model.DeleteUser(user.UserID);
+        
+        response.render("register.hbs");
 
-    logger.info("Finished deleting user.");
+        logger.info("Finished deleting user.");
+      }
+      else {
+        throw new ERRORS.ValidationError("Invalid information provided");
+      }
+    }
+    else {
+      response.render('login.hbs', {error: "You must be logged in to perform that action", status: 401});
+    }
+  }
+  catch (error) {
+    logger.error(error);
+    if(error instanceof ERRORS.ValidationError) {
+      throw new ERRORS.ValidationError;
+    }
+    else if(error instanceof ERRORS.DatabaseConnectionError) {
+      throw new ERRORS.DatabaseConnectionError;
+    }
+    else if (error instanceof ERRORS.DatabaseWriteError) {
+      throw new ERRORS.DatabaseWriteError;
+    }
+    else {
+      throw new Error;
+    }
   }
 }
 router.delete("/users/:id", deleteUser);
@@ -143,24 +241,41 @@ router.delete("/users/:id", deleteUser);
  * @param {*} response 
  */
  async function deleteAccountPage(request, response) {
+   try {
+    let session = authController.authenticateUser(request);
 
-  let session = authController.authenticateUser(request);
-
-  if(session) {
+    if(session) {
     
-    authController.refreshSession(request, response);
+      authController.refreshSession(request, response);
 
-    let user = await model.getUser(session.userSession.username);
+      let user = await model.getUser(session.userSession.username);
 
-    let userInfo = {
-      userID: user.UserID,
-      username: user.Username
+      let userInfo = {
+        userID: user.UserID,
+        username: user.Username
+      }
+
+      response.render("deleteAccount.hbs", userInfo);
+
+      logger.info("Redirected to delete account page");
     }
+    else {
+      response.render('login.hbs', {error: "You must be logged in to perform that action", status: 401});
+    }
+   }
+   catch (error) {
+     logger.error(error);
 
-    response.render("deleteAccount.hbs", userInfo);
-
-    logger.info("Redirected to delete account page");
-  }
+    if(error instanceof ERRORS.DatabaseConnectionError) {
+      throw new ERRORS.DatabaseConnectionError;
+    }
+    else if (error instanceof ERRORS.DatabaseReadError) {
+      throw new ERRORS.DatabaseReadError;
+    }
+    else {
+      throw new Error;
+    }
+   }
 }
 router.get("/deleteaccount", deleteAccountPage);
 
