@@ -149,9 +149,28 @@ async function DeleteUser(id) {
   }
 }
 
+/**
+ * Gets the user by their ID.
+ * @param {*} ID The ID of the user
+ */
+ async function getUsernameByID(ID) {
+  try {
+    const connection = DATABASES.getConnection();
+    var sqlQuery = `SELECT Username FROM Users WHERE UserID = ?`;
+    let result = await connection.execute(sqlQuery, [ID]);
+
+    return result[0][0];
+  }
+  catch (error) {
+    logger.error(error);
+    console.log(error);
+  }
+}
+
 module.exports = {
   createUser,
   UpdateUserInformations,
   DeleteUser,
   getUser,
+  getUsernameByID
 };
