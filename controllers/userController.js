@@ -37,24 +37,17 @@ async function showUser(request, response) {
 
     logger.info("User " + authenticatedSession.userSession.username + " is logged in");
 
-    let session = authController.authenticateUser(request);
+    authController.refreshSession(request, response);
 
-    if(session) {
+    let user = await model.getUser(authenticatedSession.userSession.username);
+
+    let accountInfo = {
+      username: user.Username,
+      email: user.Email
+    }
+
+    response.render("account.hbs", {accountInfo: accountInfo, username: authenticatedSession.userSession.username});
     
-      authController.refreshSession(request, response);
-
-      let user = await model.getUser(session.userSession.username);
-
-      let accountInfo = {
-        username: user.Username,
-        email: user.Email
-      }
-
-      response.render("account.hbs", accountInfo);
-    }
-    else {
-      response.render('login.hbs', {error: "You must be logged in to perform that action", status: 401});
-    }
   }
   catch (error) {
     logger.error(error);
@@ -115,7 +108,7 @@ async function modifyAccountPage(request, response) {
     }
   }
 }
-router.get("/modifyaccount", modifyAccountPage);
+router.get("/user/modify", modifyAccountPage);
 
 /**
  * Handles PUT '/users/:id'
@@ -180,7 +173,7 @@ async function updateUser(request, response) {
     }
   }
 }
-router.put("/users/:id", updateUser);
+router.put("/user/:id", updateUser);
 
 /**
  * Handles DELETE '/users/:id'
@@ -205,12 +198,13 @@ async function deleteUser(request, response) {
 
         await model.DeleteUser(user.UserID);
         
-        response.render("register.hbs");
+        response.render("register.hbs", {message: "Successfully deleted"});
 
         logger.info("Finished deleting user.");
       }
       else {
-        throw new ERRORS.ValidationError("Invalid information provided");
+        //throw new ERRORS.ValidationError("Invalid information provided");
+        response.render('');
       }
     }
     else {
@@ -233,7 +227,7 @@ async function deleteUser(request, response) {
     }
   }
 }
-router.delete("/users/:id", deleteUser);
+router.delete("/user/:id", deleteUser);
 
 /**
  * Redirects the user to edit their account settings.
@@ -255,7 +249,7 @@ router.delete("/users/:id", deleteUser);
         username: user.Username
       }
 
-      response.render("deleteAccount.hbs", userInfo);
+      response.render("deleteAccount.hbs", {username: session.userSession.username});
 
       logger.info("Redirected to delete account page");
     }
@@ -277,7 +271,7 @@ router.delete("/users/:id", deleteUser);
     }
    }
 }
-router.get("/deleteaccount", deleteAccountPage);
+router.get("/user/delete", deleteAccountPage);
 
 module.exports = {
   router,
