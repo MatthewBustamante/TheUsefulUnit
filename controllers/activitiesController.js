@@ -58,7 +58,17 @@ async function createActivity(request, response) {
     let endTime = request.body.end.substr(0, 10) + " " + request.body.end.substr(11, 15);
     let ownerID = user.UserID;
 
+    let start = Date.parse(request.body.start);
+    let end = Date.parse(request.body.end);
+
+    if(start >  end || end < start || isNaN(start) || isNaN(end)) {
+      response.render('addActivity.hbs', {error: "Invalid dates", status: 400});
+      return;
+    }
+
     let activity = await model.createActivity(name, description, startTime, endTime, ownerID);
+
+    await model.addUserToActivity(activity.ownerID, activity.id)
 
     logger.info('User has created an activity');
 
@@ -115,8 +125,10 @@ async function showActivity(request, response) {
         host: owner.Username,
         id: result.ActivityID
       }
+
+      let usersJoined = await model.getUsersInActivity(activity.id);
       
-      response.render("activity.hbs", {message: "Welcome, " + session.userSession.username, activity, username: session.userSession.username, activity: activity});
+      response.render("activity.hbs", {message: "Welcome, " + session.userSession.username, activity, username: session.userSession.username, activity: activity, usersJoined: usersJoined});
   
       logger.info("App has shown an activity");
     }
