@@ -41,12 +41,12 @@ async function showUser(request, response) {
 
     let user = await model.getUser(authenticatedSession.userSession.username);
 
-    let accountInfo = {
+    let userInfo = {
       username: user.Username,
       email: user.Email
     }
 
-    response.render("account.hbs", {accountInfo: accountInfo, username: authenticatedSession.userSession.username});
+    response.render("account.hbs", {userInfo: userInfo, username: authenticatedSession.userSession.username});
     
   }
   catch (error) {
@@ -83,13 +83,14 @@ async function modifyAccountPage(request, response) {
 
       let user = await model.getUser(session.userSession.username);
 
-      let accountInfo = {
+      let userInfo = {
         userID: user.UserID,
         username: user.Username,
         email: user.Email
       }
     
-      response.render("modifyAccount.hbs", accountInfo);
+      response.render("modifyAccount.hbs", {username: session.userSession.username, userInfo: userInfo});
+      //response.render("modifyAccount.hbs", accountInfo);
     }
     else {
       response.render('login.hbs', {error: "You must be logged in to perform that action", status: 401});
@@ -140,12 +141,13 @@ async function updateUser(request, response) {
           request.body.newPasswordRepeat, 
           request.body.oldPassword);
         
-        let accountInfo = {
+        let userInfo = {
           username: request.body.username,
           email: request.body.email
         }
     
-        response.render("account.hbs", accountInfo);
+        //response.render("account.hbs", accountInfo);
+        response.render("account.hbs", {username: session.userSession.username, userInfo: userInfo});
 
         logger.info("Finished updating user settings");
       }
