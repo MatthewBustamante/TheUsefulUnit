@@ -3,11 +3,13 @@ const router = express.Router();
 const routeRoot = '/';
 const logger = require('../logger');
 const authController = require('../controllers/authController')
+const activityModel = require('../models/activitiesModel')
+const userModel = require('../models/usersModel')
 
 /**
  * Renders the home page
  */
-function showHome(request, response) {
+async function showHome(request, response) {
     logger.info("Home controller called");
     
     const authenticatedSession = authController.authenticateUser(request);
@@ -25,11 +27,22 @@ function showHome(request, response) {
 
   //Refresh the cookie to not expire
   authController.refreshSession(request, response);
+
+  let activities = await activityModel.getAllActivities();
+  let owner;
+
+  for(let i = 0; i < activities.length; i++) {
+    owner = await userModel.getUsernameByID(activities[i].OwnerID);
+
+    activities[i] = {
+      id: activities[i].ActivityID,
+      name: activities[i].Name,
+      date: activities[i].StartTime.toString().substr(0, 21),
+      host: owner.Username
+    }
+  }
   
-  //Will be activities page when done
-  //response.render('activities.hbs', {message: "Welcome, " + authenticatedSession.userSession.username});
-  
-  response.render('home.hbs', {message: "Welcome, " + authenticatedSession.userSession.username, username: authenticatedSession.userSession.username});
+  response.render('allActivities.hbs', {activities: activities, message: "Welcome, " + authenticatedSession.userSession.username, username: authenticatedSession.userSession.username});
 }
 
 router.get(routeRoot, showHome);

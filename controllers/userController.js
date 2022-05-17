@@ -1,6 +1,7 @@
 const express = require("express");
 const logger = require("../logger");
 const model = require("../models/usersModel");
+const authController = require("./authController");
 
 //Used to refresh session and authenticate pages/actions
 const authController = require("../controllers/authController");
