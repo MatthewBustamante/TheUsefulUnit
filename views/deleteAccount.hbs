@@ -1,0 +1,31 @@
+<body>
+   <div class="content">
+      <div class="px-4 py-5 my-5 text-center">
+         <h1 class="display-5 fw-bold">Delete Account</h1>
+         <div class="col-lg-6 mx-auto">
+            <img src="/images/warning.png" style="height:20%;width:20%;margin:2em;">
+            <p class="lead mb-4" style="font-weight:bold;">WARNING: What you are about to do cannot be undone.</p>
+            <br>
+            <p class="lead mb-4" style="font-weight:bold;">Are you sure you want to delete your account, {{username}}?</p>
+            <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+                
+        <form class="form" action="/users/{{userID}}?_method=DELETE" method="POST">
+            <input type="hidden" name="_method" value="DELETE">
+            <button role="button" class="w-100 btn btn-lg btn-primary" id="deleteAccount" title="Delete user account" type="submit" formaction="/users/{{userID}}?_method=DELETE" formmethod="POST">Confirm</button>
+        </form>
+        <form>
+            <a role="button" class="w-100 btn btn-lg btn-primary" href="/user">Cancel</a>
+        </form>
+            </div>
+         </div>
+      </div>
+      <style>
+          .form {
+              visibility: hidden;
+          }
+
+          .btn {
+              visibility: visible;
+          }
+      </style>
+</body>

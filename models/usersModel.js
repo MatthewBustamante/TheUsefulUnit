@@ -128,14 +128,32 @@ async function UpdateUserInformations(
     const hashedPassword = bcrypt.hashSync(newPassword, saltRounds);
 
     //update the user's username, email, and password
-    sqlQuery = `UPDATE Users SET Username = '${username}', Email = '${email}', HashedPassword = '${hashedPassword}' WHERE UserID = ${id}`;
-    await connection.execute(sqlQuery);
+    const sqlQuery2 = `UPDATE Users SET Username = '${username}', Email = '${email}', HashedPassword = '${hashedPassword}' WHERE UserID = ${id}`;
+    await connection.execute(sqlQuery2);
     logger.info("User username, email, and password updated");
 
     return { username: username, email: email };
   } catch (error) {
     logger.error(error);
     throw error;
+  }
+}
+
+/**
+ * Gets the user by their ID.
+ * @param {*} ID The ID of the user
+ */
+ async function getUsernameByID(ID) {
+  try {
+    const connection = DATABASES.getConnection();
+    var sqlQuery = `SELECT Username FROM Users WHERE UserID = ?`;
+    let result = await connection.execute(sqlQuery, [ID]);
+
+    return result[0][0];
+  }
+  catch (error) {
+    logger.error(error);
+    console.log(error);
   }
 }
 
@@ -161,4 +179,5 @@ module.exports = {
   UpdateUserInformations,
   DeleteUser,
   getUser,
+  getUsernameByID
 };
