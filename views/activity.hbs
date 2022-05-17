@@ -1,0 +1,32 @@
+<body>
+    <div class="container">
+        <div class="content">
+            <div class="px-4 py-5 my-5 text-center">
+                <img src="/images/activity.png" style="height:10%;width:10%;margin:2em;">
+                <h2 style="font-weight:bold">{{activity.name}}</h2>
+                <div class="col-lg-6 mx-auto">
+                    <h4 class="activityInfo"><img src="/images/edit-info.png" style="height:5%;width:5%;margin-right:0.5em">{{activity.description}}</h4>
+                    <h4 class="activityInfo"><img src="/images/clock.png" style="height:5%;width:5%;margin-right:0.5em">{{activity.startTime}} to {{activity.endTime}}</h4>
+                    <h4 class="activityInfo" style="margin-bottom:2em"><img src="/images/user.png" style="height:5%;width:5%;margin-right:0.5em">Host: {{activity.host}}</h4>
+                    <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+                        {{!-- TODO: Make it so only non-joined users can see the Join button --}}
+                        <form role="form" type="hidden">
+                            {{#ifEquals username activity.host}}
+                            <a role="button" class="btn btn-primary btn-lg px-4 gap-3" href="/activities">Show All Activities</a>
+                            <button role="button" class="btn btn-primary btn-lg px-4 gap-3" type="submit" formmethod="POST" formaction="/activities/{{activity.id}}?_method=DELETE">Delete</button>
+                        {{else}}
+                            <a role="button" class="btn btn-primary btn-lg px-4 gap-3" href="/activities">Join</a>
+                            <a role="button" class="btn btn-primary btn-lg px-4 gap-3" href="/activities">Show All Activities</a>
+                        {{/ifEquals}}
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <style>
+        .activityInfo {
+            text-align: left;
+        }
+    </style>
+</body>

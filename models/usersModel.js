@@ -80,14 +80,7 @@ async function getUser(identifier) {
  * @param {*} newPasswordRepeat new password of the user to enter for the second time
  * @param {*} oldPassword old password of the user to be entered
  */
-async function UpdateUserInformations(
-  id,
-  username,
-  email,
-  newPassword,
-  newPasswordRepeat,
-  oldPassword
-) {
+async function UpdateUserInformations(id, username, email, newPassword, newPasswordRepeat, oldPassword) {
   // Connect to the database
   const connection = DATABASES.getConnection();
   try {
@@ -171,6 +164,24 @@ async function DeleteUser(id) {
   } catch (error) {
     logger.error(error);
     throw error;
+  }
+}
+
+/**
+ * Gets the user by their ID.
+ * @param {*} ID The ID of the user
+ */
+ async function getUsernameByID(ID) {
+  try {
+    const connection = DATABASES.getConnection();
+    var sqlQuery = `SELECT Username FROM Users WHERE UserID = ?`;
+    let result = await connection.execute(sqlQuery, [ID]);
+
+    return result[0][0];
+  }
+  catch (error) {
+    logger.error(error);
+    console.log(error);
   }
 }
 

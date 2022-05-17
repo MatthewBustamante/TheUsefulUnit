@@ -13,7 +13,7 @@ const logger = require("../utilities/logger");
  * @returns the new activity object
  */
 async function createActivity(name, description, startTime, endTime, ownerID) {
-  const connection = DATABASES.connection;
+  const connection = DATABASES.getConnection();
   //create a new activity in the database
   const sqlQuery = `INSERT INTO Activities (Name, Description, StartTime, EndTime, OwnerID) VALUES ('${name}', '${description}', '${startTime}', '${endTime}', '${ownerID}')`;
   try {
@@ -48,7 +48,7 @@ async function createActivity(name, description, startTime, endTime, ownerID) {
  * @returns the activity with the given id
  */
 async function getOneActivity(activityID) {
-  const connection = DATABASES.connection;
+  const connection = DATABASES.getConnection();
   const sqlQuery = `SELECT * FROM Activities WHERE ActivityID = ${activityID}`;
   try {
     const result = await connection.execute(sqlQuery);
@@ -64,7 +64,11 @@ async function getOneActivity(activityID) {
  * @returns all the activities in the database
  */
 async function getAllActivities() {
-  const connection = DATABASES.connection;
+  const connection = DATABASES.getConnection();
+  
+  //method that deletes all the expired activities and their comments
+  deleteExpiredActivities();
+  
   const sqlQuery = `SELECT * FROM Activities`;
   try {
     const result = await connection.execute(sqlQuery);
@@ -76,12 +80,44 @@ async function getAllActivities() {
 }
 
 /**
+ * Deletes all the expired activities and their comments
+ */
+async function deleteExpiredActivities(){
+  //get all the id's of the expired activities
+  const connection = DATABASES.getConnection();
+  
+  const sqlQuery = `SELECT ActivityID FROM Activities WHERE EndTime < CURRENT_TIMESTAMP`;
+  try {
+    const expiredActivitiesIDS = await connection.execute(sqlQuery);
+    //delete the expired activities
+    for(let i = 0; i < expiredActivitiesIDS[0].length; i++){
+      const sqlQuery2 = `DELETE FROM Activities WHERE ActivityID = ${expiredActivitiesIDS[0][i].ActivityID}`;
+      await connection.execute(sqlQuery2);
+    }
+  } catch (error) {
+    logger.error(error);
+    throw error;
+  }
+
+  //delete all the comments that have expiredActivitiesIDS as their activityID
+  for(let i = 0; i < expiredActivitiesIDS[0].length; i++){
+    const sqlQuery2 = `DELETE FROM Comments WHERE ActivityID = ${expiredActivitiesIDS[0][i].ActivityID}`;
+    try {
+      await connection.execute(sqlQuery2);
+    } catch (error) {
+      logger.error(error);
+      throw error;
+    }
+  }
+}
+
+/**
  * Gets all the users participating in the given activity
  * @param {*} activityID id of the activity
  * @returns all the users in the given activity
  */
 async function getUsersInActivity(activityID) {
-  const connection = DATABASES.connection;
+  const connection = DATABASES.getConnection();
   const sqlQuery = `SELECT Username FROM Users WHERE UserID IN (SELECT UserID from UserActivity where ActivityID = ${activityID})`;
   try {
     const result = await connection.execute(sqlQuery);
@@ -98,7 +134,7 @@ async function getUsersInActivity(activityID) {
  * @param {*} activityID id of the activity to add the user to
  */
 async function addUserToActivity(userID, activityID) {
-  const connection = DATABASES.connection;
+  const connection = DATABASES.getConnection();
   const sqlQuery = `INSERT INTO UserActivity (UserID, ActivityID) VALUES (${userID}, ${activityID})`;
   try {
     await connection.execute(sqlQuery);
@@ -115,7 +151,7 @@ async function addUserToActivity(userID, activityID) {
  * @param {*} activityID id of the activity to delete the user from
  */
 async function deleteUserFromActivity(userID, activityID) {
-  const connection = DATABASES.connection;
+  const connection = DATABASES.getConnection();
   const sqlQuery = `DELETE FROM UserActivity WHERE UserID = ${userID} AND ActivityID = ${activityID}`;
   try {
     await connection.execute(sqlQuery);
@@ -131,7 +167,7 @@ async function deleteUserFromActivity(userID, activityID) {
  * @param {*} activityID id of the activity to delete
  */
 async function deleteActivity(activityID) {
-  const connection = DATABASES.connection;
+  const connection = DATABASES.getConnection();
   const sqlQuery = `DELETE FROM Activities WHERE ActivityID = ${activityID}`;
   try {
     await connection.execute(sqlQuery);
