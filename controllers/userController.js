@@ -197,6 +197,10 @@ async function deleteUser(request, response) {
         await activitiesModel.deleteAllActivities(user.UserID);
 
         await model.DeleteUser(user.UserID);
+
+        delete authController.sessions[session.sessionId];
+
+        response.cookie("sessionId", "", { expires: new Date() }); // "erase" cookie by forcing it to expire.
         
         response.render("register.hbs", {message: "Successfully deleted"});
 
@@ -204,7 +208,14 @@ async function deleteUser(request, response) {
       }
       else {
         //throw new ERRORS.ValidationError("Invalid information provided");
-        response.render('');
+        let user = await model.getUser(session.userSession.username);
+
+        let userInfo = {
+          userID: user.UserID,
+          username: user.Username
+        }
+
+        response.render('deleteAccount.hbs', {error: "Invalid password provided", username: session.userSession.username, userInfo: userInfo, status: 400});
       }
     }
     else {
@@ -249,7 +260,7 @@ router.delete("/user/:id", deleteUser);
         username: user.Username
       }
 
-      response.render("deleteAccount.hbs", {username: session.userSession.username});
+      response.render("deleteAccount.hbs", {username: session.userSession.username, userInfo: userInfo});
 
       logger.info("Redirected to delete account page");
     }

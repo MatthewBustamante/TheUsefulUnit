@@ -6,7 +6,7 @@
       </div>
       <br>
       <h3 style="text-align:center;">Edit Account Settings</h3>
-      <form class="p-4 p-md-5 border rounded-3 bg-light" action="/users/{{userID}}?_method=PUT" method="POST">
+      <form class="p-4 p-md-5 border rounded-3 bg-light" action="/user/{{userID}}?_method=PUT" method="POST">
       <input type="hidden" name="_method" value="PUT">
         <div class="form-floating mb-3">
           <input type="text" required minlength="6" maxlength="30" class="form-control" id="floatingInput" name="username" placeholder="username1234"/>
@@ -28,7 +28,7 @@
           <input type="password" required minlength="8" maxlength="128" class="form-control" id="floatingPassword" name="oldPassword" placeholder="oldPassword"/>
           <label for="floatingPassword">Old Password</label>
         </div>
-        <button role="button" class="w-100 btn btn-lg btn-primary" id="modifyAccount" title="Modify account settings." type="submit" formaction="/users/{{userID}}?_method=PUT" formmethod="POST">Save</button>
+        <button role="button" class="w-100 btn btn-lg btn-primary" id="modifyAccount" title="Modify account settings." type="submit" formaction="/user/{{userID}}?_method=PUT" formmethod="POST">Save</button>
       </form>
       <div class="cancelButtonContainer">
         <a role="button" class="btn btn-primary btn-lg px-4 gap-3" href="/user">Cancel</a>

@@ -5,6 +5,7 @@ const { engine } = require("express-handlebars");
 const bodyParser = require("body-parser");
 const pinohttp = require("pino-http");
 const expressListRoutes = require("express-list-routes");
+const methodOverride = require('method-override');
 
 logger.info("Creating app");
 
@@ -24,6 +25,9 @@ app.use(
 
 app.use(express.json());
 app.use(express.static("public"));
+
+//Used to bypass the HTML forms PUT/DELETE limitation
+app.use(methodOverride('_method'))
 
 const cookieParser = require("cookie-parser");
 app.use(cookieParser());
