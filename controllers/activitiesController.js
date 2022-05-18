@@ -68,7 +68,7 @@ async function createActivity(request, response) {
 
     let activity = await model.createActivity(name, description, startTime, endTime, ownerID);
 
-    await model.addUserToActivity(activity.ownerID, activity.id)
+    await model.addUserToActivity(activity.ownerID, activity.id[0][0].ActivityID);
 
     logger.info('User has created an activity');
 

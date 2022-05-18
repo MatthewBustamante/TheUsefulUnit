@@ -26,7 +26,13 @@
     </div>
     <div class="panel-body">
         <ul class="list-group">
-            <li class="list-group-item"><strong>test</strong></li>
+            {{#if usersJoined}}
+            {{#each usersJoined}}
+            <li class="list-group-item"><strong>{{this.Username}}</strong></li>
+            {{/each}}
+            {{else}}
+            <p>No users have joined this activity.</p>
+            {{/if}}
         </ul>
     </div>
 </div>
