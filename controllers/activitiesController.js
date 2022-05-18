@@ -131,7 +131,7 @@ async function showActivity(request, response) {
         }
       }
       
-      response.render("activity.hbs", {message: "Welcome, " + session.userSession.username, activity, username: session.userSession.username, activity: activity, comments});
+      response.render("activity.hbs", {message: "Welcome, " + session.userSession.username, username: session.userSession.username, activity: activity, comments: comments});
   
       logger.info("App has shown an activity");
     }
@@ -273,34 +273,8 @@ async function addComment(request, response) {
       let activityID = request.originalUrl.charAt(request.originalUrl.length - 1 )
 
       await commentsModel.createComment(user.UserID, activityID, request.body.comment);
-
-      let result = await model.getOneActivity(activityID);
-
-      let owner = await userModel.getUsernameByID(result.OwnerID);
-
-      let activity = {
-        name: result.Name,
-        description: result.Description,
-        startTime: result.StartTime.toString().substr(0, 21),
-        endTime: result.EndTime.toString().substr(0, 21),
-        host: owner.Username,
-        id: result.ActivityID
-      }
-
-      let comments = await commentsModel.getAllComments(activity.id);
       
-      for(let i = 0; i < comments.length; i++) {
-        owner = await userModel.getUsernameByID(comments[i].UserID);
-
-       comments[i] = {
-          commentID: comments[i].CommentID,
-          text: comments[i].Comment,
-          date: comments[i].Date.toString().substr(0, 21),
-          user: owner.Username,
-        }
-      }
-      
-      response.render("activity.hbs", {message: "Welcome, " + session.userSession.username, activity, username: session.userSession.username, activity: activity, comments});
+      response.redirect("/activity/" + activityID);
     }
   } catch (error) {
     let customError = new ERRORS.DatabaseReadError(error.message);
@@ -320,24 +294,12 @@ async function deleteComment(request, response) {
       authController.refreshSession(request, response);
 
       let commentID = request.params.id;
+
+      let activityID = await commentsModel.getActivityFromCommentID(commentID);
       
       await commentsModel.deleteComment(commentID);
 
-      let activities = await model.getAllActivities();
-      let owner;
-
-      for(let i = 0; i < activities.length; i++) {
-        owner = await userModel.getUsernameByID(activities[i].OwnerID);
-
-        activities[i] = {
-          id: activities[i].ActivityID,
-          name: activities[i].Name,
-          date: activities[i].StartTime.toString().substr(0, 21),
-          host: owner.Username
-        }
-      }
-  
-      response.render('allActivities.hbs', {activities: activities, message: "Welcome, " + authenticatedSession.userSession.username, username: authenticatedSession.userSession.username});
+      response.redirect("/activity/" + activityID[0][0].ActivityID);
     }
   }
   catch (error) {

@@ -99,10 +99,24 @@ async function deleteComment(commentID) {
     });
 }
 
+async function getActivityFromCommentID(commentID) {
+  const connection = DATABASES.getConnection();
+  const sqlQuery = `SELECT ActivityID FROM Comments WHERE CommentID = ${commentID}`;
+  try {
+    const result = await connection.execute(sqlQuery);
+    return result;
+  } catch (error) {
+    let customError = new ERRORS.DatabaseReadError(error.message);
+    logger.error(customError);
+    throw customError;
+  }
+}
+
 module.exports = {
   createComment,
   getAllComments,
   deleteComment,
-  getComment
+  getComment,
+  getActivityFromCommentID
 };
 

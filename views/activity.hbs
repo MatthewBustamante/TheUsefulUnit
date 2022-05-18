@@ -41,7 +41,7 @@
                                 <br>
                                 <p style="font-size:small">{{date}}</p>
                                 
-                                {{#ifEquals username comments.user}}
+                                {{#ifEquals ../username user}}
                                 <form action="/comment/{{commentID}}?_method=DELETE" method="post" role="form" type="hidden">
                                     <input type="hidden" name="{{activity.id}}" value="{{activity.id}}">
                                     <button role="button" class="btn btn-primary btn-lg px-4 gap-3" type="submit" formmethod="POST" formaction="/comments/{{commentID}}?_method=DELETE">Delete</button>
@@ -89,6 +89,10 @@
             border-width: 0.075em;
             border-style: solid;
             border-color: rgb(215, 215, 215)
+        }
+
+        textarea {
+            resize: none;
         }
     </style>
 </body>
