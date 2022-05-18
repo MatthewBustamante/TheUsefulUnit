@@ -85,11 +85,10 @@ async function getAllActivities() {
 async function deleteExpiredActivities(){
   //get all the id's of the expired activities
   const connection = DATABASES.getConnection();
-  var expiredActivitiesIDS;
   
   const sqlQuery = `SELECT ActivityID FROM Activities WHERE EndTime < CURRENT_TIMESTAMP`;
   try {
-    expiredActivitiesIDS = await connection.execute(sqlQuery);
+    var expiredActivitiesIDS = await connection.execute(sqlQuery);
     //delete the expired activities
     for(let i = 0; i < expiredActivitiesIDS[0].length; i++){
       const sqlQuery2 = `DELETE FROM Activities WHERE ActivityID = ${expiredActivitiesIDS[0][i].ActivityID}`;
@@ -164,18 +163,58 @@ async function deleteUserFromActivity(userID, activityID) {
 }
 
 /**
- * Deletes the activity with the given id
+ * Deletes the activity and its comments with the given activity id
  * @param {*} activityID id of the activity to delete
  */
 async function deleteActivity(activityID) {
   const connection = DATABASES.getConnection();
-  const sqlQuery = `DELETE FROM Activities WHERE ActivityID = ${activityID}`;
+  
+  //delete all the comments that have the activityID as their activityID
+  const sqlQuery = `DELETE FROM Comments WHERE ActivityID = ${activityID}`;
   try {
     await connection.execute(sqlQuery);
-    logger.info("Activity deleted");
-  } catch (error) {
+  }
+  catch (error) {
     logger.error(error);
     throw error;
+  }
+
+  //delete the activity from the UserActivity table
+  const sqlQuery2 = `DELETE FROM UserActivity WHERE ActivityID = ${activityID}`;
+  try {
+    await connection.execute(sqlQuery2);
+  }
+  catch (error) {
+    logger.error(error);
+    throw error;
+  }
+
+  //delete the activity
+  const sqlQuery3 = `DELETE FROM Activities WHERE ActivityID = ${activityID}`;
+  try {
+    await connection.execute(sqlQuery3);
+    logger.info("Activity deleted");
+  }
+  catch (error) {
+    logger.error(error);
+    throw error;
+  }
+}
+
+/**
+ * Deletes all activities created by a specific user.
+ * @param {*} ownerID The user who created the activities.
+ */
+async function deleteAllActivities(ownerID) {
+  const connection = DATABASES.getConnection();
+  const sqlQuery = `DELETE FROM Activities WHERE OwnerID=${ownerID}`;
+  try {
+    await connection.execute(sqlQuery);
+    logger.info("All activities associated with User deleted");
+  }
+  catch (error) {
+    console.log(error);
+    logger.error(error);
   }
 }
 
@@ -187,4 +226,5 @@ module.exports = {
   addUserToActivity,
   deleteUserFromActivity,
   deleteActivity,
+  deleteAllActivities
 };
