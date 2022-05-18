@@ -88,7 +88,7 @@ async function deleteExpiredActivities(){
   
   const sqlQuery = `SELECT ActivityID FROM Activities WHERE EndTime < CURRENT_TIMESTAMP`;
   try {
-    const expiredActivitiesIDS = await connection.execute(sqlQuery);
+    var expiredActivitiesIDS = await connection.execute(sqlQuery);
     //delete the expired activities
     for(let i = 0; i < expiredActivitiesIDS[0].length; i++){
       const sqlQuery2 = `DELETE FROM Activities WHERE ActivityID = ${expiredActivitiesIDS[0][i].ActivityID}`;
