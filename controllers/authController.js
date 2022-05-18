@@ -88,6 +88,13 @@ async function login(request, response) {
             //Get user by username/email from database
             let user = await userModel.getUser(request.body.identifier);
 
+            if(!user) {
+              throw new errors.ValidationError(
+                "Invalid username / password given for user: " +
+                  request.body.identifier
+              );
+            }
+
             //Get the hashed version of the password from database
             const expectedPassword = user.HashedPassword;
 
