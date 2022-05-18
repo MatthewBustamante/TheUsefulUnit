@@ -15,7 +15,7 @@ async function createComment(userID, activityID, comment) {
 
   logger.info("Comment model called (Create)");
 
-  if (comment == undefined || !validator.isValidComment(comment)) {
+  if (comment == undefined /* || !validator.isValidComment(comment) */) {
     logger.error("Invalid comment");
 
     throw new ERRORS.ValidationError("Invalid comment: '" + comment + "'");
@@ -50,11 +50,29 @@ async function createComment(userID, activityID, comment) {
  * @throws {databaseReadError} if the comment could not be read
  */
 async function getAllComments(activityID) {
-  const connection = DATABASES.connection;
+  const connection = DATABASES.getConnection();
   const sqlQuery = `SELECT * FROM Comments WHERE ActivityID = ${activityID}`;
   try {
     const result = await connection.execute(sqlQuery);
     return result[0];
+  } catch (error) {
+    let customError = new ERRORS.DatabaseReadError(error.message);
+    logger.error(customError);
+    throw customError;
+  }
+}
+
+/**
+ * Returns an individual Comment object.
+ * @param {*} commentID The Comment ID.
+ * @returns The Comment object.
+ */
+async function getComment(commentID) {
+  const connection = DATABASES.getConnection();
+  const sqlQuery = `SELECT * FROM Comments WHERE CommentID = ${commentID}`;
+  try {
+    const result = await connection.execute(sqlQuery);
+    return result;
   } catch (error) {
     let customError = new ERRORS.DatabaseReadError(error.message);
     logger.error(customError);
@@ -85,5 +103,6 @@ module.exports = {
   createComment,
   getAllComments,
   deleteComment,
+  getComment
 };
 

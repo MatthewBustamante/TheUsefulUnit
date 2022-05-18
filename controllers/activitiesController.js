@@ -3,8 +3,10 @@ const { get } = require("express/lib/response");
 const logger = require("../logger");
 const model = require("../models/activitiesModel");
 const userModel = require("../models/usersModel");
+const commentsModel = require("../models/commentsModel");
 const authController = require("./authController");
 const router = express.Router();
+const ERRORS = require("../utilities/errors");
 const routeRoot = "/";
 
 /**
@@ -115,8 +117,21 @@ async function showActivity(request, response) {
         host: owner.Username,
         id: result.ActivityID
       }
+
+      let comments = await commentsModel.getAllComments(activity.id);
       
-      response.render("activity.hbs", {message: "Welcome, " + session.userSession.username, activity, username: session.userSession.username, activity: activity});
+      for(let i = 0; i < comments.length; i++) {
+        owner = await userModel.getUsernameByID(comments[i].UserID);
+
+       comments[i] = {
+          commentID: comments[i].CommentID,
+          text: comments[i].Comment,
+          date: comments[i].Date.toString().substr(0, 21),
+          user: owner.Username,
+        }
+      }
+      
+      response.render("activity.hbs", {message: "Welcome, " + session.userSession.username, activity, username: session.userSession.username, activity: activity, comments});
   
       logger.info("App has shown an activity");
     }
@@ -245,6 +260,95 @@ async function deleteActivity(request, response) {
 }
 router.delete("/activities/:id", deleteActivity);
 
+async function addComment(request, response) {
+
+  try {
+    let session = authController.authenticateUser(request);
+
+    if(session) {
+
+      authController.refreshSession(request, response);
+
+      let user = await userModel.getUser(session.userSession.username);
+      let activityID = request.originalUrl.charAt(request.originalUrl.length - 1 )
+
+      await commentsModel.createComment(user.UserID, activityID, request.body.comment);
+
+      let result = await model.getOneActivity(activityID);
+
+      let owner = await userModel.getUsernameByID(result.OwnerID);
+
+      let activity = {
+        name: result.Name,
+        description: result.Description,
+        startTime: result.StartTime.toString().substr(0, 21),
+        endTime: result.EndTime.toString().substr(0, 21),
+        host: owner.Username,
+        id: result.ActivityID
+      }
+
+      let comments = await commentsModel.getAllComments(activity.id);
+      
+      for(let i = 0; i < comments.length; i++) {
+        owner = await userModel.getUsernameByID(comments[i].UserID);
+
+       comments[i] = {
+          commentID: comments[i].CommentID,
+          text: comments[i].Comment,
+          date: comments[i].Date.toString().substr(0, 21),
+          user: owner.Username,
+        }
+      }
+      
+      response.render("activity.hbs", {message: "Welcome, " + session.userSession.username, activity, username: session.userSession.username, activity: activity, comments});
+    }
+  } catch (error) {
+    let customError = new ERRORS.DatabaseReadError(error.message);
+    logger.error(customError);
+    throw customError;
+  }
+}
+router.post("/comments/:id", addComment);
+
+async function deleteComment(request, response) {
+  try {
+    let session = authController.authenticateUser(request);
+    
+    if(session) {
+      const authenticatedSession = authController.authenticateUser(request);
+      
+      authController.refreshSession(request, response);
+
+      let commentID = request.params.id;
+      
+      await commentsModel.deleteComment(commentID);
+
+      let activities = await model.getAllActivities();
+      let owner;
+
+      for(let i = 0; i < activities.length; i++) {
+        owner = await userModel.getUsernameByID(activities[i].OwnerID);
+
+        activities[i] = {
+          id: activities[i].ActivityID,
+          name: activities[i].Name,
+          date: activities[i].StartTime.toString().substr(0, 21),
+          host: owner.Username
+        }
+      }
+  
+      response.render('allActivities.hbs', {activities: activities, message: "Welcome, " + authenticatedSession.userSession.username, username: authenticatedSession.userSession.username});
+    }
+  }
+  catch (error) {
+    console.log(error);
+    let customError = new ERRORS.DatabaseReadError(error.message);
+    logger.error(customError);
+    throw customError;
+  }
+}
+router.delete("/comments/:id", deleteComment);
+
 module.exports = {
   router,
   routeRoot,
@@ -253,4 +357,6 @@ module.exports = {
   showAllActivities,
   deleteActivity,
   showAddActivityForm,
+  addComment,
+  deleteComment
 };
