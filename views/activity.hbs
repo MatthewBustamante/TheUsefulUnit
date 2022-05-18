@@ -9,7 +9,6 @@
                     <h4 class="activityInfo"><img src="/images/clock.png" style="height:5%;width:5%;margin-right:0.5em">{{activity.startTime}} to {{activity.endTime}}</h4>
                     <h4 class="activityInfo" style="margin-bottom:2em"><img src="/images/user.png" style="height:5%;width:5%;margin-right:0.5em">Host: {{activity.host}}</h4>
                     <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
-                        {{!-- TODO: Make it so only non-joined users can see the Join button --}}
                         <form role="form" type="hidden">
                             {{#ifEquals username activity.host}}
                             <a role="button" class="btn btn-primary btn-lg px-4 gap-3" href="/activities">Show All Activities</a>
@@ -25,6 +24,7 @@
                         </form>
                     </div>
                 </div>
+                
                 <div class="panel panel-primary" id="result_panel">
     <div class="panel-heading"><h3 class="panel-title">Joined Users:</h3>
     </div>
@@ -44,14 +44,82 @@
         </ul>
     </div>
 </div>
+                
+                <div class="formContainer">
+                    <form class="p-4 p-md-5 border rounded-3 bg-light mainForm">
+                        <label for="comment"><b>Comment:</b></label>
+                        <br>
+                        <div class="form-group">
+                            <textarea class="form-control" required name="comment" id="comment" rows="4" maxlength="1500" placeholder="Leave a comment..."></textarea>
+                        </div>
+                        <hr class="my-4"/>
+                        <button class="w-100 btn btn-lg btn-primary" id="create" title="Click to add a comment." type="submit" formmethod="POST" formaction="/comments/{{activity.id}}">Add Comment</button>
+                    </form>
+                </div>
+                <div class="commentsOuterContainer">
+                    <div class="commentsInnerContainer">
+                        {{#each comments}}
+                            <div class="comment">
+                                <p><b>{{user}}:</b></p>
+                                <br>
+                                <p>{{text}}</p>
+                                <br>
+                                <p style="font-size:small">{{date}}</p>
+                                
+                                {{#ifEquals ../username user}}
+                                <form action="/comment/{{commentID}}?_method=DELETE" method="post" role="form" type="hidden">
+                                    <input type="hidden" name="{{activity.id}}" value="{{activity.id}}">
+                                    <button role="button" class="btn btn-primary btn-lg px-4 gap-3" type="submit" formmethod="POST" formaction="/comments/{{commentID}}?_method=DELETE">Delete</button>
+                                </form>
+                                {{/ifEquals}}
+                            </div>
+                            <br>
+                        {{/each}}
+                    </div>
+                </div>
             </div>
+            
         </div>
     </div>
+    
     <style>
         .activityInfo {
             text-align: left;
         }
 
+        .formContainer {
+            display: flex;
+            justify-content: center;
+        }
+
+        .mainForm {
+            width: 30%;
+        }
+
+        .commentsOuterContainer {
+            display: flex;
+            justify-content: center;
+        }
+
+        .commentsInnerContainer {
+            width: 50%;
+            display: block;
+        }
+
+        .comment {
+            text-align: center;
+            background-color: rgb(250, 250, 250);
+            width: 100%;
+            border-radius: 0.25em;
+            border-width: 0.075em;
+            border-style: solid;
+            border-color: rgb(215, 215, 215)
+        }
+
+        textarea {
+            resize: none;
+        }
+            
         .list-group {
             max-height: 300px;
             margin-bottom: 10px;
