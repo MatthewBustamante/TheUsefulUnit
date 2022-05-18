@@ -115,9 +115,9 @@ let generateString = (length) => {
  * Initialize a new database and table for every test
  */
 beforeEach(async () => {
-  
+
 });
 
 afterEach(async () => {
-  
+
 });

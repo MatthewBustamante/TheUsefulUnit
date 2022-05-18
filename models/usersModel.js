@@ -156,10 +156,32 @@ async function UpdateUserInformations(id, username, email, newPassword, newPassw
  * @param {*} password password of the user to delete
  */
 async function DeleteUser(id) {
+  const connection = DATABASES.getConnection();
+  //delete the user's comments
+  const sqlQuery1 = `DELETE FROM Comments WHERE UserID = ${id}`;
   try {
-    const connection = DATABASES.getConnection();
-    const sqlQuery = `DELETE FROM Users WHERE UserID = ${id}`;
-    await connection.execute(sqlQuery);
+    await connection.execute(sqlQuery1);
+    logger.info("User comments deleted");
+
+  } catch (error) {
+    logger.error(error);
+    throw error;
+  }
+
+  // //remove the user from UserActivity
+  // const sqlQuery2 = `DELETE FROM UserActivity WHERE UserID = ${id}`;
+  // try{
+  //   await connection.execute(sqlQuery2);
+  //   logger.info("User in activity deleted");
+  // }
+  // catch(error){
+  //   logger.error(error);
+  //   throw error;
+  // }
+
+  try {
+    const sqlQuery3 = `DELETE FROM Users WHERE UserID = ${id}`;
+    await connection.execute(sqlQuery3);
     logger.info("User deleted");
   } catch (error) {
     logger.error(error);
