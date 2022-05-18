@@ -1,5 +1,16 @@
-const DB_NAME = "users_db_test";
-const model = require("");
+//#region Constants
+const DB_NAME = "FriendFinder_DB_Test";
+const app = require("../utilities/app");
+const supertest = require("supertest");
+const testRequest = supertest(app);
+const activityModel = require("../models/userModel");
+const userModel = require("../models/userModel");
+const commentsModel = require("../models/commentsModel");
+const databases = require("../utilities/databases");
+let connection;
+//#endregion
+
+//#region Utility methods
 const TEST_USERs = [
   {
     username: "Tallib",
@@ -88,7 +99,6 @@ const INAPPROPRIATE_WORDS = [
   "clit",
   "clitoris",
 ];
-let connection;
 
 let generateUser = () => {
   const index = Math.floor(Math.random() * TEST_USERs.length);
@@ -110,14 +120,21 @@ let generateString = (length) => {
   }
   return result;
 };
+//#endregion
 
 /**
  * Initialize a new database and table for every test
  */
 beforeEach(async () => {
-
+  await databases.initialize(DB_NAME, true);
+  connection = await databases.getConnection();
 });
 
+/**
+ * close connection after every test
+ */
 afterEach(async () => {
-
+  if (connection) {
+    await connection.close();
+  }
 });
