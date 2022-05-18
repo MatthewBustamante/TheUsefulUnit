@@ -32,7 +32,11 @@
         <ul class="list-group">
             {{#if usersJoined}}
             {{#each usersJoined}}
+            {{#ifEquals this.Username ../activity.host}}
+            <li class="list-group-item"><strong>{{this.Username}} (Host)</strong></li>
+            {{else}}
             <li class="list-group-item"><strong>{{this.Username}}</strong></li>
+            {{/ifEquals}}
             {{/each}}
             {{else}}
             <p>No users have joined this activity.</p>
