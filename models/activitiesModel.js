@@ -90,11 +90,6 @@ async function deleteExpiredActivities(){
   let expiredActivitiesIDS;
   try {
     expiredActivitiesIDS = await connection.execute(sqlQuery);
-    //delete the expired activities
-    for(let i = 0; i < expiredActivitiesIDS[0].length; i++){
-      const sqlQuery2 = `DELETE FROM Activities WHERE ActivityID = ${expiredActivitiesIDS[0][i].ActivityID}`;
-      await connection.execute(sqlQuery2);
-    }
   } catch (error) {
     logger.error(error);
     throw error;
@@ -110,6 +105,19 @@ async function deleteExpiredActivities(){
       throw error;
     }
   }
+
+  //delete all the expired activities
+  for(let i = 0; i < expiredActivitiesIDS[0].length; i++){
+    const sqlQuery3 = `DELETE FROM Activities WHERE ActivityID = ${expiredActivitiesIDS[0][i].ActivityID}`;
+    try {
+      await connection.execute(sqlQuery3);
+    } catch (error) {
+      logger.error(error);
+      throw error;
+    }
+  }
+
+  logger.info("Expired activities deleted");
 }
 
 /**
@@ -164,16 +172,39 @@ async function deleteUserFromActivity(userID, activityID) {
 }
 
 /**
- * Deletes the activity with the given id
+ * Deletes the activity and its comments with the given activity id
  * @param {*} activityID id of the activity to delete
  */
 async function deleteActivity(activityID) {
   const connection = DATABASES.getConnection();
-  const sqlQuery = `DELETE FROM Activities WHERE ActivityID = ${activityID}`;
+  
+  //delete all the comments that have the activityID as their activityID
+  const sqlQuery = `DELETE FROM Comments WHERE ActivityID = ${activityID}`;
   try {
     await connection.execute(sqlQuery);
+  }
+  catch (error) {
+    logger.error(error);
+    throw error;
+  }
+
+  //delete the activity from the UserActivity table
+  const sqlQuery2 = `DELETE FROM UserActivity WHERE ActivityID = ${activityID}`;
+  try {
+    await connection.execute(sqlQuery2);
+  }
+  catch (error) {
+    logger.error(error);
+    throw error;
+  }
+
+  //delete the activity
+  const sqlQuery3 = `DELETE FROM Activities WHERE ActivityID = ${activityID}`;
+  try {
+    await connection.execute(sqlQuery3);
     logger.info("Activity deleted");
-  } catch (error) {
+  }
+  catch (error) {
     logger.error(error);
     throw error;
   }

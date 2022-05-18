@@ -38,6 +38,77 @@ async function showAddActivityForm(request, response) {
 }
 router.get("/activity", showAddActivityForm);
 
+
+/**
+ * Join activity
+ * @param {*} request
+ * @param {*} response
+ */
+async function joinActivity(request, response) {
+  logger.info("Activities controller called (join activity)");
+
+  const authenticatedSession = authController.authenticateUser(request);
+    
+    if (!authenticatedSession) {
+        //response.sendStatus(401); //Unauthorized access
+        logger.info("User is not logged in");
+
+        response.render("login.hbs", {error: "You must be logged in to perform that action", status: 401});
+        
+        return;
+    }
+
+  logger.info("User " + authenticatedSession.userSession.username + " is logged in");
+
+  //Refresh the cookie to not expire
+  authController.refreshSession(request, response);
+
+  let activityID = request.params.id;
+  let user = await userModel.getUser(authenticatedSession.userSession.username);
+
+  await model.addUserToActivity(user.UserID, activityID);
+
+  response.redirect("/activity/" + activityID);
+}
+
+router.post("/activities/:id/join", joinActivity);
+
+
+/**
+ * Leave activity
+ * @param {*} request
+ * @param {*} response
+ */
+ async function leaveActivity(request, response) {
+  logger.info("Activities controller called (leave activity)");
+
+  const authenticatedSession = authController.authenticateUser(request);
+    
+    if (!authenticatedSession) {
+        //response.sendStatus(401); //Unauthorized access
+        logger.info("User is not logged in");
+
+        response.render("login.hbs", {error: "You must be logged in to perform that action", status: 401});
+        
+        return;
+    }
+
+  logger.info("User " + authenticatedSession.userSession.username + " is logged in");
+
+  //Refresh the cookie to not expire
+  authController.refreshSession(request, response);
+
+  let activityID = request.params.id;
+  let user = await userModel.getUser(authenticatedSession.userSession.username);
+
+  await model.deleteUserFromActivity(user.UserID, activityID);
+
+  response.redirect("/activity/" + activityID);
+}
+
+router.post("/activities/:id/leave", leaveActivity);
+
+
 /**
  * Handles POST '/activity'
  * Calls the model to create a new activity.
@@ -60,7 +131,17 @@ async function createActivity(request, response) {
     let endTime = request.body.end.substr(0, 10) + " " + request.body.end.substr(11, 15);
     let ownerID = user.UserID;
 
+    let start = Date.parse(request.body.start);
+    let end = Date.parse(request.body.end);
+
+    if(start >  end || end < start || isNaN(start) || isNaN(end)) {
+      response.render('addActivity.hbs', {error: "Invalid dates", status: 400});
+      return;
+    }
+
     let activity = await model.createActivity(name, description, startTime, endTime, ownerID);
+
+    await model.addUserToActivity(activity.ownerID, activity.id[0][0].ActivityID);
 
     logger.info('User has created an activity');
 
@@ -131,7 +212,18 @@ async function showActivity(request, response) {
         }
       }
       
-      response.render("activity.hbs", {message: "Welcome, " + session.userSession.username, username: session.userSession.username, activity: activity, comments: comments});
+      let usersJoined = await model.getUsersInActivity(activity.id);
+
+      let joined = false;
+
+      for(let i = 0; i < usersJoined.length; i++) {
+        if(usersJoined[i].Username == session.userSession.username) {
+          joined = true;
+          break;
+        }
+      }
+      
+      response.render("activity.hbs", {message: "Welcome, " + session.userSession.username, activity, username: session.userSession.username, activity: activity, usersJoined: usersJoined, joined: joined, comments: comments});
   
       logger.info("App has shown an activity");
     }
