@@ -191,6 +191,23 @@ async function deleteActivity(activityID) {
   }
 }
 
+/**
+ * Deletes all activities created by a specific user.
+ * @param {*} ownerID The user who created the activities.
+ */
+async function deleteAllActivities(ownerID) {
+  const connection = DATABASES.getConnection();
+  const sqlQuery = `DELETE FROM Activities WHERE OwnerID=${ownerID}`;
+  try {
+    await connection.execute(sqlQuery);
+    logger.info("All activities associated with User deleted");
+  }
+  catch (error) {
+    console.log(error);
+    logger.error(error);
+  }
+}
+
 module.exports = {
   createActivity,
   getOneActivity,
@@ -199,4 +216,5 @@ module.exports = {
   addUserToActivity,
   deleteUserFromActivity,
   deleteActivity,
+  deleteAllActivities
 };
