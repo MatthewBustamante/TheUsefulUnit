@@ -168,16 +168,16 @@ async function DeleteUser(id) {
     throw error;
   }
 
-  // //remove the user from UserActivity
-  // const sqlQuery2 = `DELETE FROM UserActivity WHERE UserID = ${id}`;
-  // try{
-  //   await connection.execute(sqlQuery2);
-  //   logger.info("User in activity deleted");
-  // }
-  // catch(error){
-  //   logger.error(error);
-  //   throw error;
-  // }
+   //remove the user from UserActivity
+   const sqlQuery2 = `DELETE FROM UserActivity WHERE UserID = ${id}`;
+   try{
+     await connection.execute(sqlQuery2);
+     logger.info("User in activity deleted");
+   }
+   catch(error){
+     logger.error(error);
+     throw error;
+   }
 
   try {
     const sqlQuery3 = `DELETE FROM Users WHERE UserID = ${id}`;
