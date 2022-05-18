@@ -179,10 +179,20 @@ async function deleteActivity(activityID) {
     throw error;
   }
 
-  //delete the activity
-  const sqlQuery2 = `DELETE FROM Activities WHERE ActivityID = ${activityID}`;
+  //delete the activity from the UserActivity table
+  const sqlQuery2 = `DELETE FROM UserActivity WHERE ActivityID = ${activityID}`;
   try {
     await connection.execute(sqlQuery2);
+  }
+  catch (error) {
+    logger.error(error);
+    throw error;
+  }
+
+  //delete the activity
+  const sqlQuery3 = `DELETE FROM Activities WHERE ActivityID = ${activityID}`;
+  try {
+    await connection.execute(sqlQuery3);
     logger.info("Activity deleted");
   }
   catch (error) {
