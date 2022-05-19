@@ -8,6 +8,7 @@ const authController = require("./authController");
 const router = express.Router();
 const ERRORS = require("../utilities/errors");
 const routeRoot = "/";
+const tracker = require("../utilities/tracker")
 
 /**
  * Handles GET '/activity'
@@ -222,7 +223,7 @@ async function createActivity(request, response) {
 
       tracker.updateTracker(request, response, metrics);
 
-      response.render('addActivity.hbs', {error: "Invalid dates (cannot be the same, start must be before end)", status: 400});
+      response.render('addActivity.hbs', {error: "Invalid dates (cannot be the same, start must be before end)", status: 400, username: session.userSession.username});
       return;
     }
 
@@ -256,12 +257,26 @@ router.post("/activity", createActivity);
  */
 async function showActivity(request, response) {
   try {
+    //Tracking user agent
+    let ua = request.headers['user-agent'];
+
+    //Tracking metrics
+    var metrics = {
+      pageVisited: "Activity page",
+      visitedAt: new Date(),
+      pageVisitLength: null,
+      user: null,
+      action: "Read single activity",
+      userAgent: ua
+    };
 
     let session = authController.authenticateUser(request);
 
     if(session) { 
       //Refresh the cookie to not expire
       authController.refreshSession(request, response);
+
+      metrics.user = session.userSession.username;
 
       let result = await model.getOneActivity(request.params.id);
 
@@ -279,6 +294,10 @@ async function showActivity(request, response) {
           host: owner.Username
         }
       }
+
+        response.status(400)
+
+        tracker.updateTracker(request, response, metrics);
 
         response.render("allActivities.hbs", {error: "Activity with id " + request.params.id + " was not found", status: 400, username: session.userSession.username, activities: activities});
       }
@@ -317,12 +336,20 @@ async function showActivity(request, response) {
           break;
         }
       }
+
+      tracker.updateTracker(request, response, metrics);
       
-      response.render("activity.hbs", {message: "Welcome, " + session.userSession.username, activity, username: session.userSession.username, activity: activity, usersJoined: usersJoined, joined: joined, comments: comments});
+      response.render("activity.hbs", {message: "Welcome, " + session.userSession.username, username: session.userSession.username, activity: activity, usersJoined: usersJoined, joined: joined, comments: comments});
   
       logger.info("App has shown an activity");
     }
     else {
+      metrics.user = "Guest (Not logged in)";
+
+      response.status(401);
+
+      tracker.updateTracker(request, response, metrics);
+
       response.render('login.hbs', {error: "You must be logged in to perform that action", status: 401});
     }
   }
@@ -339,12 +366,28 @@ router.get("/activity/:id", showActivity);
  * @param {*} response
  */
 async function showAllActivities(request, response) {
-  try { 
+  try {
+
+    //Tracking user agent
+    let ua = request.headers['user-agent'];
+
+    //Tracking metrics
+    var metrics = {
+      pageVisited: "All activities page",
+      visitedAt: new Date(),
+      pageVisitLength: null,
+      user: null,
+      action: "Read all activities",
+      userAgent: ua
+    };
+
     let session = authController.authenticateUser(request);
 
     if(session) {
       //Refresh the cookie to not expire
       authController.refreshSession(request, response);
+
+      metrics.user = session.userSession.username;
 
       let activities = await model.getAllActivities();
       let owner;
@@ -360,11 +403,19 @@ async function showAllActivities(request, response) {
         }
       }
 
+      tracker.updateTracker(request, response, metrics);
+
       response.render('allActivities.hbs', {activities: activities, message: "Welcome, " + session.userSession.username, username: session.userSession.username});
 
       logger.info("App has shown all activities");
     }
     else {
+      response.status(401)
+
+      metrics.user = "Guest (Not logged in)";
+
+      tracker.updateTracker(request, response, metrics);
+
       response.render('login.hbs', {error: "You must be logged in to perform that action", status: 401});
     }
   }
@@ -384,9 +435,24 @@ async function deleteActivity(request, response) {
   try {
     let session = authController.authenticateUser(request);
 
+    //Tracking user agent
+    let ua = request.headers['user-agent'];
+
+    //Tracking metrics
+    var metrics = {
+      pageVisited: "None [User Attempted CRUD Action]",
+      visitedAt: new Date(),
+      pageVisitLength: null,
+      user: null,
+      action: "Delete activity",
+      userAgent: ua
+    };
+
     if (session) {
       //Refresh the cookie to not expire
       authController.refreshSession(request, response);
+
+      metrics.user = session.userSession.username;
 
       let id = request.params.id;
 
@@ -434,10 +500,16 @@ async function deleteActivity(request, response) {
 
         response.render("allActivities.hbs", {message: "Activity deleted", username: session.userSession.username, activities: activities});
       } else {
+        response.status(401);
+
         response.render("allActivities.hbs", {error: "You are not authorized to delete this activity", status: 401, username: session.userSession.username, activities: activities});
       }
     }
     else {
+
+      metrics.user = "Guest (Not logged in)";
+      response.status(401);
+
       response.render('login.hbs', {error: "You must be logged in to perform that action", status: 401});
     }
   }

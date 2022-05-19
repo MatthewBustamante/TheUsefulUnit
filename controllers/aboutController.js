@@ -3,6 +3,7 @@ const router = express.Router();
 const routeRoot = "/";
 const authController = require("./authController");
 const logger = require("../logger");
+const tracker = require("../utilities/tracker")
 
 /**
  * Handles GET '/about'

@@ -3,6 +3,7 @@ const logger = require("../logger");
 const model = require("../models/usersModel");
 const activitiesModel = require("../models/activitiesModel");
 const methodOverride = require('method-override');
+const tracker = require("../utilities/tracker")
 
 //Used to refresh session and authenticate pages/actions
 const authController = require("../controllers/authController");
@@ -118,63 +119,60 @@ router.get("/user/modify", modifyAccountPage);
  * @param {*} response
  */
 async function updateUser(request, response) {
-  try {
     logger.info("Updating user settings");
 
-    let session = authController.authenticateUser(request);
+    var session = authController.authenticateUser(request);
 
     if (session) {
     
       authController.refreshSession(request, response);
 
-      let user = await model.getUser(session.userSession.username);
+      var user = await model.getUser(session.userSession.username);
+
+      var userInfo = {
+        username: user.Username,
+        email: user.Email
+      };
 
       const expectedPassword = user.HashedPassword;
 
       if (expectedPassword && (await bcrypt.compare(request.body.oldPassword, expectedPassword))) {
       
-        await model.UpdateUserInformations(
+        user = await model.UpdateUserInformations(
           user.UserID, 
           request.body.username, 
           request.body.email,
           request.body.newPassword, 
           request.body.newPasswordRepeat, 
           request.body.oldPassword);
-        
-        let userInfo = {
-          username: request.body.username,
-          email: request.body.email
-        }
-    
-        //response.render("account.hbs", accountInfo);
-        response.render("account.hbs", {username: session.userSession.username, userInfo: userInfo});
 
-        logger.info("Finished updating user settings");
+          logger.info("Finished updating user settings");
+
+        if(user) {
+          userInfo = {
+            username: request.body.username,
+            email: request.body.email
+          }
+          response.render("account.hbs", {message: "Successfully updated account", username: session.userSession.username, userInfo: userInfo});
+        } else {
+          response.status(400)
+          response.render('modifyAccount.hbs', {error: "Invalid information provided", status: 400, username: session.userSession.username, userInfo: userInfo});
+        }
       }
       else {
-        throw new ERRORS.ValidationError("Invalid information provided");
+        //throw new ERRORS.ValidationError("Invalid information provided");
+
+        response.status(400)
+
+        response.render('modifyAccount.hbs', {error: "Invalid information provided", status: 400, username: session.userSession.username, userInfo: userInfo});
       }
     }
     else {
+      response.status(401)
       response.render('login.hbs', {error: "You must be logged in to perform that action", status: 401});
     }
   }
-  catch (error) {
-    logger.error(error);
-    if (error instanceof ERRORS.ValidationError) {
-      throw new ERRORS.ValidationError;
-    }
-    else if (error instanceof ERRORS.DatabaseConnectionError) {
-      throw new ERRORS.DatabaseConnectionError;
-    }
-    else if (error instanceof ERRORS.DatabaseWriteError) {
-      throw new ERRORS.DatabaseWriteError;
-    }
-    else {
-      throw new Error;
-    }
-  }
-}
+
 router.put("/user/:id", updateUser);
 
 /**

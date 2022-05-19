@@ -6,6 +6,7 @@ const logger = require("../logger");
 const uuid = require("uuid");
 const errors = require("../utilities/errors");
 const bcrypt = require("bcrypt");
+const tracker = require("../utilities/tracker")
 
 const sessions = {};
 

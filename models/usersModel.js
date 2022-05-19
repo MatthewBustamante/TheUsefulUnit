@@ -108,7 +108,7 @@ async function UpdateUserInformations(id, username, email, newPassword, newPassw
     if (!bcrypt.compareSync(oldPassword, currentPassword.HashedPassword)) {
       const error = new ERRORS.ValidationError();
       error.message = "Old password is incorrect";
-      throw error;
+      return null;
     }
 
     // Validate the new user information
@@ -128,7 +128,7 @@ async function UpdateUserInformations(id, username, email, newPassword, newPassw
     return { username: username, email: email };
   } catch (error) {
     logger.error(error);
-    throw error;
+    return null;
   }
 }
 
@@ -179,7 +179,7 @@ async function DeleteUser(id) {
   }
 
   //delete all the user's activities
-  const sqlQuery3 = `DELETE FROM Activities WHERE UserID = ${id}`;
+  const sqlQuery3 = `DELETE FROM Activities WHERE OwnerID = ${id}`;
 
   try {
     await connection.execute(sqlQuery3);

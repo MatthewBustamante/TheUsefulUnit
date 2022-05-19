@@ -3,6 +3,7 @@ const router = express.Router();
 const routeRoot = "/";
 const logger = require("../logger");
 const authController = require("./authController");
+const tracker = require("../utilities/tracker")
 
 /**
  * Handles GET '/register'

@@ -5,6 +5,7 @@ const logger = require("../logger");
 const authController = require("./authController");
 const userModel = require("../models/usersModel")
 const activityModel = require("../models/activitiesModel")
+const tracker = require("../utilities/tracker")
 
 /**
  * Renders the home page with error message and status code
