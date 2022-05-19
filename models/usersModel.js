@@ -133,24 +133,6 @@ async function UpdateUserInformations(id, username, email, newPassword, newPassw
 }
 
 /**
- * Gets the user by their ID.
- * @param {*} ID The ID of the user
- */
- async function getUsernameByID(ID) {
-  try {
-    const connection = DATABASES.getConnection();
-    var sqlQuery = `SELECT Username FROM Users WHERE UserID = ?`;
-    let result = await connection.execute(sqlQuery, [ID]);
-
-    return result[0][0];
-  }
-  catch (error) {
-    logger.error(error);
-    console.log(error);
-  }
-}
-
-/**
  * Deletes the user with the given id by verifying the given password
  * @param {*} userID id of the user to delete
  * @param {*} password password of the user to delete

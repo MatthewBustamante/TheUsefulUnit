@@ -155,7 +155,7 @@ function isValidPassword(password) {
 async function isValidNewEmail(email, connection) {
   // Check that the email is valid
   if (!VALIDATOR.isEmail(email)) {
-    let error = new ValidationError();
+    let error = new ERRORS.ValidationError();
     error.message = "Email is not valid";
     throw error;
   }
