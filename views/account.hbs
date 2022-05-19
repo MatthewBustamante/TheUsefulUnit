@@ -19,6 +19,40 @@
                         <a role="button" class="btn btn-primary btn-lg px-4 gap-3" href="/user/delete">Delete Account</a>
                     </div>
                 </div>
+                <br><br>
+                <div class="panel panel-primary" id="result_panel">
+            <div class="panel-heading"><h3 class="panel-title">Activities Joined:</h3>
+            </div>
+            <div class="panel-body">
+            <ul class="list-group">
+            {{#if activitiesJoined}}
+            {{#each activitiesJoined}}
+            <li class="list-group-item"><a href="/activity/{{this.ActivityID}}"><strong>{{this.Name}}</strong></a></li>
+            {{/each}}
+            {{else}}
+            <p>You haven't joined any activities.</p>
+            {{/if}}
+            </ul>
+            </div>
+            </div>
+
+            <br><br>
+            
+            <div class="panel panel-primary" id="result_panel">
+            <div class="panel-heading"><h3 class="panel-title">Activities Created:</h3>
+            </div>
+            <div class="panel-body">
+            <ul class="list-group">
+            {{#if activitiesCreated}}
+            {{#each activitiesCreated}}
+            <li class="list-group-item"><a href="/activity/{{this.ActivityID}}"><strong>{{this.Name}}</strong></a></li>
+            {{/each}}
+            {{else}}
+            <p>You haven't created any activities.</p>
+            {{/if}}
+            </ul>
+            </div>
+            </div>
             </div>
         </div>
     </div>

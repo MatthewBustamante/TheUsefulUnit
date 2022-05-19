@@ -47,8 +47,10 @@ async function showUser(request, response) {
       email: user.Email
     }
 
-    response.render("account.hbs", {userInfo: userInfo, username: authenticatedSession.userSession.username});
-    
+    let joined = await activitiesModel.getJoinedActivities(user.UserID);
+    let created = await activitiesModel.getOwnedActivities(user.UserID);
+
+    response.render("account.hbs", {userInfo: userInfo, username: authenticatedSession.userSession.username, activitiesJoined: joined, activitiesCreated: created});
   }
   catch (error) {
     logger.error(error);

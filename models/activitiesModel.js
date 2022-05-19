@@ -223,6 +223,40 @@ async function deleteActivity(activityID) {
 }
 
 /**
+ * Gets all the activities that the given user has joined
+ * @param {*} userID id of the user to fetch their joined activities
+ * @returns returns all the activities that the given user has joined
+ */
+ async function getJoinedActivities(userID) {
+  const connection = DATABASES.getConnection();
+  const sqlQuery = `SELECT * FROM Activities WHERE ActivityID IN (SELECT ActivityID from UserActivity where UserID = ${userID})`;
+  try {
+    const result = await connection.execute(sqlQuery);
+    return result[0];
+  } catch (error) {
+    logger.error(error);
+    throw error;
+  }
+}
+
+/**
+ * Gets all the activities that the given user has created
+ * @param {*} ownerID id of the owner of the activities
+ * @returns all the activities that the given owner owns
+ */
+async function getOwnedActivities(ownerID) {
+  const connection = DATABASES.getConnection();
+  const sqlQuery = `SELECT * FROM Activities WHERE OwnerID = ${ownerID}`;
+  try {
+    const result = await connection.execute(sqlQuery);
+    return result[0];
+  } catch (error) {
+    logger.error(error);
+    throw error;
+  }
+}
+
+/**
  * Deletes all activities created by a specific user.
  * @param {*} ownerID The user who created the activities.
  */
@@ -247,5 +281,7 @@ module.exports = {
   addUserToActivity,
   deleteUserFromActivity,
   deleteActivity,
-  deleteAllActivities
+  deleteAllActivities,
+  getJoinedActivities,
+  getOwnedActivities
 };
