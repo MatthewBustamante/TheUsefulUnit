@@ -52,7 +52,7 @@ async function showHome(request, response) {
   //Refresh the cookie to not expire
   authController.refreshSession(request, response);
 
-  let activities = await activityModel.getAllActivities();
+  /* let activities = await activityModel.getAllActivities();
   let owner;
 
   for(let i = 0; i < activities.length; i++) {
@@ -66,9 +66,15 @@ async function showHome(request, response) {
     }
   }
 
-  tracker.updateTracker(request, response, metrics);
+  activities.sort(function compare(a, b) {
+    var dateA = new Date(a.date);
+    var dateB = new Date(b.date);
+    return dateA - dateB;
+  }); */
+
+  //tracker.updateTracker(request, response, metrics);
   
-  response.render('allActivities.hbs', {activities: activities, message: "Welcome, " + authenticatedSession.userSession.username, username: authenticatedSession.userSession.username});
+  response.redirect("/activities")
 }
 
 router.get(routeRoot, showHome);

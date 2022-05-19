@@ -373,7 +373,7 @@ async function showAllActivities(request, response) {
 
     //Tracking metrics
     var metrics = {
-      pageVisited: "All activities page",
+      pageVisited: "Home - All activities page",
       visitedAt: new Date(),
       pageVisitLength: null,
       user: null,
@@ -402,6 +402,12 @@ async function showAllActivities(request, response) {
           host: owner.Username
         }
       }
+
+      activities.sort(function compare(a, b) {
+        var dateA = new Date(a.date);
+        var dateB = new Date(b.date);
+        return dateA - dateB;
+      });
 
       tracker.updateTracker(request, response, metrics);
 
@@ -552,7 +558,7 @@ async function addComment(request, response) {
       authController.refreshSession(request, response);
 
       let user = await userModel.getUser(session.userSession.username);
-      let activityID = request.originalUrl.charAt(request.originalUrl.length - 1 )
+      let activityID = request.originalUrl.split('/').pop();
 
       await commentsModel.createComment(user.UserID, activityID, request.body.comment);
 

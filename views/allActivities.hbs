@@ -6,6 +6,7 @@
                 <p class="lead mb-4">Click any activity to learn their availabilities and more information about it.</p>
                 <p class="lead mb-4">Can't find your activity? <a href="/activity">Create a new one</a>.</p>
                 <h2>Upcoming Activities</h2>
+                <p>Sorted by earliest start date</p>
 
                 {{#if activities}}
                 {{#each activities}}
@@ -27,6 +28,10 @@
         </div>
     </div>
     <style>
+        h2 {
+            margin-bottom: 1rem;
+        }
+
         .activityInfo {
             text-align: left;
         }
