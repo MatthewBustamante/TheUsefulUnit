@@ -52,11 +52,18 @@
                         <label for="comment"><b>Comment:</b></label>
                         <br>
                         <div class="form-group">
+                            {{#if draft}}
+                            <textarea class="form-control" required name="comment" id="comment" rows="4" maxlength="1500">{{draft}}</textarea>
+                            {{else}}
                             <textarea class="form-control" required name="comment" id="comment" rows="4" maxlength="1500" placeholder="Leave a comment..."></textarea>
+                            {{/if}}
                         </div>
                         <hr class="my-4"/>
                         <button class="w-100 btn btn-lg btn-primary" id="create" title="Click to post this comment." type="submit" formmethod="POST" formaction="/comments/{{activity.id}}">Post Comment</button>
-                        <button class="w-100 btn btn-lg btn-primary" id="draft" title="Click to save a draft of this comment." type="submit" formmethod="POST" formaction="/comments/draft">Save Draft</button>
+                        <button class="w-100 btn btn-lg btn-primary" id="draft" title="Click to save a draft of this comment." type="submit" formmethod="POST" formaction="/draft/{{activity.id}}">Save Draft</button>
+                        {{#if draft}}
+                        <button class="w-100 btn btn-lg btn-primary" id="draft" title="Click to clear saved draft." type="submit" formmethod="POST" formaction="/draft/{{activity.id}}/clear">Clear Draft</button>
+                        {{/if}}
                     </form>
                 </div>
                 <br><br>
@@ -162,5 +169,9 @@
   .dark-mode { 
     background-color: black; 
     color: white; 
+  }
+
+   .dark-mode form, .dark-mode .comment{
+    color:black;
   }
 </style>
