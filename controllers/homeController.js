@@ -39,19 +39,12 @@ async function showHome(request, response) {
 
         tracker.updateTracker(request, response, metrics);
 
-        response.render("home.hbs");
+        let isDarkMode = themeController.IsDarkMode(request);
+
+        response.render("home.hbs", {isDarkMode: isDarkMode});
         
         return;
     }
-
-  if (!authenticatedSession) {
-    //response.sendStatus(401); //Unauthorized access
-    logger.info("User is not logged in");
-    let isDarkMode = themeController.IsDarkMode(request);
-    response.render("home.hbs", { isDarkMode: isDarkMode });
-
-    return;
-  }
 
   logger.info(
     "User " + authenticatedSession.userSession.username + " is logged in"

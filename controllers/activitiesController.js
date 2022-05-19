@@ -555,6 +555,7 @@ async function deleteActivity(request, response) {
         response.status(401);
 
         tracker.updateTracker(request, response, metrics);
+        let isDarkMode = themeController.IsDarkMode(request);
 
         response.render("allActivities.hbs", { error: "You are not authorized to delete this activity", status: 401, username: session.userSession.username, activities: activities, isDarkMode: isDarkMode });
       }
@@ -665,7 +666,9 @@ async function deleteComment(request, response) {
 
       response.status(401)
 
-      response.render('login.hbs', { error: "You must be logged in to perform that action", status: 401 });
+      let isDarkMode = themeController.IsDarkMode(request);
+
+      response.render('login.hbs', { error: "You must be logged in to perform that action", status: 401, isDarkMode: isDarkMode });
     }
   } catch (error) {
     console.log(error);
