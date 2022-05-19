@@ -243,7 +243,7 @@ async function getJoinedActivities(userID) {                          //FINISHED
  * @param {*} ownerID id of the owner of the activities
  * @returns all the activities that the given owner owns
  */
-async function getOwnedActivities(ownerID) {
+async function getOwnedActivities(ownerID) {                          //FINISHED TEST
   const connection = DATABASES.getConnection();
   const sqlQuery = `SELECT * FROM Activities WHERE OwnerID = ${ownerID}`;
   try {

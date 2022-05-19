@@ -12,7 +12,7 @@ const saltRounds = 10;
  * @param {String} password the password of the new user
  * @returns the user's id, username and email that was created
  */
-async function createUser(username, email, unhashedpassword, passwordrepeat) {
+async function createUser(username, email, unhashedpassword, passwordrepeat) {                                 //Finished test
   try {
     const connection = DATABASES.getConnection();
 
@@ -47,7 +47,7 @@ async function createUser(username, email, unhashedpassword, passwordrepeat) {
  * @param {*} email email of the user to look for
  * @returns the user that was found null if no user was found
  */
-async function getUser(identifier) {
+async function getUser(identifier) {                                 //Finished test
   try {
     // Connect to the database
     const connection = DATABASES.getConnection();
@@ -137,7 +137,7 @@ async function UpdateUserInformations(id, username, email, newPassword, newPassw
  * @param {*} userID id of the user to delete
  * @param {*} password password of the user to delete
  */
-async function DeleteUser(id) {
+async function DeleteUser(id) {                                 //Finished test
   const connection = DATABASES.getConnection();
   //delete the user's comments
   const sqlQuery1 = `DELETE FROM Comments WHERE UserID = ${id}`;
@@ -184,7 +184,7 @@ async function DeleteUser(id) {
  * Gets the user by their ID.
  * @param {*} ID The ID of the user
  */
- async function getUsernameByID(ID) {
+ async function getUsernameByID(ID) {                                 //Finished test
   try {
     const connection = DATABASES.getConnection();
     var sqlQuery = `SELECT Username FROM Users WHERE UserID = ?`;
