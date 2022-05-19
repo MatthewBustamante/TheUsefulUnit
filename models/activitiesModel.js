@@ -87,13 +87,9 @@ async function deleteExpiredActivities(){
   const connection = DATABASES.getConnection();
   
   const sqlQuery = `SELECT ActivityID FROM Activities WHERE EndTime < CURRENT_TIMESTAMP`;
+  let expiredActivitiesIDS;
   try {
-    var expiredActivitiesIDS = await connection.execute(sqlQuery);
-    //delete the expired activities
-    for(let i = 0; i < expiredActivitiesIDS[0].length; i++){
-      const sqlQuery2 = `DELETE FROM Activities WHERE ActivityID = ${expiredActivitiesIDS[0][i].ActivityID}`;
-      await connection.execute(sqlQuery2);
-    }
+    expiredActivitiesIDS = await connection.execute(sqlQuery);
   } catch (error) {
     logger.error(error);
     throw error;
@@ -109,6 +105,19 @@ async function deleteExpiredActivities(){
       throw error;
     }
   }
+
+  //delete all the expired activities
+  for(let i = 0; i < expiredActivitiesIDS[0].length; i++){
+    const sqlQuery3 = `DELETE FROM Activities WHERE ActivityID = ${expiredActivitiesIDS[0][i].ActivityID}`;
+    try {
+      await connection.execute(sqlQuery3);
+    } catch (error) {
+      logger.error(error);
+      throw error;
+    }
+  }
+
+  logger.info("Expired activities deleted");
 }
 
 /**
