@@ -2,6 +2,7 @@ const activitiesModel = require('../models/activitiesModel');
 const usersModel = require('../models/usersModel');
 const commentsModel = require('../models/commentsModel');
 const database = require('../utilities/databases');
+const { afterEach } = require("@jest/globals");
 var connection;
 
 const TEST_USERs = [
@@ -125,6 +126,11 @@ let generateComment = () => {
     return commentsData.slice(index, index + 1)[0];
 };
 
+let generateActivity = () => {
+    const index = Math.floor(Math.random() * activitiesData.length);
+    return activitiesData.slice(index, index + 1)[0];
+}
+
 let generateString = (length) => {
     let result = "";
     const characters =
@@ -144,3 +150,24 @@ beforeEach(async () => {
 afterEach(async () => {
     connection.close();
 })
+
+test('Test activitiesModel.getActivities', async () => {
+    //create user
+    const user = generateUser();
+    const userID = await usersModel.createUser(user);
+
+    //create activities
+    const activities = [];
+    for (let i = 0; i < 2; i++) {
+        const activity = generateActivity();
+        activity.ownerID = userID;
+        activities.push(activity);
+        await activitiesModel.createActivity(activity);
+    }
+    
+    //get activities
+    const result = await activitiesModel.getActivities(userID);
+    expect(result.length).toBe(2);
+    //expect(result[0].name).toBe(activities[0].name);
+    //expect(result[1].name).toBe(activities[1].name);
+});

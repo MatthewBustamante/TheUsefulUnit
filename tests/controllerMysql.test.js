@@ -3,9 +3,9 @@ const DB_NAME = "FriendFinder_DB_Test";
 const app = require("../utilities/app");
 const supertest = require("supertest");
 const testRequest = supertest(app);
-const activityModel = require("../models/userModel");
-const userModel = require("../models/userModel");
-const commentsModel = require("../models/commentsModel");
+const activitiesModel = require('../models/activitiesModel');
+const usersModel = require('../models/usersModel');
+const commentsModel = require('../models/commentsModel');
 const databases = require("../utilities/databases");
 let connection;
 //#endregion
