@@ -25,12 +25,15 @@ async function showUser(request, response) {
 
     logger.info("Showing user account page");
 
+    console.log(request.body);
+
     const authenticatedSession = authController.authenticateUser(request);
     
     if (!authenticatedSession) {
       //response.sendStatus(401); //Unauthorized access
       logger.info("User is not logged in");
       let isDarkMode = themeController.IsDarkMode(request);
+      response.status(401);
       response.render("login.hbs", {error: "You must be logged in to perform that action", status: 401, isDarkMode: isDarkMode});
         
       return;
@@ -47,8 +50,8 @@ async function showUser(request, response) {
       email: user.Email
     }
     let isDarkMode = themeController.IsDarkMode(request);
+    response.status(200);
     response.render("account.hbs", {userInfo: userInfo, username: authenticatedSession.userSession.username, isDarkMode: isDarkMode});
-    
   }
   catch (error) {
     logger.error(error);

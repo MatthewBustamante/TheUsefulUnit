@@ -1,8 +1,8 @@
 //#region Constants
-const DB_NAME = "FriendFinder_DB_Test";
+const DB_NAME = "FriendFinder_Test_DB";
 const app = require("../utilities/app");
 const supertest = require("supertest");
-const testRequest = supertest(app);
+let testRequest;
 const activitiesModel = require('../models/activitiesModel');
 const usersModel = require('../models/usersModel');
 const commentsModel = require('../models/commentsModel');
@@ -126,8 +126,9 @@ let generateString = (length) => {
  * Initialize a new database and table for every test
  */
 beforeEach(async () => {
-  await databases.initialize(DB_NAME, true);
-  connection = await databases.getConnection();
+    await databases.initialize("FriendFinder_Test_DB", true);
+    connection = databases.getConnection();
+    testRequest = supertest.agent(app);
 });
 
 /**
@@ -146,4 +147,169 @@ test("GET / - Home Controller - success", async () => {
 
     // check the status code
     expect(testResponse.status).toBe(200);
+});
+
+test("GET /about - About Controller - success", async () => {
+
+  let testResponse = await testRequest.get("/about");
+
+  expect(testResponse.status).toBe(200);
+});
+
+test("GET /login - Login Controller - success", async () => {
+
+  let testResponse = await testRequest.get("/login");
+
+  expect(testResponse.status).toBe(200);
+});
+
+test("GET /register - Signup Controller - success", async () => {
+
+  let testResponse = await testRequest.get("/register");
+
+  expect(testResponse.status).toBe(200);
+});
+
+test("POST /register - Authentication Controller - success", async () => {
+
+  const user = generateUser();
+  
+  // register the user
+  let testResponse = await testRequest.post("/register").send({
+    username: user.username,
+    email: user.email,
+    password: user.password,
+    password2: user.password
+  });
+
+  expect(testResponse.status).toBe(200);
+
+  // login to account
+  testResponse = await testRequest.post("/login").send({
+    identifier: user.username,
+    password: user.password
+  });
+
+  // redirection to logged in view
+  expect(testResponse.status).toBe(302);
+
+  // go to user-exclusive page
+  testResponse = await testRequest.get("/activities");
+
+  expect(testResponse.status).toBe(200);
+});
+
+test("POST /register - Authentication Controller - failure", async () => {
+  const user = generateUser();
+  await usersModel.createUser(user.username, user.email, user.password, user.password);
+
+  // user already exists
+  let testResponse = await testRequest.post("/register").send({
+    username: user.username,
+    email: user.email,
+    password: user.password,
+    password2: user.password
+  });
+
+  expect(testResponse.status).toBe(400);
+});
+
+test("POST /login - Authentication Controller - success", async () => {
+
+  const user = generateUser();
+  await usersModel.createUser(user.username, user.email, user.password, user.password);
+
+  // login to account
+  let testResponse = await testRequest.post("/login").send({
+    identifier: user.username,
+    password: user.password
+  });
+
+  // redirect to logged in view
+  expect(testResponse.text).toContain("Found. Redirecting to /home");
+});
+
+test("POST /login - Authentication Controller - failure", async () => {
+
+  const user = generateUser();
+  await usersModel.createUser(user.username, user.email, user.password, user.password);
+
+  // login attempt with incorrect password
+  let testResponse = await testRequest.post("/login").send({
+    identifier: user.username,
+    password: "blah blah blah"
+  });
+
+  expect(testResponse.status).toBe(400);
+});
+
+test("GET /logout - Authentication Controller - success", async () => {
+
+  const user = generateUser();
+  await usersModel.createUser(user.username, user.email, user.password, user.password);
+
+  // login to account
+  await testRequest.post("/login").send({
+    identifier: user.username,
+    password: user.password
+  });
+
+  // log out
+  let testResponse = await testRequest.get("/logout");
+
+  // redirect to home page
+  expect(testResponse.headers.location).toBe("/");
+});
+
+test("GET /user - User Controller - success", async () => {
+
+  const user = generateUser();
+  const userID = await usersModel.createUser(user.username, user.email, user.password, user.password);
+
+  // login to account
+  let testResponse = await testRequest.post("/login").send({
+    identifier: user.username,
+    password: user.password
+  });
+
+  // access user-exclusive page
+  let testResponse2 = await testRequest.get("/user");
+
+  expect(testResponse2.status).toBe(200);
+});
+
+test("GET /user - User Controller - failure", async () => {
+
+  // access user-exclusive page without logging in
+  let testResponse = await testRequest.get("/user");
+
+  // redirect to home page with error message
+  expect(testResponse.status).toBe(401);
+});
+
+test("GET /user/modify - User Controller - success", async () => {
+
+  const user = generateUser();
+  await usersModel.createUser(user.username, user.email, user.password, user.password);
+
+  // login to account
+  await testRequest.post("/login").send({
+    identifier: user.username,
+    password: user.password
+  })
+
+  // access user-exclusive page
+  let testResponse = await testRequest.get("/user/modify");
+
+  // redirect to home page with error message
+  expect(testResponse.text).toContain("You must be logged in");
+});
+
+test("GET /user/modify - User Controller - failure", async () => {
+
+  // access user-exclusive page without logging in
+  let testResponse = await testRequest.get("/user/modify");
+
+  // redirect to home page with error message
+  expect(testResponse.text).toContain("You must be logged in");
 });
