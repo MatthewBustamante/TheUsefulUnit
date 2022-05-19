@@ -86,85 +86,85 @@ async function showAddActivityForm(request, response) {
       });
     }
   }
-  router.get("/activity", showAddActivityForm);
+}
+router.get("/activity", showAddActivityForm);
 
-  /**
-   * Join activity
-   * @param {*} request
-   * @param {*} response
-   */
-  async function joinActivity(request, response) {
-    try {
-      logger.info("Activities controller called (join activity)");
+/**
+ * Join activity
+ * @param {*} request
+ * @param {*} response
+ */
+async function joinActivity(request, response) {
+  try {
+    logger.info("Activities controller called (join activity)");
 
-      //Tracking user agent
-      let ua = request.headers["user-agent"];
+    //Tracking user agent
+    let ua = request.headers["user-agent"];
 
-      //Tracking metrics
-      var metrics = {
-        pageVisited: "None [User Attempted CRUD Action]",
-        visitedAt: new Date(),
-        pageVisitLength: null,
-        user: null,
-        action: "Join activity",
-        userAgent: ua,
-      };
+    //Tracking metrics
+    var metrics = {
+      pageVisited: "None [User Attempted CRUD Action]",
+      visitedAt: new Date(),
+      pageVisitLength: null,
+      user: null,
+      action: "Join activity",
+      userAgent: ua,
+    };
 
-      const authenticatedSession = authController.authenticateUser(request);
+    const authenticatedSession = authController.authenticateUser(request);
 
-      if (!authenticatedSession) {
-        //response.sendStatus(401); //Unauthorized access
-        logger.info("User is not logged in");
+    if (!authenticatedSession) {
+      //response.sendStatus(401); //Unauthorized access
+      logger.info("User is not logged in");
 
-        metrics.user = "Guest (Not logged in)";
-        let isDarkMode = themeController.IsDarkMode(request);
+      metrics.user = "Guest (Not logged in)";
+      let isDarkMode = themeController.IsDarkMode(request);
 
-        response.status(401);
-
-        tracker.updateTracker(request, response, metrics);
-
-        response.render("login.hbs", {
-          error: "You must be logged in to perform that action",
-          status: 401,
-          isDarkMode: isDarkMode,
-        });
-
-        return;
-      }
-
-      logger.info(
-        "User " + authenticatedSession.userSession.username + " is logged in"
-      );
-
-      metrics.user = authenticatedSession.userSession.username;
-
-      //Refresh the cookie to not expire
-      authController.refreshSession(request, response);
-
-      let activityID = request.params.id;
-      let user = await userModel.getUser(
-        authenticatedSession.userSession.username
-      );
-
-      await model.addUserToActivity(user.UserID, activityID);
+      response.status(401);
 
       tracker.updateTracker(request, response, metrics);
 
-      response.redirect("/activity/" + activityID);
-    } catch (error) {
-      if (error instanceof ERRORS.DatabaseConnectionError) {
-        response.status(500);
-        response.render("error.hbs", {
-          error: error.message,
-          status: response.statusCode,
-        });
-      } else {
-        response.status(400);
-        response.render("error.hbs", {
-          error: error.message,
-          status: response.statusCode,
-        });
-      }
+      response.render("login.hbs", {
+        error: "You must be logged in to perform that action",
+        status: 401,
+        isDarkMode: isDarkMode,
+      });
+
+      return;
+    }
+
+    logger.info(
+      "User " + authenticatedSession.userSession.username + " is logged in"
+    );
+
+    metrics.user = authenticatedSession.userSession.username;
+
+    //Refresh the cookie to not expire
+    authController.refreshSession(request, response);
+
+    let activityID = request.params.id;
+    let user = await userModel.getUser(
+      authenticatedSession.userSession.username
+    );
+
+    await model.addUserToActivity(user.UserID, activityID);
+
+    tracker.updateTracker(request, response, metrics);
+
+    response.redirect("/activity/" + activityID);
+  } catch (error) {
+    if (error instanceof ERRORS.DatabaseConnectionError) {
+      response.status(500);
+      response.render("error.hbs", {
+        error: error.message,
+        status: response.statusCode,
+      });
+    } else {
+      response.status(400);
+      response.render("error.hbs", {
+        error: error.message,
+        status: response.statusCode,
+      });
     }
   }
 }
@@ -461,7 +461,7 @@ async function showActivity(request, response) {
         joined: joined,
         comments: comments,
         isDarkMode: isDarkMode,
-        draft: draft
+        draft: draft,
       });
 
       logger.info("App has shown an activity");
@@ -872,7 +872,9 @@ async function draftComment(request, response) {
     // if no draft cookie exists create one and set it to current content
     if (!request.cookies.draft) {
       response.cookie("draft", content, { expires: expiresAt });
-      logger.info("No draft cookie found, setting the draft to current content");
+      logger.info(
+        "No draft cookie found, setting the draft to current content"
+      );
     }
     // if the draft exists overright it
     else {
@@ -898,5 +900,5 @@ module.exports = {
   showAddActivityForm,
   addComment,
   deleteComment,
-  joinActivity
+  joinActivity,
 };
