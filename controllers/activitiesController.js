@@ -3,8 +3,10 @@ const { get } = require("express/lib/response");
 const logger = require("../logger");
 const model = require("../models/activitiesModel");
 const userModel = require("../models/usersModel");
+const commentsModel = require("../models/commentsModel");
 const authController = require("./authController");
 const router = express.Router();
+const ERRORS = require("../utilities/errors");
 const routeRoot = "/";
 
 /**
@@ -36,6 +38,77 @@ async function showAddActivityForm(request, response) {
 }
 router.get("/activity", showAddActivityForm);
 
+
+/**
+ * Join activity
+ * @param {*} request
+ * @param {*} response
+ */
+async function joinActivity(request, response) {
+  logger.info("Activities controller called (join activity)");
+
+  const authenticatedSession = authController.authenticateUser(request);
+    
+    if (!authenticatedSession) {
+        //response.sendStatus(401); //Unauthorized access
+        logger.info("User is not logged in");
+
+        response.render("login.hbs", {error: "You must be logged in to perform that action", status: 401});
+        
+        return;
+    }
+
+  logger.info("User " + authenticatedSession.userSession.username + " is logged in");
+
+  //Refresh the cookie to not expire
+  authController.refreshSession(request, response);
+
+  let activityID = request.params.id;
+  let user = await userModel.getUser(authenticatedSession.userSession.username);
+
+  await model.addUserToActivity(user.UserID, activityID);
+
+  response.redirect("/activity/" + activityID);
+}
+
+router.post("/activities/:id/join", joinActivity);
+
+
+/**
+ * Leave activity
+ * @param {*} request
+ * @param {*} response
+ */
+ async function leaveActivity(request, response) {
+  logger.info("Activities controller called (leave activity)");
+
+  const authenticatedSession = authController.authenticateUser(request);
+    
+    if (!authenticatedSession) {
+        //response.sendStatus(401); //Unauthorized access
+        logger.info("User is not logged in");
+
+        response.render("login.hbs", {error: "You must be logged in to perform that action", status: 401});
+        
+        return;
+    }
+
+  logger.info("User " + authenticatedSession.userSession.username + " is logged in");
+
+  //Refresh the cookie to not expire
+  authController.refreshSession(request, response);
+
+  let activityID = request.params.id;
+  let user = await userModel.getUser(authenticatedSession.userSession.username);
+
+  await model.deleteUserFromActivity(user.UserID, activityID);
+
+  response.redirect("/activity/" + activityID);
+}
+
+router.post("/activities/:id/leave", leaveActivity);
+
+
 /**
  * Handles POST '/activity'
  * Calls the model to create a new activity.
@@ -58,7 +131,17 @@ async function createActivity(request, response) {
     let endTime = request.body.end.substr(0, 10) + " " + request.body.end.substr(11, 15);
     let ownerID = user.UserID;
 
+    let start = Date.parse(request.body.start);
+    let end = Date.parse(request.body.end);
+
+    if(start >  end || end < start || isNaN(start) || isNaN(end)) {
+      response.render('addActivity.hbs', {error: "Invalid dates", status: 400});
+      return;
+    }
+
     let activity = await model.createActivity(name, description, startTime, endTime, ownerID);
+
+    await model.addUserToActivity(activity.ownerID, activity.id[0][0].ActivityID);
 
     logger.info('User has created an activity');
 
@@ -115,8 +198,32 @@ async function showActivity(request, response) {
         host: owner.Username,
         id: result.ActivityID
       }
+
+      let comments = await commentsModel.getAllComments(activity.id);
       
-      response.render("activity.hbs", {message: "Welcome, " + session.userSession.username, activity, username: session.userSession.username, activity: activity});
+      for(let i = 0; i < comments.length; i++) {
+        owner = await userModel.getUsernameByID(comments[i].UserID);
+
+       comments[i] = {
+          commentID: comments[i].CommentID,
+          text: comments[i].Comment,
+          date: comments[i].Date.toString().substr(0, 21),
+          user: owner.Username,
+        }
+      }
+      
+      let usersJoined = await model.getUsersInActivity(activity.id);
+
+      let joined = false;
+
+      for(let i = 0; i < usersJoined.length; i++) {
+        if(usersJoined[i].Username == session.userSession.username) {
+          joined = true;
+          break;
+        }
+      }
+      
+      response.render("activity.hbs", {message: "Welcome, " + session.userSession.username, activity, username: session.userSession.username, activity: activity, usersJoined: usersJoined, joined: joined, comments: comments});
   
       logger.info("App has shown an activity");
     }
@@ -245,6 +352,57 @@ async function deleteActivity(request, response) {
 }
 router.delete("/activities/:id", deleteActivity);
 
+async function addComment(request, response) {
+
+  try {
+    let session = authController.authenticateUser(request);
+
+    if(session) {
+
+      authController.refreshSession(request, response);
+
+      let user = await userModel.getUser(session.userSession.username);
+      let activityID = request.originalUrl.charAt(request.originalUrl.length - 1 )
+
+      await commentsModel.createComment(user.UserID, activityID, request.body.comment);
+      
+      response.redirect("/activity/" + activityID);
+    }
+  } catch (error) {
+    let customError = new ERRORS.DatabaseReadError(error.message);
+    logger.error(customError);
+    throw customError;
+  }
+}
+router.post("/comments/:id", addComment);
+
+async function deleteComment(request, response) {
+  try {
+    let session = authController.authenticateUser(request);
+    
+    if(session) {
+      const authenticatedSession = authController.authenticateUser(request);
+      
+      authController.refreshSession(request, response);
+
+      let commentID = request.params.id;
+
+      let activityID = await commentsModel.getActivityFromCommentID(commentID);
+      
+      await commentsModel.deleteComment(commentID);
+
+      response.redirect("/activity/" + activityID[0][0].ActivityID);
+    }
+  }
+  catch (error) {
+    console.log(error);
+    let customError = new ERRORS.DatabaseReadError(error.message);
+    logger.error(customError);
+    throw customError;
+  }
+}
+router.delete("/comments/:id", deleteComment);
+
 module.exports = {
   router,
   routeRoot,
@@ -253,4 +411,6 @@ module.exports = {
   showAllActivities,
   deleteActivity,
   showAddActivityForm,
+  addComment,
+  deleteComment
 };
