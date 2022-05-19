@@ -92,3 +92,22 @@
     </div>
   </div>
 </body>
+<script>
+  {{#if isDarkMode}}
+    var element = document.body; element.classList.toggle("dark-mode");
+    document.getElementsById("theme").src="/images/DarkMode.png";
+  {{else}}
+    document.getElementsById("theme").src="/images/LightMode.png";
+  {{/if}}
+</script>
+<style>
+  body { 
+    background-color: white; 
+    color: black;
+  } 
+
+  .dark-mode { 
+    background-color: black; 
+    color: white; 
+  }
+</style>

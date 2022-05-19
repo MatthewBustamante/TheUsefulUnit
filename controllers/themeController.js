@@ -2,9 +2,8 @@
 const expiresAt = new Date(2147483647000);
 const express = require("express");
 const router = express.Router();
+const routeRoot = "/";
 const logger = require("../logger");
-
-router.get("/theme", toggleDarkMode);
 
 function toggleDarkMode(request, response) {
   // if no theme cookie exists create one and set it to dark mode
@@ -22,4 +21,12 @@ function toggleDarkMode(request, response) {
     response.cookie("theme", "dark", { expires: expiresAt });
     logger.info("Theme cookie found, setting theme to dark");
   }
+  response.redirect("/");
 }
+
+router.get("/theme", toggleDarkMode);
+
+module.exports = {
+  router,
+  routeRoot,
+};
