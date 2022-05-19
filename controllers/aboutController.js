@@ -38,7 +38,9 @@ function showAbout(request, response) {
 
     tracker.updateTracker(request, response, metrics);
 
-    response.render("about.hbs");
+    let isDarkMode = themeController.IsDarkMode(request);
+
+    response.render("about.hbs", {isDarkMode: isDarkMode});
 
     return;
   }
