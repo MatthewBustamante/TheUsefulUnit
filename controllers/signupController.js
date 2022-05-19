@@ -14,6 +14,19 @@ const tracker = require("../utilities/tracker")
 function showSignupPage(request, response) {
   logger.info("Signup controller called (page)");
 
+  //Tracking user agent
+  let ua = request.headers['user-agent'];
+
+  //Tracking metrics
+  var metrics = {
+    pageVisited: "Register Page",
+    visitedAt: new Date(),
+    pageVisitLength: null,
+    user: "Guest (Not logged in)",
+    action: "None",
+    userAgent: ua
+  };
+
   const authenticatedSession = authController.authenticateUser(request);
     
     if (!authenticatedSession) {
@@ -22,6 +35,8 @@ function showSignupPage(request, response) {
 
         logger.info("Showing signup page");
 
+        tracker.updateTracker(request, response, metrics);
+        
         response.render("register.hbs");
         
         return;
@@ -31,6 +46,8 @@ function showSignupPage(request, response) {
 
   //Refresh the cookie to not expire
   authController.refreshSession(request, response)
+
+  tracker.updateTracker(request, response, metrics);
 
   response.redirect('/home');
 }

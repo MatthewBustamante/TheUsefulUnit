@@ -31,6 +31,19 @@ async function createUser(request, response) {
   try {
     logger.info("Authentication controller called (create user)");
 
+    //Tracking user agent
+    let ua = request.headers['user-agent'];
+
+    //Tracking metrics
+    var metrics = {
+      pageVisited: "None [User Attempted CRUD Action]",
+      visitedAt: new Date(),
+      pageVisitLength: null,
+      user: "Guest (Not logged in)",
+      action: "Create user",
+      userAgent: ua
+    };
+
     if (
       request.body.username != undefined &&
       request.body.email != undefined &&
@@ -44,6 +57,8 @@ async function createUser(request, response) {
         request.body.password,
         request.body.password2
       );
+
+      tracker.updateTracker(request, response, metrics);
 
       //Render success page
       response.render('login.hbs', {message: "Successfully created user, please log in to continue"});
@@ -65,6 +80,8 @@ async function createUser(request, response) {
       response.status(400);
     }
 
+    tracker.updateTracker(request, response, metrics);
+
     //Render fail page
     response.render('register.hbs', {error: error.message, status: response.statusCode});
 
@@ -83,6 +100,19 @@ router.post("/register", createUser);
 async function login(request, response) {
   try {
     logger.info("Authentication controller called (login)");
+
+    //Tracking user agent
+    let ua = request.headers['user-agent'];
+
+    //Tracking metrics
+    var metrics = {
+      pageVisited: "None [User Attempted CRUD Action]",
+      visitedAt: new Date(),
+      pageVisitLength: null,
+      user: "Guest (Not logged in)",
+      action: "Log in",
+      userAgent: ua
+    };
 
         if (request.body.identifier != undefined && request.body.password != undefined) {
             
@@ -111,6 +141,8 @@ async function login(request, response) {
 
         // Save cookie that will expire.
         response.cookie("sessionId", sessionId, {expires: sessions[sessionId].expiresAt, secure: true, httpOnly: true});
+
+        tracker.updateTracker(request, response, metrics);
 
         //Render success page (call home controller, validate user with cookie, calls activities view)
         response.redirect('/home');
@@ -143,6 +175,8 @@ async function login(request, response) {
       response.status(400);
     }
 
+    tracker.updateTracker(request, response, metrics);
+
     //Render fail page
     response.render('login.hbs', {error: error.message, status: response.statusCode});
 
@@ -161,20 +195,41 @@ router.post("/login", login);
 async function logout(request, response) {
   logger.info("Authentication controller called (logout)");
 
+  //Tracking user agent
+  let ua = request.headers['user-agent'];
+
+  //Tracking metrics
+  var metrics = {
+    pageVisited: "None [User Attempted CRUD Action]",
+    visitedAt: new Date(),
+    pageVisitLength: null,
+    user: null,
+    action: "Log out",
+    userAgent: ua
+  };
+
   const authenticatedSession = authenticateUser(request);
 
   if (!authenticatedSession) {
     //response.sendStatus(401); // Unauthorized access
     logger.info("User is not logged in");
+    metrics.user = "Guest (Not logged in)";
+
+    tracker.updateTracker(request, response, metrics);
+
     response.redirect("/");
     return;
   }
+
+  metrics.user = authenticatedSession.userSession.username;
 
   delete sessions[authenticatedSession.sessionId];
 
   logger.info("Logged out user " + authenticatedSession.userSession.username);
 
   response.cookie("sessionId", "", { expires: new Date() }); // "erase" cookie by forcing it to expire.
+
+  tracker.updateTracker(request, response, metrics);
 
   response.redirect("/");
 }

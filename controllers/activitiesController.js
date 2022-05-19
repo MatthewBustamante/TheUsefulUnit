@@ -475,6 +475,8 @@ async function deleteActivity(request, response) {
           }
         }
 
+        tracker.updateTracker(request, response, metrics);
+
         response.render("allActivities.hbs", {error: "Activity with id " + request.params.id + " was not found", status: 400, username: session.userSession.username, activities: activities});
       }
 
@@ -498,9 +500,13 @@ async function deleteActivity(request, response) {
           }
         }
 
+        tracker.updateTracker(request, response, metrics);
+
         response.render("allActivities.hbs", {message: "Activity deleted", username: session.userSession.username, activities: activities});
       } else {
         response.status(401);
+
+        tracker.updateTracker(request, response, metrics);
 
         response.render("allActivities.hbs", {error: "You are not authorized to delete this activity", status: 401, username: session.userSession.username, activities: activities});
       }
@@ -508,8 +514,11 @@ async function deleteActivity(request, response) {
     else {
 
       metrics.user = "Guest (Not logged in)";
+
       response.status(401);
 
+      tracker.updateTracker(request, response, metrics);
+      
       response.render('login.hbs', {error: "You must be logged in to perform that action", status: 401});
     }
   }
@@ -520,11 +529,25 @@ async function deleteActivity(request, response) {
 router.delete("/activities/:id", deleteActivity);
 
 async function addComment(request, response) {
-
   try {
     let session = authController.authenticateUser(request);
 
+    //Tracking user agent
+    let ua = request.headers['user-agent'];
+
+    //Tracking metrics
+    var metrics = {
+      pageVisited: "None [User Attempted CRUD Action]",
+      visitedAt: new Date(),
+      pageVisitLength: null,
+      user: null,
+      action: "Add comment",
+      userAgent: ua
+    };
+
     if(session) {
+
+      metrics.user = session.userSession.username;
 
       authController.refreshSession(request, response);
 
@@ -532,8 +555,18 @@ async function addComment(request, response) {
       let activityID = request.originalUrl.charAt(request.originalUrl.length - 1 )
 
       await commentsModel.createComment(user.UserID, activityID, request.body.comment);
+
+      tracker.updateTracker(request, response, metrics);
       
       response.redirect("/activity/" + activityID);
+    } else {
+      metrics.user = "Guest (Not logged in)";
+
+      tracker.updateTracker(request, response, metrics);
+
+      response.status(401)
+
+      response.render('login.hbs', {error: "You must be logged in to perform that action", status: 401});
     }
   } catch (error) {
     let customError = new ERRORS.DatabaseReadError(error.message);
@@ -546,9 +579,24 @@ router.post("/comments/:id", addComment);
 async function deleteComment(request, response) {
   try {
     let session = authController.authenticateUser(request);
+
+    //Tracking user agent
+    let ua = request.headers['user-agent'];
+
+    //Tracking metrics
+    var metrics = {
+      pageVisited: "None [User Attempted CRUD Action]",
+      visitedAt: new Date(),
+      pageVisitLength: null,
+      user: null,
+      action: "Delete comment",
+      userAgent: ua
+    };
     
     if(session) {
       const authenticatedSession = authController.authenticateUser(request);
+
+      metrics.user = session.userSession.username;
       
       authController.refreshSession(request, response);
 
@@ -558,7 +606,17 @@ async function deleteComment(request, response) {
       
       await commentsModel.deleteComment(commentID);
 
+      tracker.updateTracker(request, response, metrics);
+
       response.redirect("/activity/" + activityID[0][0].ActivityID);
+    } else {
+      metrics.user = "Guest (Not logged in)";
+
+      tracker.updateTracker(request, response, metrics);
+
+      response.status(401)
+      
+      response.render('login.hbs', {error: "You must be logged in to perform that action", status: 401});
     }
   }
   catch (error) {
