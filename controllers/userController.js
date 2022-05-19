@@ -160,6 +160,18 @@ async function updateUser(request, response) {
             email: request.body.email,
             userID: user.UserID
           }
+
+          delete authController.sessions[session.sessionId];
+
+          response.cookie("sessionId", "", { expires: new Date() }); // "erase" cookie by forcing it to expire.
+
+          // Create a session object that will expire in 2 minutes
+          const sessionId = authController.createSession(request.body.username, 2);
+
+          // Save cookie that will expire.
+          response.cookie("sessionId", sessionId, {expires: authController.sessions[sessionId].expiresAt, secure: true, httpOnly: true});
+
+          //response.redirect("/user")
           response.render("account.hbs", {message: "Successfully updated account", username: userInfo.username, userInfo: userInfo});
         } else {
           response.status(400)

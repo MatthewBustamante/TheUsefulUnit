@@ -256,5 +256,6 @@ module.exports = {
   routeRoot,
   refreshSession,
   authenticateUser,
+  createSession,
   sessions,
 };
