@@ -4,6 +4,7 @@ const routeRoot = "/";
 const logger = require("../logger");
 const authController = require("./authController");
 const tracker = require("../utilities/tracker")
+const themeController = require("../controllers/themeController");
 
 /**
  * Renders the login page
@@ -35,8 +36,12 @@ function showLoginForm(request, response) {
         logger.info("Showing signup page");
 
         tracker.updateTracker(request, response, metrics);
+        let isDarkMode = themeController.IsDarkMode(request);
 
-        response.render("login.hbs");
+        response.render("login.hbs", {isDarkMode: isDarkMode});
+
+        let isDarkMode = themeController.IsDarkMode(request);
+        response.render("login.hbs", { isDarkMode: isDarkMode });
         
         return;
     }

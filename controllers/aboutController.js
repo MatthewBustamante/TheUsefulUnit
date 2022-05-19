@@ -4,6 +4,7 @@ const routeRoot = "/";
 const authController = require("./authController");
 const logger = require("../logger");
 const tracker = require("../utilities/tracker")
+const themeController = require("../controllers/themeController");
 
 /**
  * Handles GET '/about'
@@ -26,12 +27,10 @@ function showAbout(request, response) {
   };
 
   const authenticatedSession = authController.authenticateUser(request);
-    
-    if (!authenticatedSession) {
-        //response.sendStatus(401); //Unauthorized access
-        logger.info("User is not logged in");
 
-        logger.info("Showing about page");
+  if (!authenticatedSession) {
+    //response.sendStatus(401); //Unauthorized access
+    logger.info("User is not logged in");
 
         metrics.pageVisited = "About Page"
         metrics.user = "Guest (Not logged in)";
@@ -43,19 +42,32 @@ function showAbout(request, response) {
         
         return;
     }
+  
+    logger.info("Showing about page");
 
-  logger.info("User " + authenticatedSession.userSession.username + " is logged in");
+    let isDarkMode = themeController.IsDarkMode(request);
+
+    response.render("about.hbs", { isDarkMode: isDarkMode });
+
+    return;
+  }
+
+  logger.info(
+    "User " + authenticatedSession.userSession.username + " is logged in"
+  );
 
   metrics.pageVisited = "About Page"
   metrics.user = authenticatedSession.userSession.username;
   metrics.action = "None";
 
   //Refresh the cookie to not expire
-  authController.refreshSession(request, response)
+  authController.refreshSession(request, response);
+
+  let isDarkMode = themeController.IsDarkMode(request);
 
   tracker.updateTracker(request, response, metrics);
 
-  response.render("about.hbs", {username: authenticatedSession.userSession.username});
+  response.render("about.hbs", {username: authenticatedSession.userSession.username, isDarkMode: isDarkMode});
 }
 
 router.get("/about", showAbout);

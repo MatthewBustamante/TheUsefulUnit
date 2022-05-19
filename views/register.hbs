@@ -70,13 +70,24 @@
     </div>
   </div>
 </body>
+<script>
+document.title = 'Register - Friend Finder';
 
+  {{#if isDarkMode}}
+    var element = document.body; element.classList.toggle("dark-mode");
+  {{/if}}
+</script>
 <style>
-  form {
+form {
     min-width: 400px;
   }
-</style>
+  body { 
+    background-color: white; 
+    color: black;
+  } 
 
-<script>
-  document.title = 'Register - Friend Finder';
-</script>
+  .dark-mode { 
+    background-color: black; 
+    color: black; 
+  }
+</style>

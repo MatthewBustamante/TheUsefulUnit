@@ -51,12 +51,25 @@
   </div>
 </body>
 
+<script>
+  document.title = 'Login - Friend Finder';
+
+  {{#if isDarkMode}}
+    var element = document.body; element.classList.toggle("dark-mode");
+  {{/if}}
+</script>
 <style>
+  body { 
+    background-color: white; 
+    color: black;
+  } 
+
+  .dark-mode { 
+    background-color: black; 
+    color: black; 
+  }
+  
   form {
     min-width: 400px;
   }
 </style>
-
-<script>
-  document.title = 'Login - Friend Finder';
-</script>
