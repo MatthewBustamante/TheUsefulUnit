@@ -3,7 +3,7 @@ const router = express.Router();
 const routeRoot = "/";
 const authController = require("./authController");
 const logger = require("../logger");
-const tracker = require("../utilities/tracker")
+const tracker = require("../utilities/tracker");
 const themeController = require("../controllers/themeController");
 
 /**
@@ -14,7 +14,7 @@ function showAbout(request, response) {
   logger.info("Showing About page");
 
   //Tracking user agent
-  let ua = request.headers['user-agent'];
+  let ua = request.headers["user-agent"];
 
   //Tracking metrics
   var metrics = {
@@ -23,7 +23,7 @@ function showAbout(request, response) {
     pageVisitLength: null,
     user: null,
     action: null,
-    userAgent: ua
+    userAgent: ua,
   };
 
   const authenticatedSession = authController.authenticateUser(request);
@@ -32,7 +32,7 @@ function showAbout(request, response) {
     //response.sendStatus(401); //Unauthorized access
     logger.info("User is not logged in");
 
-    metrics.pageVisited = "About Page"
+    metrics.pageVisited = "About Page";
     metrics.user = "Guest (Not logged in)";
     metrics.action = "None";
 
@@ -40,7 +40,7 @@ function showAbout(request, response) {
 
     let isDarkMode = themeController.IsDarkMode(request);
 
-    response.render("about.hbs", {isDarkMode: isDarkMode});
+    response.render("about.hbs", { isDarkMode: isDarkMode });
 
     return;
   }
@@ -51,7 +51,7 @@ function showAbout(request, response) {
     "User " + authenticatedSession.userSession.username + " is logged in"
   );
 
-  metrics.pageVisited = "About Page"
+  metrics.pageVisited = "About Page";
   metrics.user = authenticatedSession.userSession.username;
   metrics.action = "None";
 
@@ -62,7 +62,10 @@ function showAbout(request, response) {
 
   tracker.updateTracker(request, response, metrics);
 
-  response.render("about.hbs", { username: authenticatedSession.userSession.username, isDarkMode: isDarkMode });
+  response.render("about.hbs", {
+    username: authenticatedSession.userSession.username,
+    isDarkMode: isDarkMode,
+  });
 }
 
 router.get("/about", showAbout);

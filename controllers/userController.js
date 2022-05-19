@@ -181,6 +181,7 @@ router.get("/user/modify", modifyAccountPage);
  * @param {*} response
  */
 async function updateUser(request, response) {
+  try {
   logger.info("Updating user settings");
 
   //Tracking user agent
@@ -201,66 +202,80 @@ async function updateUser(request, response) {
 
   var session = authController.authenticateUser(request);
 
-  if (session) {
-    authController.refreshSession(request, response);
+    if (session) {
+      authController.refreshSession(request, response);
 
-    metrics.user = session.userSession.username;
+      metrics.user = session.userSession.username;
 
-    user = await model.getUser(session.userSession.username);
-
-    userInfo = {
-      username: user.Username,
-      email: user.Email,
-      userID: request.params.id,
-    };
-
-    if (!user) {
-      respoonse.status(500);
-
-      tracker.updateTracker(request, response, metrics);
-
-      let isDarkMode = themeController.IsDarkMode(request);
-
-      response.render("modifyAccount.hbs", {
-        error: "Error updating user",
-        status: 500,
-        username: session.userSession.username,
-        userInfo: userInfo,
-        isDarkMode: isDarkMode,
-      });
-    }
-
-    const expectedPassword = user.HashedPassword;
-
-    if (
-      expectedPassword &&
-      (await bcrypt.compare(request.body.oldPassword, expectedPassword))
-    ) {
-      user = await model.UpdateUserInformations(
-        user.UserID,
-        request.body.username,
-        request.body.email,
-        request.body.newPassword,
-        request.body.newPasswordRepeat,
-        request.body.oldPassword
-      );
+      var user = await model.getUser(session.userSession.username);
 
       userInfo = {
-        username: request.body.username,
-        email: request.body.email,
-        userID: request.params.id
+        username: user.Username,
+        email: user.Email,
+        userID: request.params.id,
       };
-      let isDarkMode = themeController.IsDarkMode(request);
 
-      /* response.render("account.hbs", {
-        username: session.userSession.username,
-        userInfo: userInfo,
-        isDarkMode: isDarkMode,
-      });
+      if (!user) {
+        response.status(500);
 
-      logger.info("Finished updating user settings"); */
+        tracker.updateTracker(request, response, metrics);
 
-      if (user) {
+        let isDarkMode = themeController.IsDarkMode(request);
+
+        response.render("modifyAccount.hbs", {
+          error: "Error updating user",
+          status: 500,
+          username: session.userSession.username,
+          userInfo: userInfo,
+          isDarkMode: isDarkMode,
+        });
+      }
+
+      const expectedPassword = user.HashedPassword;
+
+      if (
+        expectedPassword &&
+        (await bcrypt.compare(request.body.oldPassword, expectedPassword))
+      ) {
+        user = await model.UpdateUserInformations(
+          user.UserID,
+          request.body.username,
+          request.body.email,
+          request.body.newPassword,
+          request.body.newPasswordRepeat,
+          request.body.oldPassword
+        );
+
+        userInfo = {
+          username: request.body.username,
+          email: request.body.email,
+        };
+
+        let isDarkMode = themeController.IsDarkMode(request);
+
+        if(user)
+        user = await model.getUser(user.username);
+
+        userInfo = {
+          username: user.Username,
+          email: user.Email,
+          userID: request.params.id,
+        };
+
+        let joined = await activitiesModel.getJoinedActivities(user.UserID);
+        let created = await activitiesModel.getOwnedActivities(user.UserID);
+
+        response.render("account.hbs", {
+          username: session.userSession.username,
+          userInfo: userInfo,
+          isDarkMode: isDarkMode,
+          activitiesJoined: joined,
+          activitiesCreated: created
+        });
+
+        logger.info("Finished updating user settings");
+
+        if (user) {
         userInfo = {
           username: request.body.username,
           email: request.body.email,
@@ -410,7 +425,6 @@ async function deleteUser(request, response) {
         expectedPassword &&
         (await bcrypt.compare(request.body.password, expectedPassword))
       ) {
-        
         await model.DeleteUser(user.UserID);
 
         delete authController.sessions[session.sessionId];

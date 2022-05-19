@@ -12,9 +12,14 @@ const saltRounds = 10;
  * @param {String} password the password of the new user
  * @returns the user's id, username and email that was created
  */
-async function createUser(username, email, unhashedpassword, passwordrepeat) {                                 //Finished test
+async function createUser(username, email, unhashedpassword, passwordrepeat) {
+  //Finished test
   try {
     const connection = DATABASES.getConnection();
+    // Check that the connection is not null
+    if (connection === null) {
+      throw new ERRORS.DatabaseConnectionError("Database connection is null");
+    }
 
     //validate the inputed values
     await validator.isValidNewUsername(username, connection);
@@ -47,10 +52,16 @@ async function createUser(username, email, unhashedpassword, passwordrepeat) {  
  * @param {*} email email of the user to look for
  * @returns the user that was found null if no user was found
  */
-async function getUser(identifier) {                                 //Finished test
+async function getUser(identifier) {
+  //Finished test
   try {
     // Connect to the database
     const connection = DATABASES.getConnection();
+    // Check that the connection is not null
+    if (connection === null) {
+      throw new ERRORS.DatabaseConnectionError("Database connection is null");
+    }
+
     var sqlQuery;
 
     // Check if the identifier is an email or a username and adapt the query accordingly
@@ -80,9 +91,21 @@ async function getUser(identifier) {                                 //Finished 
  * @param {*} newPasswordRepeat new password of the user to enter for the second time
  * @param {*} oldPassword old password of the user to be entered
  */
-async function UpdateUserInformations(id, username, email, newPassword, newPasswordRepeat, oldPassword) {
+async function UpdateUserInformations(
+  id,
+  username,
+  email,
+  newPassword,
+  newPasswordRepeat,
+  oldPassword
+) {
   // Connect to the database
   const connection = DATABASES.getConnection();
+  // Check that the connection is not null
+  if (connection === null) {
+    throw new ERRORS.DatabaseConnectionError("Database connection is null");
+  }
+
   try {
     // If no information was put in to the password fields, don't update the password
     if (newPassword === "" && newPasswordRepeat === "" && oldPassword === "") {
@@ -137,14 +160,19 @@ async function UpdateUserInformations(id, username, email, newPassword, newPassw
  * @param {*} userID id of the user to delete
  * @param {*} password password of the user to delete
  */
-async function DeleteUser(id) {                                 //Finished test
+async function DeleteUser(id) {
+  //Finished test
   const connection = DATABASES.getConnection();
+  // Check that the connection is not null
+  if (connection === null) {
+    throw new ERRORS.DatabaseConnectionError("Database connection is null");
+  }
+
   //delete the user's comments
   const sqlQuery1 = `DELETE FROM Comments WHERE UserID = ${id}`;
   try {
     await connection.execute(sqlQuery1);
     logger.info("User comments deleted");
-
   } catch (error) {
     logger.error(error);
     throw error;
@@ -184,15 +212,18 @@ async function DeleteUser(id) {                                 //Finished test
  * Gets the user by their ID.
  * @param {*} ID The ID of the user
  */
- async function getUsernameByID(ID) {                                 //Finished test
+async function getUsernameByID(ID) {
+  const connection = DATABASES.getConnection();
+  // Check that the connection is not null
+  if (connection === null) {
+    throw new ERRORS.DatabaseConnectionError("Database connection is null");
+  } //Finished test
   try {
-    const connection = DATABASES.getConnection();
     var sqlQuery = `SELECT Username FROM Users WHERE UserID = ?`;
     let result = await connection.execute(sqlQuery, [ID]);
 
     return result[0][0];
-  }
-  catch (error) {
+  } catch (error) {
     logger.error(error);
     console.log(error);
   }
@@ -203,5 +234,5 @@ module.exports = {
   UpdateUserInformations,
   DeleteUser,
   getUser,
-  getUsernameByID
+  getUsernameByID,
 };
