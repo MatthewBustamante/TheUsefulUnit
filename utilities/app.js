@@ -5,13 +5,19 @@ const { engine } = require("express-handlebars");
 const bodyParser = require("body-parser");
 const pinohttp = require("pino-http");
 const expressListRoutes = require("express-list-routes");
-const methodOverride = require('method-override');
+const methodOverride = require("method-override");
 
 logger.info("Creating app");
 
 // Tell the app to use handlebars templating engine.
 //   Configure the engine to use a simple .hbs extension to simplify file naming
-app.engine("hbs", engine({ extname: ".hbs", helpers: require('../utilities/handlebars-helpers') }));
+app.engine(
+  "hbs",
+  engine({
+    extname: ".hbs",
+    helpers: require("../utilities/handlebars-helpers"),
+  })
+);
 app.set("view engine", "hbs");
 app.set("views", "./views"); // indicate folder for views
 
@@ -27,7 +33,7 @@ app.use(express.json());
 app.use(express.static("public"));
 
 //Used to bypass the HTML forms PUT/DELETE limitation
-app.use(methodOverride('_method'))
+app.use(methodOverride("_method"));
 
 const cookieParser = require("cookie-parser");
 app.use(cookieParser());
@@ -39,12 +45,11 @@ const httpLogger = pinohttp({
 app.use(httpLogger);
 
 // Make sure errorController is last!
-//TODO: add the remaining controllers
-
 const controllers = [
   "homeController",
   "aboutController",
   "authController",
+  "themeController",
   "loginController",
   "userController",
   "signupController",

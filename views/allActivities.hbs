@@ -38,3 +38,19 @@
         }
     </style>
 </body> 
+<script>
+  {{#if isDarkMode}}
+    var element = document.body; element.classList.toggle("dark-mode");
+  {{/if}}
+</script>
+<style>
+  body { 
+    background-color: white; 
+    color: black;
+  } 
+
+  .dark-mode { 
+    background-color: black; 
+    color: white; 
+  }
+</style>

@@ -6,6 +6,7 @@ const logger = require("../logger");
 const uuid = require("uuid");
 const errors = require("../utilities/errors");
 const bcrypt = require("bcrypt");
+const themeController = require("../controllers/themeController");
 
 const sessions = {};
 
@@ -45,7 +46,9 @@ async function createUser(request, response) {
       );
 
       //Render success page
-      response.render('login.hbs', {message: "Successfully created user, please log in to continue"});
+      let isDarkMode = themeController.IsDarkMode(request);
+
+      response.render('login.hbs', {message: "Successfully created user, please log in to continue", isDarkMode: isDarkMode});
 
       logger.info("Authentication controller: Successfully created user");
 
@@ -65,7 +68,9 @@ async function createUser(request, response) {
     }
 
     //Render fail page
-    response.render('register.hbs', {error: error.message, status: response.statusCode});
+    let isDarkMode = themeController.IsDarkMode(request);
+
+    response.render('register.hbs', {error: error.message, status: response.statusCode, isDarkMode: isDarkMode});
 
     logger.error(error.message + " (" + response.statusCode + ")");
   }
@@ -141,9 +146,10 @@ async function login(request, response) {
       //User error (invalid input, etc)
       response.status(400);
     }
+    let isDarkMode = themeController.IsDarkMode(request);
 
     //Render fail page
-    response.render('login.hbs', {error: error.message, status: response.statusCode});
+    response.render('login.hbs', {error: error.message, status: response.statusCode, isDarkMode: isDarkMode});
 
     logger.error(error.message + " (" + response.statusCode + ")");
   }
