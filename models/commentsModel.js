@@ -10,8 +10,14 @@ const logger = require("../utilities/logger");
  * @param {string} comment is the comment to add
  * @returns the comment object
  */
-async function createComment(userID, activityID, comment) {                                 //Finished test
+async function createComment(userID, activityID, comment) {
+  //Finished test
   let connection = DATABASES.getConnection();
+
+  // Check that the connection is not null
+  if (connection === null) {
+    throw new ERRORS.DatabaseConnectionError("Database connection is null");
+  }
 
   logger.info("Comment model called (Create)");
 
@@ -49,8 +55,14 @@ async function createComment(userID, activityID, comment) {                     
  * @param {int} activityID the id of the activity to get comments for
  * @throws {databaseReadError} if the comment could not be read
  */
-async function getAllComments(activityID) {                                          //Finished test
+async function getAllComments(activityID) {
+  //Finished test
   const connection = DATABASES.getConnection();
+  // Check that the connection is not null
+  if (connection === null) {
+    throw new ERRORS.DatabaseConnectionError("Database connection is null");
+  }
+
   const sqlQuery = `SELECT * FROM Comments WHERE ActivityID = ${activityID}`;
   try {
     const result = await connection.execute(sqlQuery);
@@ -67,8 +79,14 @@ async function getAllComments(activityID) {                                     
  * @param {*} commentID The Comment ID.
  * @returns The Comment object.
  */
-async function getComment(commentID) {                                               //Finished test
+async function getComment(commentID) {
+  //Finished test
   const connection = DATABASES.getConnection();
+  // Check that the connection is not null
+  if (connection === null) {
+    throw new ERRORS.DatabaseConnectionError("Database connection is null");
+  }
+
   const sqlQuery = `SELECT * FROM Comments WHERE CommentID = ${commentID}`;
   try {
     const result = await connection.execute(sqlQuery);
@@ -85,9 +103,16 @@ async function getComment(commentID) {                                          
  * @param {int} commentID the id of the comment to delete
  * @throws {DatabaseWriteError} if the comment does not exist
  */
-async function deleteComment(commentID) {                                           //Finished test
+async function deleteComment(commentID) {
+  //Finished test
   // Get the connection to the database
   let connection = DATABASES.getConnection();
+
+  // Check that the connection is not null
+  if (connection === null) {
+    throw new ERRORS.DatabaseConnectionError("Database connection is null");
+  }
+
   // Remove the comment from the database
   await connection
     .execute(`DELETE FROM Comments WHERE CommentID = ?;`, [commentID])
@@ -99,8 +124,14 @@ async function deleteComment(commentID) {                                       
     });
 }
 
-async function getActivityFromCommentID(commentID) {                               //Finished test
+async function getActivityFromCommentID(commentID) {
+  //Finished test
   const connection = DATABASES.getConnection();
+  // Check that the connection is not null
+  if (connection === null) {
+    throw new ERRORS.DatabaseConnectionError("Database connection is null");
+  }
+
   const sqlQuery = `SELECT ActivityID FROM Comments WHERE CommentID = ${commentID}`;
   try {
     const result = await connection.execute(sqlQuery);
@@ -117,5 +148,5 @@ module.exports = {
   getAllComments,
   deleteComment,
   getComment,
-  getActivityFromCommentID
+  getActivityFromCommentID,
 };
