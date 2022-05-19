@@ -196,6 +196,9 @@ async function updateUser(request, response) {
     userAgent: ua,
   };
 
+  var userInfo = {};
+  var user;
+
   var session = authController.authenticateUser(request);
 
   if (session) {
@@ -203,9 +206,9 @@ async function updateUser(request, response) {
 
     metrics.user = session.userSession.username;
 
-    var user = await model.getUser(session.userSession.username);
+    user = await model.getUser(session.userSession.username);
 
-    var userInfo = {
+    userInfo = {
       username: user.Username,
       email: user.Email,
       userID: request.params.id,
@@ -242,25 +245,26 @@ async function updateUser(request, response) {
         request.body.oldPassword
       );
 
-      let userInfo = {
+      userInfo = {
         username: request.body.username,
         email: request.body.email,
+        userID: request.params.id
       };
       let isDarkMode = themeController.IsDarkMode(request);
 
-      response.render("account.hbs", {
+      /* response.render("account.hbs", {
         username: session.userSession.username,
         userInfo: userInfo,
         isDarkMode: isDarkMode,
       });
 
-      logger.info("Finished updating user settings");
+      logger.info("Finished updating user settings"); */
 
       if (user) {
         userInfo = {
           username: request.body.username,
           email: request.body.email,
-          userID: user.UserID,
+          userID: request.params.id,
         };
 
         delete authController.sessions[session.sessionId];
@@ -269,7 +273,7 @@ async function updateUser(request, response) {
 
         // Create a session object that will expire in 2 minutes
         const sessionId = authController.createSession(
-          request.body.username,
+          user.username,
           2
         );
 
@@ -283,13 +287,27 @@ async function updateUser(request, response) {
         //response.redirect("/user")
 
         tracker.updateTracker(request, response, metrics);
+
         let isDarkMode = themeController.IsDarkMode(request);
+
+        user = await model.getUser(user.username);
+
+        userInfo = {
+          username: user.Username,
+          email: user.Email,
+          userID: request.params.id,
+        };
+
+        let joined = await activitiesModel.getJoinedActivities(user.UserID);
+        let created = await activitiesModel.getOwnedActivities(user.UserID);
 
         response.render("account.hbs", {
           message: "Successfully updated account",
           username: userInfo.username,
           userInfo: userInfo,
           isDarkMode: isDarkMode,
+          activitiesJoined: joined,
+          activitiesCreated: created
         });
       } else {
         response.status(400);
@@ -297,6 +315,14 @@ async function updateUser(request, response) {
         tracker.updateTracker(request, response, metrics);
 
         let isDarkMode = themeController.IsDarkMode(request);
+
+        user = await model.getUser(session.userSession.username);
+
+        userInfo = {
+          username: user.Username,
+          email: user.Email,
+          userID: request.params.id,
+        };
 
         response.render("modifyAccount.hbs", {
           error: "Invalid information provided",
@@ -313,6 +339,14 @@ async function updateUser(request, response) {
 
       tracker.updateTracker(request, response, metrics);
       let isDarkMode = themeController.IsDarkMode(request);
+
+      user = await model.getUser(session.userSession.username);
+
+    userInfo = {
+      username: user.Username,
+      email: user.Email,
+      userID: request.params.id,
+    };
 
       response.render("modifyAccount.hbs", {
         error: "Invalid information provided",
