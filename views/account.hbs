@@ -1,0 +1,35 @@
+<body>
+    <div class="container">
+        <div class="content">
+            <div class="px-4 py-5 my-5 text-center">
+                <h3 style="font-weight:bold;">Account Settings</h3>
+                <img src="/images/gear.png" style="height:10%;width:10%;margin:2em;">
+                <div class="userInfoOuter">
+                    <div class="userInfoInner">
+                        <label><b>Username: </b>{{userInfo.username}}</label>
+                        <br>
+                        <label><b>Email: </b>{{userInfo.email}}</label>
+                        <br>
+                    </div>
+                </div>
+                <br>
+                <div class="col-lg-6 mx-auto">
+                    <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+                        <a role="button" class="btn btn-primary btn-lg px-4 gap-3" href="/user/modify">Edit Account</a>
+                        <a role="button" class="btn btn-primary btn-lg px-4 gap-3" href="/user/delete">Delete Account</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <style>
+        .userInfoOuter {
+            display: flex;
+            justify-content: center;
+        }
+
+        .userInfoOuter {
+            text-align: start;
+        }
+    </style>
+</body>

@@ -80,14 +80,7 @@ async function getUser(identifier) {
  * @param {*} newPasswordRepeat new password of the user to enter for the second time
  * @param {*} oldPassword old password of the user to be entered
  */
-async function UpdateUserInformations(
-  id,
-  username,
-  email,
-  newPassword,
-  newPasswordRepeat,
-  oldPassword
-) {
+async function UpdateUserInformations(id, username, email, newPassword, newPasswordRepeat, oldPassword) {
   // Connect to the database
   const connection = DATABASES.getConnection();
   try {
@@ -128,8 +121,8 @@ async function UpdateUserInformations(
     const hashedPassword = bcrypt.hashSync(newPassword, saltRounds);
 
     //update the user's username, email, and password
-    sqlQuery = `UPDATE Users SET Username = '${username}', Email = '${email}', HashedPassword = '${hashedPassword}' WHERE UserID = ${id}`;
-    await connection.execute(sqlQuery);
+    const sqlQuery2 = `UPDATE Users SET Username = '${username}', Email = '${email}', HashedPassword = '${hashedPassword}' WHERE UserID = ${id}`;
+    await connection.execute(sqlQuery2);
     logger.info("User username, email, and password updated");
 
     return { username: username, email: email };
@@ -140,19 +133,87 @@ async function UpdateUserInformations(
 }
 
 /**
+ * Gets the user by their ID.
+ * @param {*} ID The ID of the user
+ */
+ async function getUsernameByID(ID) {
+  try {
+    const connection = DATABASES.getConnection();
+    var sqlQuery = `SELECT Username FROM Users WHERE UserID = ?`;
+    let result = await connection.execute(sqlQuery, [ID]);
+
+    return result[0][0];
+  }
+  catch (error) {
+    logger.error(error);
+    console.log(error);
+  }
+}
+
+/**
  * Deletes the user with the given id by verifying the given password
  * @param {*} userID id of the user to delete
  * @param {*} password password of the user to delete
  */
 async function DeleteUser(id) {
+  const connection = DATABASES.getConnection();
+  //delete the user's comments
+  const sqlQuery1 = `DELETE FROM Comments WHERE UserID = ${id}`;
   try {
-    const connection = DATABASES.getConnection();
-    const sqlQuery = `DELETE FROM Users WHERE UserID = ${id}`;
-    await connection.execute(sqlQuery);
+    await connection.execute(sqlQuery1);
+    logger.info("User comments deleted");
+
+  } catch (error) {
+    logger.error(error);
+    throw error;
+  }
+
+   //delete the from the UserActivity table
+  const sqlQuery2 = `DELETE FROM UserActivity WHERE UserID = ${id}`;
+  try {
+    await connection.execute(sqlQuery2);
+    logger.info("User activity deleted");
+  } catch (error) {
+    logger.error(error);
+    throw error;
+  }
+
+  //delete all the user's activities
+  const sqlQuery3 = `DELETE FROM Activities WHERE UserID = ${id}`;
+
+  try {
+    await connection.execute(sqlQuery3);
+    logger.info("Deleted user activities deleted");
+  } catch (error) {
+    logger.error(error);
+    throw error;
+  }
+
+  try {
+    const sqlQuery4 = `DELETE FROM Users WHERE UserID = ${id}`;
+    await connection.execute(sqlQuery4);
     logger.info("User deleted");
   } catch (error) {
     logger.error(error);
     throw error;
+  }
+}
+
+/**
+ * Gets the user by their ID.
+ * @param {*} ID The ID of the user
+ */
+ async function getUsernameByID(ID) {
+  try {
+    const connection = DATABASES.getConnection();
+    var sqlQuery = `SELECT Username FROM Users WHERE UserID = ?`;
+    let result = await connection.execute(sqlQuery, [ID]);
+
+    return result[0][0];
+  }
+  catch (error) {
+    logger.error(error);
+    console.log(error);
   }
 }
 
@@ -161,4 +222,5 @@ module.exports = {
   UpdateUserInformations,
   DeleteUser,
   getUser,
+  getUsernameByID
 };

@@ -65,7 +65,7 @@
     <ul class="navbar-left">
       <li class="nav-item">
         <a class="nav-link" href="/">
-          <img id="logo" src="./images/FriendFinderLogo.png" alt="logo" />
+          <img id="logo" src="/images/FriendFinderLogo.png" alt="logo" />
         </a>
       </li>
       <li class="nav-item">
@@ -76,7 +76,7 @@
       </li>
     </ul>
 
-    {{#if message}}
+    {{#if username}}
     <ul class="navbar-right">
       <li class="nav-item">
         <a class="nav-link" href="/user">{{username}}</a>
@@ -92,6 +92,9 @@
       </li>
       <li class="nav-item">
         <a class="nav-link" href="/register">Sign up</a>
+      </li>
+      <li class="nav-item">
+       <button id="darkModeToggle"></button>
       </li>
     </ul>
     {{/if}}
