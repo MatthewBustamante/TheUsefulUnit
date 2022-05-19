@@ -262,23 +262,6 @@ async function createActivity(request, response) {
 
     response.render('login.hbs', { error: "You must be logged in to perform that action", status: 401, isDarkMode: isDarkMode });
   }
-
-  let activity = await model.createActivity(
-    name,
-    description,
-    startTime,
-    endTime,
-    ownerID
-  );
-
-  await model.addUserToActivity(
-    activity.ownerID,
-    activity.id[0][0].ActivityID
-  );
-
-  logger.info("User has created an activity");
-
-  response.redirect("/activity/" + activity.id[0][0].ActivityID);
 }
 router.post("/activity", createActivity);
 

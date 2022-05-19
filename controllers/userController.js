@@ -376,8 +376,7 @@ async function deleteUser(request, response) {
         expectedPassword &&
         (await bcrypt.compare(request.body.password, expectedPassword))
       ) {
-        await activitiesModel.deleteAllActivities(user.UserID);
-
+        
         await model.DeleteUser(user.UserID);
 
         delete authController.sessions[session.sessionId];
