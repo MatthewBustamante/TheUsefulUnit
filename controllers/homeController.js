@@ -57,7 +57,7 @@ async function showHome(request, response) {
   //Refresh the cookie to not expire
   authController.refreshSession(request, response);
 
-  tracker.updateTracker(request, response, metrics);
+  //tracker.updateTracker(request, response, metrics);
   
   response.redirect("/activities")
 }
