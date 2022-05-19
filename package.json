@@ -32,5 +32,8 @@
   "bugs": {
     "url": "https://github.com/MatthewBustamante/TheUsefulUnit/issues"
   },
-  "homepage": "https://github.com/MatthewBustamante/TheUsefulUnit#readme"
+  "homepage": "https://github.com/MatthewBustamante/TheUsefulUnit#readme",
+  "devDependencies": {
+    "@types/jquery": "^3.5.14"
+  }
 }
