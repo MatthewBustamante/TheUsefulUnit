@@ -3,6 +3,7 @@ const logger = require("../logger");
 const model = require("../models/usersModel");
 const activitiesModel = require("../models/activitiesModel");
 const methodOverride = require('method-override');
+const themeController = require("../controllers/themeController");
 
 //Used to refresh session and authenticate pages/actions
 const authController = require("../controllers/authController");
@@ -29,8 +30,8 @@ async function showUser(request, response) {
     if (!authenticatedSession) {
       //response.sendStatus(401); //Unauthorized access
       logger.info("User is not logged in");
-
-      response.render("login.hbs", {error: "You must be logged in to perform that action", status: 401});
+      let isDarkMode = themeController.IsDarkMode(request);
+      response.render("login.hbs", {error: "You must be logged in to perform that action", status: 401, isDarkMode: isDarkMode});
         
       return;
     }
@@ -45,8 +46,8 @@ async function showUser(request, response) {
       username: user.Username,
       email: user.Email
     }
-
-    response.render("account.hbs", {userInfo: userInfo, username: authenticatedSession.userSession.username});
+    let isDarkMode = themeController.IsDarkMode(request);
+    response.render("account.hbs", {userInfo: userInfo, username: authenticatedSession.userSession.username, isDarkMode: isDarkMode});
     
   }
   catch (error) {
@@ -89,11 +90,14 @@ async function modifyAccountPage(request, response) {
         email: user.Email
       }
     
-      response.render("modifyAccount.hbs", {username: session.userSession.username, userInfo: userInfo});
+      let isDarkMode = themeController.IsDarkMode(request);
+      response.render("modifyAccount.hbs", {username: session.userSession.username, userInfo: userInfo, isDarkMode: isDarkMode});
       //response.render("modifyAccount.hbs", accountInfo);
     }
     else {
-      response.render('login.hbs', {error: "You must be logged in to perform that action", status: 401});
+      let isDarkMode = themeController.IsDarkMode(request);
+
+      response.render('login.hbs', {error: "You must be logged in to perform that action", status: 401, isDarkMode: isDarkMode});
     }
   }
   catch (error) {
@@ -145,9 +149,10 @@ async function updateUser(request, response) {
           username: request.body.username,
           email: request.body.email
         }
+        let isDarkMode = themeController.IsDarkMode(request);
     
         //response.render("account.hbs", accountInfo);
-        response.render("account.hbs", {username: session.userSession.username, userInfo: userInfo});
+        response.render("account.hbs", {username: session.userSession.username, userInfo: userInfo, isDarkMode: isDarkMode});
 
         logger.info("Finished updating user settings");
       }
@@ -156,7 +161,9 @@ async function updateUser(request, response) {
       }
     }
     else {
-      response.render('login.hbs', {error: "You must be logged in to perform that action", status: 401});
+      let isDarkMode = themeController.IsDarkMode(request);
+
+      response.render('login.hbs', {error: "You must be logged in to perform that action", status: 401, isDarkMode: isDarkMode});
     }
   }
   catch (error) {
@@ -203,8 +210,9 @@ async function deleteUser(request, response) {
         delete authController.sessions[session.sessionId];
 
         response.cookie("sessionId", "", { expires: new Date() }); // "erase" cookie by forcing it to expire.
+      let isDarkMode = themeController.IsDarkMode(request);
         
-        response.render("register.hbs", {message: "Successfully deleted"});
+        response.render("register.hbs", {message: "Successfully deleted", isDarkMode: isDarkMode});
 
         logger.info("Finished deleting user.");
       }
@@ -216,8 +224,10 @@ async function deleteUser(request, response) {
           userID: user.UserID,
           username: user.Username
         }
+        let isDarkMode = themeController.IsDarkMode(request);
 
-        response.render('deleteAccount.hbs', {error: "Invalid password provided", username: session.userSession.username, userInfo: userInfo, status: 400});
+        response.render('deleteAccount.hbs', 
+        {error: "Invalid password provided", username: session.userSession.username, userInfo: userInfo, status: 400, isDarkMode: isDarkMode});
       }
     }
     else {
@@ -261,13 +271,16 @@ router.delete("/user/:id", deleteUser);
         userID: user.UserID,
         username: user.Username
       }
+      let isDarkMode = themeController.IsDarkMode(request);
 
-      response.render("deleteAccount.hbs", {username: session.userSession.username, userInfo: userInfo});
+      response.render("deleteAccount.hbs", {username: session.userSession.username, userInfo: userInfo, isDarkMode: isDarkMode});
 
       logger.info("Redirected to delete account page");
     }
     else {
-      response.render('login.hbs', {error: "You must be logged in to perform that action", status: 401});
+      let isDarkMode = themeController.IsDarkMode(request);
+
+      response.render('login.hbs', {error: "You must be logged in to perform that action", status: 401, isDarkMode: isDarkMode});
     }
    }
    catch (error) {

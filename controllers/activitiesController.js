@@ -8,6 +8,7 @@ const authController = require("./authController");
 const router = express.Router();
 const ERRORS = require("../utilities/errors");
 const routeRoot = "/";
+const themeController = require("../controllers/themeController");
 
 /**
  * Handles GET '/activity'
@@ -19,25 +20,35 @@ async function showAddActivityForm(request, response) {
   logger.info("Activities controller called (add activity page)");
 
   const authenticatedSession = authController.authenticateUser(request);
-    
-    if (!authenticatedSession) {
-        //response.sendStatus(401); //Unauthorized access
-        logger.info("User is not logged in");
 
-        response.render("login.hbs", {error: "You must be logged in to perform that action", status: 401});
-        
-        return;
-    }
+  if (!authenticatedSession) {
+    //response.sendStatus(401); //Unauthorized access
+    logger.info("User is not logged in");
+    let isDarkMode = themeController.IsDarkMode(request);
 
-  logger.info("User " + authenticatedSession.userSession.username + " is logged in");
+    response.render("login.hbs", {
+      error: "You must be logged in to perform that action",
+      status: 401,
+    });
+
+    return;
+  }
+
+  logger.info(
+    "User " + authenticatedSession.userSession.username + " is logged in"
+  );
 
   //Refresh the cookie to not expire
   authController.refreshSession(request, response);
+  let isDarkMode = themeController.IsDarkMode(request);
 
-  response.render("addActivity.hbs", {message: "Welcome, " + authenticatedSession.userSession.username, username: authenticatedSession.userSession.username});
+  response.render("addActivity.hbs", {
+    message: "Welcome, " + authenticatedSession.userSession.username,
+    username: authenticatedSession.userSession.username,
+    isDarkMode: isDarkMode,
+  });
 }
 router.get("/activity", showAddActivityForm);
-
 
 /**
  * Join activity
@@ -48,17 +59,24 @@ async function joinActivity(request, response) {
   logger.info("Activities controller called (join activity)");
 
   const authenticatedSession = authController.authenticateUser(request);
-    
-    if (!authenticatedSession) {
-        //response.sendStatus(401); //Unauthorized access
-        logger.info("User is not logged in");
 
-        response.render("login.hbs", {error: "You must be logged in to perform that action", status: 401});
-        
-        return;
-    }
+  if (!authenticatedSession) {
+    //response.sendStatus(401); //Unauthorized access
+    logger.info("User is not logged in");
+    let isDarkMode = themeController.IsDarkMode(request);
 
-  logger.info("User " + authenticatedSession.userSession.username + " is logged in");
+    response.render("login.hbs", {
+      error: "You must be logged in to perform that action",
+      status: 401,
+      isDarkMode: isDarkMode,
+    });
+
+    return;
+  }
+
+  logger.info(
+    "User " + authenticatedSession.userSession.username + " is logged in"
+  );
 
   //Refresh the cookie to not expire
   authController.refreshSession(request, response);
@@ -73,27 +91,33 @@ async function joinActivity(request, response) {
 
 router.post("/activities/:id/join", joinActivity);
 
-
 /**
  * Leave activity
  * @param {*} request
  * @param {*} response
  */
- async function leaveActivity(request, response) {
+async function leaveActivity(request, response) {
   logger.info("Activities controller called (leave activity)");
 
   const authenticatedSession = authController.authenticateUser(request);
-    
-    if (!authenticatedSession) {
-        //response.sendStatus(401); //Unauthorized access
-        logger.info("User is not logged in");
 
-        response.render("login.hbs", {error: "You must be logged in to perform that action", status: 401});
-        
-        return;
-    }
+  if (!authenticatedSession) {
+    //response.sendStatus(401); //Unauthorized access
+    logger.info("User is not logged in");
+    let isDarkMode = themeController.IsDarkMode(request);
 
-  logger.info("User " + authenticatedSession.userSession.username + " is logged in");
+    response.render("login.hbs", {
+      error: "You must be logged in to perform that action",
+      status: 401,
+      isDarkMode: isDarkMode,
+    });
+
+    return;
+  }
+
+  logger.info(
+    "User " + authenticatedSession.userSession.username + " is logged in"
+  );
 
   //Refresh the cookie to not expire
   authController.refreshSession(request, response);
@@ -108,7 +132,6 @@ router.post("/activities/:id/join", joinActivity);
 
 router.post("/activities/:id/leave", leaveActivity);
 
-
 /**
  * Handles POST '/activity'
  * Calls the model to create a new activity.
@@ -116,39 +139,62 @@ router.post("/activities/:id/leave", leaveActivity);
  * @param {*} response
  */
 async function createActivity(request, response) {
-  
   let session = authController.authenticateUser(request);
 
-  if(session) {
+  if (session) {
     //Refresh the cookie to not expire
     authController.refreshSession(request, response);
 
     let user = await userModel.getUser(session.userSession.username);
-  
+
     let name = request.body.title;
     let description = request.body.description;
-    let startTime = request.body.start.substr(0, 10) + " " + request.body.start.substr(11, 15);
-    let endTime = request.body.end.substr(0, 10) + " " + request.body.end.substr(11, 15);
+    let startTime =
+      request.body.start.substr(0, 10) +
+      " " +
+      request.body.start.substr(11, 15);
+    let endTime =
+      request.body.end.substr(0, 10) + " " + request.body.end.substr(11, 15);
     let ownerID = user.UserID;
 
     let start = Date.parse(request.body.start);
     let end = Date.parse(request.body.end);
 
-    if(start >  end || end < start || isNaN(start) || isNaN(end)) {
-      response.render('addActivity.hbs', {error: "Invalid dates", status: 400});
+    if (start > end || end < start || isNaN(start) || isNaN(end)) {
+      let isDarkMode = themeController.IsDarkMode(request);
+
+      response.render("addActivity.hbs", {
+        error: "Invalid dates",
+        status: 400,
+        isDarkMode: isDarkMode,
+      });
       return;
     }
 
-    let activity = await model.createActivity(name, description, startTime, endTime, ownerID);
+    let activity = await model.createActivity(
+      name,
+      description,
+      startTime,
+      endTime,
+      ownerID
+    );
 
-    await model.addUserToActivity(activity.ownerID, activity.id[0][0].ActivityID);
+    await model.addUserToActivity(
+      activity.ownerID,
+      activity.id[0][0].ActivityID
+    );
 
-    logger.info('User has created an activity');
+    logger.info("User has created an activity");
 
-    response.redirect('/activity/' + activity.id[0][0].ActivityID);
-  }
-  else {
-    response.render('login.hbs', {error: "You must be logged in to perform that action", status: 401});
+    response.redirect("/activity/" + activity.id[0][0].ActivityID);
+  } else {
+    let isDarkMode = themeController.IsDarkMode(request);
+
+    response.render("login.hbs", {
+      error: "You must be logged in to perform that action",
+      status: 401,
+      isDarkMode: isDarkMode,
+    });
   }
 }
 router.post("/activity", createActivity);
@@ -161,33 +207,39 @@ router.post("/activity", createActivity);
  */
 async function showActivity(request, response) {
   try {
-
     let session = authController.authenticateUser(request);
 
-    if(session) { 
+    if (session) {
       //Refresh the cookie to not expire
       authController.refreshSession(request, response);
 
       let result = await model.getOneActivity(request.params.id);
 
-      if(!result) {
+      if (!result) {
         let activities = await model.getAllActivities();
         let owner;
 
-      for(let i = 0; i < activities.length; i++) {
-        owner = await userModel.getUsernameByID(activities[i].OwnerID);
+        for (let i = 0; i < activities.length; i++) {
+          owner = await userModel.getUsernameByID(activities[i].OwnerID);
 
-        activities[i] = {
-          id: activities[i].ActivityID,
-          name: activities[i].Name,
-          date: activities[i].StartTime.toString().substr(0, 21),
-          host: owner.Username
+          activities[i] = {
+            id: activities[i].ActivityID,
+            name: activities[i].Name,
+            date: activities[i].StartTime.toString().substr(0, 21),
+            host: owner.Username,
+          };
         }
+        let isDarkMode = themeController.IsDarkMode(request);
+
+        response.render("allActivities.hbs", {
+          error: "Activity with id " + request.params.id + " was not found",
+          status: 400,
+          username: session.userSession.username,
+          activities: activities,
+          isDarkMode: isDarkMode,
+        });
       }
 
-        response.render("allActivities.hbs", {error: "Activity with id " + request.params.id + " was not found", status: 400, username: session.userSession.username, activities: activities});
-      }
-    
       let owner = await userModel.getUsernameByID(result.OwnerID);
 
       let activity = {
@@ -196,42 +248,54 @@ async function showActivity(request, response) {
         startTime: result.StartTime.toString().substr(0, 21),
         endTime: result.EndTime.toString().substr(0, 21),
         host: owner.Username,
-        id: result.ActivityID
-      }
+        id: result.ActivityID,
+      };
 
       let comments = await commentsModel.getAllComments(activity.id);
-      
-      for(let i = 0; i < comments.length; i++) {
+
+      for (let i = 0; i < comments.length; i++) {
         owner = await userModel.getUsernameByID(comments[i].UserID);
 
-       comments[i] = {
+        comments[i] = {
           commentID: comments[i].CommentID,
           text: comments[i].Comment,
           date: comments[i].Date.toString().substr(0, 21),
           user: owner.Username,
-        }
+        };
       }
-      
+
       let usersJoined = await model.getUsersInActivity(activity.id);
 
       let joined = false;
 
-      for(let i = 0; i < usersJoined.length; i++) {
-        if(usersJoined[i].Username == session.userSession.username) {
+      for (let i = 0; i < usersJoined.length; i++) {
+        if (usersJoined[i].Username == session.userSession.username) {
           joined = true;
           break;
         }
       }
-      
-      response.render("activity.hbs", {message: "Welcome, " + session.userSession.username, activity, username: session.userSession.username, activity: activity, usersJoined: usersJoined, joined: joined, comments: comments});
-  
+      let isDarkMode = themeController.IsDarkMode(request);
+
+      response.render("activity.hbs", {
+        message: "Welcome, " + session.userSession.username,
+        activity,
+        username: session.userSession.username,
+        activity: activity,
+        usersJoined: usersJoined,
+        joined: joined,
+        comments: comments,
+        isDarkMode: isDarkMode,
+      });
+
       logger.info("App has shown an activity");
+    } else {
+      response.render("login.hbs", {
+        error: "You must be logged in to perform that action",
+        status: 401,
+        isDarkMode: isDarkMode,
+      });
     }
-    else {
-      response.render('login.hbs', {error: "You must be logged in to perform that action", status: 401});
-    }
-  }
-  catch (error) {
+  } catch (error) {
     logger.error(error);
   }
 }
@@ -244,36 +308,47 @@ router.get("/activity/:id", showActivity);
  * @param {*} response
  */
 async function showAllActivities(request, response) {
-  try { 
+  try {
     let session = authController.authenticateUser(request);
 
-    if(session) {
+    if (session) {
       //Refresh the cookie to not expire
       authController.refreshSession(request, response);
 
       let activities = await model.getAllActivities();
       let owner;
 
-      for(let i = 0; i < activities.length; i++) {
+      for (let i = 0; i < activities.length; i++) {
         owner = await userModel.getUsernameByID(activities[i].OwnerID);
 
         activities[i] = {
           id: activities[i].ActivityID,
           name: activities[i].Name,
           date: activities[i].StartTime.toString().substr(0, 21),
-          host: owner.Username
-        }
+          host: owner.Username,
+        };
       }
 
-      response.render('allActivities.hbs', {activities: activities, message: "Welcome, " + session.userSession.username, username: session.userSession.username});
+      let isDarkMode = themeController.IsDarkMode(request);
+
+      response.render("allActivities.hbs", {
+        activities: activities,
+        message: "Welcome, " + session.userSession.username,
+        username: session.userSession.username,
+        isDarkMode: isDarkMode,
+      });
 
       logger.info("App has shown all activities");
+    } else {
+      let isDarkMode = themeController.IsDarkMode(request);
+
+      response.render("login.hbs", {
+        error: "You must be logged in to perform that action",
+        status: 401,
+        isDarkMode: isDarkMode,
+      });
     }
-    else {
-      response.render('login.hbs', {error: "You must be logged in to perform that action", status: 401});
-    }
-  }
-  catch (error) {
+  } catch (error) {
     logger.error(error);
   }
 }
@@ -300,72 +375,100 @@ async function deleteActivity(request, response) {
       var activities;
       var owner;
 
-      if(!activity) {
+      if (!activity) {
         activities = await model.getAllActivities();
 
-        for(let i = 0; i < activities.length; i++) {
+        for (let i = 0; i < activities.length; i++) {
           owner = await userModel.getUsernameByID(activities[i].OwnerID);
 
           activities[i] = {
             id: activities[i].ActivityID,
             name: activities[i].Name,
             date: activities[i].StartTime.toString().substr(0, 21),
-            host: owner.Username
-          }
+            host: owner.Username,
+          };
         }
+        let isDarkMode = themeController.IsDarkMode(request);
 
-        response.render("allActivities.hbs", {error: "Activity with id " + request.params.id + " was not found", status: 400, username: session.userSession.username, activities: activities});
+        response.render("allActivities.hbs", {
+          error: "Activity with id " + request.params.id + " was not found",
+          status: 400,
+          username: session.userSession.username,
+          activities: activities,
+          isDarkMode: isDarkMode,
+        });
       }
 
       owner = await userModel.getUsernameByID(activity.OwnerID);
 
-      if(session.userSession.username == owner.Username) {
+      if (session.userSession.username == owner.Username) {
         logger.info("App has deleted an activity");
 
         await model.deleteActivity(id);
 
         activities = await model.getAllActivities();
 
-        for(let i = 0; i < activities.length; i++) {
+        for (let i = 0; i < activities.length; i++) {
           owner = await userModel.getUsernameByID(activities[i].OwnerID);
 
           activities[i] = {
             id: activities[i].ActivityID,
             name: activities[i].Name,
             date: activities[i].StartTime.toString().substr(0, 21),
-            host: owner.Username
-          }
+            host: owner.Username,
+          };
         }
+        let isDarkMode = themeController.IsDarkMode(request);
 
-        response.render("allActivities.hbs", {message: "Activity deleted", username: session.userSession.username, activities: activities});
+        response.render("allActivities.hbs", {
+          message: "Activity deleted",
+          username: session.userSession.username,
+          activities: activities,
+          isDarkMode: isDarkMode,
+        });
       } else {
-        response.render("allActivities.hbs", {error: "You are not authorized to delete this activity", status: 401, username: session.userSession.username, activities: activities});
+        let isDarkMode = themeController.IsDarkMode(request);
+
+        response.render("allActivities.hbs", {
+          error: "You are not authorized to delete this activity",
+          status: 401,
+          username: session.userSession.username,
+          activities: activities,
+          isDarkMode: isDarkMode,
+        });
       }
+    } else {
+      let isDarkMode = themeController.IsDarkMode(request);
+      response.render("login.hbs", {
+        error: "You must be logged in to perform that action",
+        status: 401,
+        isDarkMode: isDarkMode,
+      });
     }
-    else {
-      response.render('login.hbs', {error: "You must be logged in to perform that action", status: 401});
-    }
-  }
-  catch (error) {
+  } catch (error) {
     logger.error(error);
   }
 }
 router.delete("/activities/:id", deleteActivity);
 
 async function addComment(request, response) {
-
   try {
     let session = authController.authenticateUser(request);
 
-    if(session) {
-
+    if (session) {
       authController.refreshSession(request, response);
 
       let user = await userModel.getUser(session.userSession.username);
-      let activityID = request.originalUrl.charAt(request.originalUrl.length - 1 )
+      let activityID = request.originalUrl.charAt(
+        request.originalUrl.length - 1
+      );
 
-      await commentsModel.createComment(user.UserID, activityID, request.body.comment);
-      
+      await commentsModel.createComment(
+        user.UserID,
+        activityID,
+        request.body.comment
+      );
+
       response.redirect("/activity/" + activityID);
     }
   } catch (error) {
@@ -379,22 +482,21 @@ router.post("/comments/:id", addComment);
 async function deleteComment(request, response) {
   try {
     let session = authController.authenticateUser(request);
-    
-    if(session) {
+
+    if (session) {
       const authenticatedSession = authController.authenticateUser(request);
-      
+
       authController.refreshSession(request, response);
 
       let commentID = request.params.id;
 
       let activityID = await commentsModel.getActivityFromCommentID(commentID);
-      
+
       await commentsModel.deleteComment(commentID);
 
       response.redirect("/activity/" + activityID[0][0].ActivityID);
     }
-  }
-  catch (error) {
+  } catch (error) {
     console.log(error);
     let customError = new ERRORS.DatabaseReadError(error.message);
     logger.error(customError);
@@ -412,5 +514,5 @@ module.exports = {
   deleteActivity,
   showAddActivityForm,
   addComment,
-  deleteComment
+  deleteComment,
 };
