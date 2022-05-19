@@ -8,7 +8,7 @@ const logger = require("../logger");
 function toggleDarkMode(request, response) {
   // if no theme cookie exists create one and set it to dark mode
   if (!request.cookies.theme) {
-    response.cookie("theme", "dark");
+    response.cookie("theme", "dark", { expires: expiresAt });
     logger.info("No theme cookie found, setting theme to dark");
   }
   // if the theme is dark then set the theme to light
@@ -18,7 +18,7 @@ function toggleDarkMode(request, response) {
   }
   // if the theme is light then set the theme to dark
   else {
-    response.cookie("theme", "dark", { expires: expiresAt });
+    response.cookie("theme", "dark");
     logger.info("Theme cookie found, setting theme to dark");
   }
   response.redirect("/");
