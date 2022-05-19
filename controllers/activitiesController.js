@@ -360,7 +360,9 @@ async function showActivity(request, response) {
 
       isDarkMode = themeController.IsDarkMode(request);
 
-      response.render("activity.hbs", { username: session.userSession.username, activity: activity, usersJoined: usersJoined, joined: joined, comments: comments, isDarkMode: isDarkMode });
+      let draft = request.cookies.draft;
+
+      response.render("activity.hbs", { username: session.userSession.username, activity: activity, usersJoined: usersJoined, joined: joined, comments: comments, isDarkMode: isDarkMode, draft: draft });
 
       logger.info("App has shown an activity");
     } else {
@@ -661,6 +663,32 @@ async function deleteComment(request, response) {
   }
 }
 router.delete("/comments/:id", deleteComment);
+
+async function draftComment(request, response) {
+  try {
+    let requestJson = request.body;
+    const content = requestJson.comment;
+    // Set an expiry date as late as possible (special value for year 2038, beyond which there can be browser issues)
+    const expiresAt = new Date(2147483647000);
+
+    // if no draft cookie exists create one and set it to current content
+    if (!request.cookies.draft) {
+      response.cookie("draft", content, { expires: expiresAt });
+      logger.info("No draft cookie found, setting the draft to current content");
+    }
+    // if the draft exists overright it
+    else {
+      response.cookie("draft", content);
+      logger.info("draft cookie found, content replaced with current draft");
+    }
+
+    response.redirect("/activities");
+  } catch (error) {
+    logger.error(error);
+  }
+}
+
+router.post("/commentsDraft", draftComment);
 
 module.exports = {
   router,
