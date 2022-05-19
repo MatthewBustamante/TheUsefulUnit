@@ -160,14 +160,8 @@ async function createActivity(request, response) {
     let start = Date.parse(request.body.start);
     let end = Date.parse(request.body.end);
 
-    if (start > end || end < start || isNaN(start) || isNaN(end)) {
-      let isDarkMode = themeController.IsDarkMode(request);
-
-      response.render("addActivity.hbs", {
-        error: "Invalid dates",
-        status: 400,
-        isDarkMode: isDarkMode,
-      });
+    if(isNaN(start) || isNaN(end) || start == end || start > end || end < start) {
+      response.render('addActivity.hbs', {error: "Invalid dates", status: 400});
       return;
     }
 

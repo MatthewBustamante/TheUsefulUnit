@@ -7,12 +7,12 @@ const saltRounds = 10;
 
 /**
  * Creates a new user and adds it to the database
- * @param {*} username
- * @param {*} email
- * @param {*} password
+ * @param {String} username the username of the new user
+ * @param {String} email the email of the new user
+ * @param {String} password the password of the new user
  * @returns the user's id, username and email that was created
  */
-async function createUser(username, email, unhashedpassword, passwordrepeat) {
+async function createUser(username, email, unhashedpassword, passwordrepeat) {                                 //Finished test
   try {
     const connection = DATABASES.getConnection();
 
@@ -47,7 +47,7 @@ async function createUser(username, email, unhashedpassword, passwordrepeat) {
  * @param {*} email email of the user to look for
  * @returns the user that was found null if no user was found
  */
-async function getUser(identifier) {
+async function getUser(identifier) {                                 //Finished test
   try {
     // Connect to the database
     const connection = DATABASES.getConnection();
@@ -133,29 +133,11 @@ async function UpdateUserInformations(id, username, email, newPassword, newPassw
 }
 
 /**
- * Gets the user by their ID.
- * @param {*} ID The ID of the user
- */
- async function getUsernameByID(ID) {
-  try {
-    const connection = DATABASES.getConnection();
-    var sqlQuery = `SELECT Username FROM Users WHERE UserID = ?`;
-    let result = await connection.execute(sqlQuery, [ID]);
-
-    return result[0][0];
-  }
-  catch (error) {
-    logger.error(error);
-    console.log(error);
-  }
-}
-
-/**
  * Deletes the user with the given id by verifying the given password
  * @param {*} userID id of the user to delete
  * @param {*} password password of the user to delete
  */
-async function DeleteUser(id) {
+async function DeleteUser(id) {                                 //Finished test
   const connection = DATABASES.getConnection();
   //delete the user's comments
   const sqlQuery1 = `DELETE FROM Comments WHERE UserID = ${id}`;
@@ -167,8 +149,7 @@ async function DeleteUser(id) {
     logger.error(error);
     throw error;
   }
-
-   //delete the from the UserActivity table
+  //delete the from the UserActivity table
   const sqlQuery2 = `DELETE FROM UserActivity WHERE UserID = ${id}`;
   try {
     await connection.execute(sqlQuery2);
@@ -179,7 +160,7 @@ async function DeleteUser(id) {
   }
 
   //delete all the user's activities
-  const sqlQuery3 = `DELETE FROM Activities WHERE UserID = ${id}`;
+  const sqlQuery3 = `DELETE FROM Activities WHERE OwnerID = ${id}`;
 
   try {
     await connection.execute(sqlQuery3);
@@ -203,7 +184,7 @@ async function DeleteUser(id) {
  * Gets the user by their ID.
  * @param {*} ID The ID of the user
  */
- async function getUsernameByID(ID) {
+ async function getUsernameByID(ID) {                                 //Finished test
   try {
     const connection = DATABASES.getConnection();
     var sqlQuery = `SELECT Username FROM Users WHERE UserID = ?`;

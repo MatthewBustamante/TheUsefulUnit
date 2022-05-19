@@ -10,7 +10,7 @@ const logger = require("../utilities/logger");
  * @param {string} comment is the comment to add
  * @returns the comment object
  */
-async function createComment(userID, activityID, comment) {
+async function createComment(userID, activityID, comment) {                                 //Finished test
   let connection = DATABASES.getConnection();
 
   logger.info("Comment model called (Create)");
@@ -49,7 +49,7 @@ async function createComment(userID, activityID, comment) {
  * @param {int} activityID the id of the activity to get comments for
  * @throws {databaseReadError} if the comment could not be read
  */
-async function getAllComments(activityID) {
+async function getAllComments(activityID) {                                          //Finished test
   const connection = DATABASES.getConnection();
   const sqlQuery = `SELECT * FROM Comments WHERE ActivityID = ${activityID}`;
   try {
@@ -67,7 +67,7 @@ async function getAllComments(activityID) {
  * @param {*} commentID The Comment ID.
  * @returns The Comment object.
  */
-async function getComment(commentID) {
+async function getComment(commentID) {                                               //Finished test
   const connection = DATABASES.getConnection();
   const sqlQuery = `SELECT * FROM Comments WHERE CommentID = ${commentID}`;
   try {
@@ -85,7 +85,7 @@ async function getComment(commentID) {
  * @param {int} commentID the id of the comment to delete
  * @throws {DatabaseWriteError} if the comment does not exist
  */
-async function deleteComment(commentID) {
+async function deleteComment(commentID) {                                           //Finished test
   // Get the connection to the database
   let connection = DATABASES.getConnection();
   // Remove the comment from the database
@@ -99,7 +99,7 @@ async function deleteComment(commentID) {
     });
 }
 
-async function getActivityFromCommentID(commentID) {
+async function getActivityFromCommentID(commentID) {                               //Finished test
   const connection = DATABASES.getConnection();
   const sqlQuery = `SELECT ActivityID FROM Comments WHERE CommentID = ${commentID}`;
   try {
@@ -119,4 +119,3 @@ module.exports = {
   getComment,
   getActivityFromCommentID
 };
-
