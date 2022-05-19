@@ -36,12 +36,10 @@ function showLoginForm(request, response) {
         logger.info("Showing signup page");
 
         tracker.updateTracker(request, response, metrics);
+
         let isDarkMode = themeController.IsDarkMode(request);
 
         response.render("login.hbs", {isDarkMode: isDarkMode});
-
-        let isDarkMode = themeController.IsDarkMode(request);
-        response.render("login.hbs", { isDarkMode: isDarkMode });
         
         return;
     }

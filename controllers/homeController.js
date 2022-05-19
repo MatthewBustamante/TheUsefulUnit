@@ -64,20 +64,6 @@ async function showHome(request, response) {
   //Refresh the cookie to not expire
   authController.refreshSession(request, response);
 
-  /* let activities = await activityModel.getAllActivities();
-  let owner;
-
-  for (let i = 0; i < activities.length; i++) {
-    owner = await userModel.getUsernameByID(activities[i].OwnerID);
-
-    activities[i] = {
-      id: activities[i].ActivityID,
-      name: activities[i].Name,
-      date: activities[i].StartTime.toString().substr(0, 21),
-      host: owner.Username,
-    };
-  }
-
   tracker.updateTracker(request, response, metrics);
   
   response.redirect("/activities")
