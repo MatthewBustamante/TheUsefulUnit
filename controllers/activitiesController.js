@@ -898,4 +898,5 @@ module.exports = {
   showAddActivityForm,
   addComment,
   deleteComment,
+  joinActivity
 };

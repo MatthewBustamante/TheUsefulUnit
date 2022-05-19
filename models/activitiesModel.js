@@ -123,7 +123,7 @@ async function deleteExpiredActivities() {
     throw new ERRORS.DatabaseConnectionError("Database connection is null");
   }
 
- const sqlQuery = `SELECT ActivityID FROM Activities WHERE EndTime < NOW()`;
+  const sqlQuery = `SELECT ActivityID FROM Activities WHERE EndTime < NOW()`;
   let expiredActivitiesIDS;
   try {
     expiredActivitiesIDS = await connection.execute(sqlQuery);
@@ -171,115 +171,115 @@ async function deleteExpiredActivities() {
       }
       logger.info("Expired activities deleted");
     }
-    
+
   }
 }
 
-  /**
-   * Gets all the users participating in the given activity
-   * @param {*} activityID id of the activity
-   * @returns all the users in the given activity
-   */
-  async function getUsersInActivity(activityID) {                  //FINISHED TEST
-    const connection = DATABASES.getConnection();
-    const sqlQuery = `SELECT Username FROM Users WHERE UserID IN (SELECT UserID from UserActivity where ActivityID = ${activityID})`;
+/**
+ * Gets all the users participating in the given activity
+ * @param {*} activityID id of the activity
+ * @returns all the users in the given activity
+ */
+async function getUsersInActivity(activityID) {                  //FINISHED TEST
+  const connection = DATABASES.getConnection();
+  const sqlQuery = `SELECT Username FROM Users WHERE UserID IN (SELECT UserID from UserActivity where ActivityID = ${activityID})`;
 
-    try {
-      const result = await connection.execute(sqlQuery);
-      return result[0];
-    } catch (error) {
-      logger.error(error);
-      throw error;
-    }
+  try {
+    const result = await connection.execute(sqlQuery);
+    return result[0];
+  } catch (error) {
+    logger.error(error);
+    throw error;
   }
+}
 
-  /**
-   * Adds the given user to the given activity
-   * @param {*} userID id of the user to add to the activity
-   * @param {*} activityID id of the activity to add the user to
-   */
-  async function addUserToActivity(userID, activityID) {               //FINISHED TEST
-    const connection = DATABASES.getConnection();
-    const sqlQuery = `INSERT INTO UserActivity (UserID, ActivityID) VALUES (${userID}, ${activityID})`;
+/**
+ * Adds the given user to the given activity
+ * @param {*} userID id of the user to add to the activity
+ * @param {*} activityID id of the activity to add the user to
+ */
+async function addUserToActivity(userID, activityID) {               //FINISHED TEST
+  const connection = DATABASES.getConnection();
+  const sqlQuery = `INSERT INTO UserActivity (UserID, ActivityID) VALUES (${userID}, ${activityID})`;
 
-    // Check that the connection is not null
+  // Check that the connection is not null
   if (connection === null) {
     throw new ERRORS.DatabaseConnectionError("Database connection is null");
   }
-    
-    try {
-      await connection.execute(sqlQuery);
-      logger.info("User added to the given activity");
-    } catch (error) {
-      logger.error(error);
-      throw error;
-    }
-  }
 
-  /**
-   * Deletes the user from the given activity
-   * @param {*} userID id of the user to delete from the activity
-   * @param {*} activityID id of the activity to delete the user from
-   */
-  async function deleteUserFromActivity(userID, activityID) {          //FINISHED TEST
-    const connection = DATABASES.getConnection();
-     // Check that the connection is not null
+  try {
+    await connection.execute(sqlQuery);
+    logger.info("User added to the given activity");
+  } catch (error) {
+    logger.error(error);
+    throw error;
+  }
+}
+
+/**
+ * Deletes the user from the given activity
+ * @param {*} userID id of the user to delete from the activity
+ * @param {*} activityID id of the activity to delete the user from
+ */
+async function deleteUserFromActivity(userID, activityID) {          //FINISHED TEST
+  const connection = DATABASES.getConnection();
+  // Check that the connection is not null
   if (connection === null) {
     throw new ERRORS.DatabaseConnectionError("Database connection is null");
   }
-    const sqlQuery = `DELETE FROM UserActivity WHERE UserID = ${userID} AND ActivityID = ${activityID}`;
-    try {
-      await connection.execute(sqlQuery);
-      logger.info("User deleted from the given activity");
-    } catch (error) {
-      logger.error(error);
-      throw error;
-    }
+  const sqlQuery = `DELETE FROM UserActivity WHERE UserID = ${userID} AND ActivityID = ${activityID}`;
+  try {
+    await connection.execute(sqlQuery);
+    logger.info("User deleted from the given activity");
+  } catch (error) {
+    logger.error(error);
+    throw error;
   }
+}
 
-  /**
-   * Deletes the activity and its comments with the given activity id
-   * @param {*} activityID id of the activity to delete
-   */
-  async function deleteActivity(activityID) {                           //FINISHED TEST
-    const connection = DATABASES.getConnection();
+/**
+ * Deletes the activity and its comments with the given activity id
+ * @param {*} activityID id of the activity to delete
+ */
+async function deleteActivity(activityID) {                           //FINISHED TEST
+  const connection = DATABASES.getConnection();
 
-    // Check that the connection is not null
+  // Check that the connection is not null
   if (connection === null) {
     throw new ERRORS.DatabaseConnectionError("Database connection is null");
   }
-    
-    //delete all the comments that have the activityID as their activityID
-    const sqlQuery = `DELETE FROM Comments WHERE ActivityID = ${activityID}`;
-    try {
-      await connection.execute(sqlQuery);
-    }
-    catch (error) {
-      logger.error(error);
-      throw error;
-    }
 
-    //delete the activity from the UserActivity table
-    const sqlQuery2 = `DELETE FROM UserActivity WHERE ActivityID = ${activityID}`;
-    try {
-      await connection.execute(sqlQuery2);
-    }
-    catch (error) {
-      logger.error(error);
-      throw error;
-    }
-
-    //delete the activity
-    const sqlQuery3 = `DELETE FROM Activities WHERE ActivityID = ${activityID}`;
-    try {
-      await connection.execute(sqlQuery3);
-      logger.info("Activity deleted");
-    }
-    catch (error) {
-      logger.error(error);
-      throw error;
-    }
+  //delete all the comments that have the activityID as their activityID
+  const sqlQuery = `DELETE FROM Comments WHERE ActivityID = ${activityID}`;
+  try {
+    await connection.execute(sqlQuery);
   }
+  catch (error) {
+    logger.error(error);
+    throw error;
+  }
+
+  //delete the activity from the UserActivity table
+  const sqlQuery2 = `DELETE FROM UserActivity WHERE ActivityID = ${activityID}`;
+  try {
+    await connection.execute(sqlQuery2);
+  }
+  catch (error) {
+    logger.error(error);
+    throw error;
+  }
+
+  //delete the activity
+  const sqlQuery3 = `DELETE FROM Activities WHERE ActivityID = ${activityID}`;
+  try {
+    await connection.execute(sqlQuery3);
+    logger.info("Activity deleted");
+  }
+  catch (error) {
+    logger.error(error);
+    throw error;
+  }
+}
 
 /**
  * Deletes the user from the given activity
@@ -300,52 +300,50 @@ async function deleteUserFromActivity(userID, activityID) {
   }
 }
 
-  }
-
-  /**
-   * Gets all the activities that the given user has joined
-   * @param {*} userID id of the user to fetch their joined activities
-   * @returns returns all the activities that the given user has joined
-   */
-  async function getJoinedActivities(userID) {
-    const connection = DATABASES.getConnection();
-     // Check that the connection is not null
+/**
+ * Gets all the activities that the given user has joined
+ * @param {*} userID id of the user to fetch their joined activities
+ * @returns returns all the activities that the given user has joined
+ */
+async function getJoinedActivities(userID) {
+  const connection = DATABASES.getConnection();
+  // Check that the connection is not null
   if (connection === null) {
     throw new ERRORS.DatabaseConnectionError("Database connection is null");
   }
-    const sqlQuery = `SELECT * FROM Activities WHERE ActivityID IN (SELECT ActivityID from UserActivity where UserID = ${userID})`;
-    try {
-      const result = await connection.execute(sqlQuery);
-      return result[0];
-    } catch (error) {
-      logger.error(error);
-      throw error;
-    }
-
+  const sqlQuery = `SELECT * FROM Activities WHERE ActivityID IN (SELECT ActivityID from UserActivity where UserID = ${userID})`;
+  try {
+    const result = await connection.execute(sqlQuery);
+    return result[0];
+  } catch (error) {
+    logger.error(error);
+    throw error;
   }
 
-  /**
-   * Gets all the activities that the given user has created
-   * @param {*} ownerID id of the owner of the activities
-   * @returns all the activities that the given owner owns
-   */
-  async function getOwnedActivities(ownerID) {                          //FINISHED TEST
-    const connection = DATABASES.getConnection();
-    // Check that the connection is not null
+}
+
+/**
+ * Gets all the activities that the given user has created
+ * @param {*} ownerID id of the owner of the activities
+ * @returns all the activities that the given owner owns
+ */
+async function getOwnedActivities(ownerID) {                          //FINISHED TEST
+  const connection = DATABASES.getConnection();
+  // Check that the connection is not null
   if (connection === null) {
     throw new ERRORS.DatabaseConnectionError("Database connection is null");
   }
 
-    const sqlQuery = `SELECT * FROM Activities WHERE OwnerID = ${ownerID}`;
-    try {
-      const result = await connection.execute(sqlQuery);
-      return result[0];
-    } catch (error) {
-      logger.error(error);
-      throw error;
-    }
-
+  const sqlQuery = `SELECT * FROM Activities WHERE OwnerID = ${ownerID}`;
+  try {
+    const result = await connection.execute(sqlQuery);
+    return result[0];
+  } catch (error) {
+    logger.error(error);
+    throw error;
   }
+
+}
 
 
 module.exports = {

@@ -182,25 +182,25 @@ router.get("/user/modify", modifyAccountPage);
  */
 async function updateUser(request, response) {
   try {
-  logger.info("Updating user settings");
+    logger.info("Updating user settings");
 
-  //Tracking user agent
-  let ua = request.headers["user-agent"];
+    //Tracking user agent
+    let ua = request.headers["user-agent"];
 
-  //Tracking metrics
-  var metrics = {
-    pageVisited: "None [User Attempted CRUD Action]",
-    visitedAt: new Date(),
-    pageVisitLength: null,
-    user: null,
-    action: "Update User",
-    userAgent: ua,
-  };
+    //Tracking metrics
+    var metrics = {
+      pageVisited: "None [User Attempted CRUD Action]",
+      visitedAt: new Date(),
+      pageVisitLength: null,
+      user: null,
+      action: "Update User",
+      userAgent: ua,
+    };
 
-  var userInfo = {};
-  var user;
+    var userInfo = {};
+    var user;
 
-  var session = authController.authenticateUser(request);
+    var session = authController.authenticateUser(request);
 
     if (session) {
       authController.refreshSession(request, response);
@@ -253,8 +253,8 @@ async function updateUser(request, response) {
 
         let isDarkMode = themeController.IsDarkMode(request);
 
-        if(user)
-        user = await model.getUser(user.username);
+        if (user)
+          user = await model.getUser(user.username);
 
         userInfo = {
           username: user.Username,
@@ -276,59 +276,83 @@ async function updateUser(request, response) {
         logger.info("Finished updating user settings");
 
         if (user) {
-        userInfo = {
-          username: request.body.username,
-          email: request.body.email,
-          userID: request.params.id,
-        };
+          userInfo = {
+            username: request.body.username,
+            email: request.body.email,
+            userID: request.params.id,
+          };
 
-        delete authController.sessions[session.sessionId];
+          delete authController.sessions[session.sessionId];
 
-        response.cookie("sessionId", "", { expires: new Date() }); // "erase" cookie by forcing it to expire.
+          response.cookie("sessionId", "", { expires: new Date() }); // "erase" cookie by forcing it to expire.
 
-        // Create a session object that will expire in 2 minutes
-        const sessionId = authController.createSession(
-          user.username,
-          2
-        );
+          // Create a session object that will expire in 2 minutes
+          const sessionId = authController.createSession(
+            user.username,
+            2
+          );
 
-        // Save cookie that will expire.
-        response.cookie("sessionId", sessionId, {
-          expires: authController.sessions[sessionId].expiresAt,
-          secure: true,
-          httpOnly: true,
-        });
+          // Save cookie that will expire.
+          response.cookie("sessionId", sessionId, {
+            expires: authController.sessions[sessionId].expiresAt,
+            secure: true,
+            httpOnly: true,
+          });
 
-        //response.redirect("/user")
+          //response.redirect("/user")
 
-        tracker.updateTracker(request, response, metrics);
+          tracker.updateTracker(request, response, metrics);
 
-        let isDarkMode = themeController.IsDarkMode(request);
+          let isDarkMode = themeController.IsDarkMode(request);
 
-        user = await model.getUser(user.username);
+          user = await model.getUser(user.username);
 
-        userInfo = {
-          username: user.Username,
-          email: user.Email,
-          userID: request.params.id,
-        };
+          userInfo = {
+            username: user.Username,
+            email: user.Email,
+            userID: request.params.id,
+          };
 
-        let joined = await activitiesModel.getJoinedActivities(user.UserID);
-        let created = await activitiesModel.getOwnedActivities(user.UserID);
+          let joined = await activitiesModel.getJoinedActivities(user.UserID);
+          let created = await activitiesModel.getOwnedActivities(user.UserID);
 
-        response.render("account.hbs", {
-          message: "Successfully updated account",
-          username: userInfo.username,
-          userInfo: userInfo,
-          isDarkMode: isDarkMode,
-          activitiesJoined: joined,
-          activitiesCreated: created
-        });
+          response.render("account.hbs", {
+            message: "Successfully updated account",
+            username: userInfo.username,
+            userInfo: userInfo,
+            isDarkMode: isDarkMode,
+            activitiesJoined: joined,
+            activitiesCreated: created
+          });
+        } else {
+          response.status(400);
+
+          tracker.updateTracker(request, response, metrics);
+
+          let isDarkMode = themeController.IsDarkMode(request);
+
+          user = await model.getUser(session.userSession.username);
+
+          userInfo = {
+            username: user.Username,
+            email: user.Email,
+            userID: request.params.id,
+          };
+
+          response.render("modifyAccount.hbs", {
+            error: "Invalid information provided",
+            status: 400,
+            username: session.userSession.username,
+            userInfo: userInfo,
+            isDarkMode: isDarkMode,
+          });
+        }
       } else {
+        //throw new ERRORS.ValidationError("Invalid information provided");
+
         response.status(400);
 
         tracker.updateTracker(request, response, metrics);
-
         let isDarkMode = themeController.IsDarkMode(request);
 
         user = await model.getUser(session.userSession.username);
@@ -348,42 +372,33 @@ async function updateUser(request, response) {
         });
       }
     } else {
-      //throw new ERRORS.ValidationError("Invalid information provided");
+      metrics.user = "Guest (Not logged in)";
 
-      response.status(400);
+      response.status(401);
 
       tracker.updateTracker(request, response, metrics);
       let isDarkMode = themeController.IsDarkMode(request);
 
-      user = await model.getUser(session.userSession.username);
-
-    userInfo = {
-      username: user.Username,
-      email: user.Email,
-      userID: request.params.id,
-    };
-
-      response.render("modifyAccount.hbs", {
-        error: "Invalid information provided",
-        status: 400,
-        username: session.userSession.username,
-        userInfo: userInfo,
+      response.render("login.hbs", {
+        error: "You must be logged in to perform that action",
+        status: 401,
         isDarkMode: isDarkMode,
       });
     }
-  } else {
-    metrics.user = "Guest (Not logged in)";
-
-    response.status(401);
-
-    tracker.updateTracker(request, response, metrics);
-    let isDarkMode = themeController.IsDarkMode(request);
-
-    response.render("login.hbs", {
-      error: "You must be logged in to perform that action",
-      status: 401,
-      isDarkMode: isDarkMode,
-    });
+  } catch (error) {
+    if (error instanceof ERRORS.DatabaseConnectionError) {
+      response.status(500);
+      response.render("error.hbs", {
+        error: error.message,
+        status: response.statusCode,
+      });
+    } else {
+      response.status(400);
+      response.render("error.hbs", {
+        error: error.message,
+        status: response.statusCode,
+      });
+    }
   }
 }
 
