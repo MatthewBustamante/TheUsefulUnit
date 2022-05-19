@@ -3,8 +3,9 @@ const router = express.Router();
 const routeRoot = "/";
 const logger = require("../logger");
 const authController = require("./authController");
-const userModel = require("../models/usersModel");
-const activityModel = require("../models/activitiesModel");
+const userModel = require("../models/usersModel")
+const activityModel = require("../models/activitiesModel")
+const tracker = require("../utilities/tracker")
 const themeController = require("../controllers/themeController");
 
 /**

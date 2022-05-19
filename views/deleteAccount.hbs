@@ -1,11 +1,12 @@
 <body>
-    <div class="container">
-   <div class="content">
+    <div class="content">
+   <div class="container">
       <div class="px-4 py-5 my-5 text-center">
          <h1 class="display-5 fw-bold">Delete Account</h1>
          <div class="col-lg-6 mx-auto">
             <img src="/images/warning.png" style="height:20%;width:20%;margin:2em;">
             <p class="lead mb-4" style="font-weight:bold;">WARNING: What you are about to do cannot be undone.</p>
+            <p class="lead mb-4" style="font-weight:bold;">All activities and comments you have created will be deleted.</p>
             <p class="lead mb-4" style="font-weight:bold;">Are you sure you want to delete your account, {{username}}?</p>
             <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
                 
@@ -37,7 +38,9 @@
           }
       </style>
 </body>
+
 <script>
+document.title = 'Delete Account - Friend Finder';
   {{#if isDarkMode}}
     var element = document.body; element.classList.toggle("dark-mode");
   {{/if}}

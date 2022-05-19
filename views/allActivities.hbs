@@ -1,11 +1,12 @@
 <body>
-    <div class="container">
-        <div class="content">
+    <div class="content">
+        <div class="container">
             <div class="px-4 py-5 my-5 text-center">
                 <img src="/images/activity.png" style="height:10%;width:10%;margin:2em;">
                 <p class="lead mb-4">Click any activity to learn their availabilities and more information about it.</p>
                 <p class="lead mb-4">Can't find your activity? <a href="/activity">Create a new one</a>.</p>
                 <h2>Upcoming Activities</h2>
+                <p>Sorted by earliest start date</p>
 
                 {{#if activities}}
                 {{#each activities}}
@@ -27,6 +28,10 @@
         </div>
     </div>
     <style>
+        h2 {
+            margin-bottom: 1rem;
+        }
+
         .activityInfo {
             text-align: left;
         }
@@ -37,8 +42,11 @@
             margin-top: 1em;
         }
     </style>
-</body> 
+</body>
+
 <script>
+document.title = 'Home - Friend Finder';
+
   {{#if isDarkMode}}
     var element = document.body; element.classList.toggle("dark-mode");
   {{/if}}

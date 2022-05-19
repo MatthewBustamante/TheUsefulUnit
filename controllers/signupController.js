@@ -3,6 +3,7 @@ const router = express.Router();
 const routeRoot = "/";
 const logger = require("../logger");
 const authController = require("./authController");
+const tracker = require("../utilities/tracker")
 const themeController = require("../controllers/themeController");
 
 /**
@@ -14,6 +15,19 @@ const themeController = require("../controllers/themeController");
 function showSignupPage(request, response) {
   logger.info("Signup controller called (page)");
 
+  //Tracking user agent
+  let ua = request.headers['user-agent'];
+
+  //Tracking metrics
+  var metrics = {
+    pageVisited: "Register Page",
+    visitedAt: new Date(),
+    pageVisitLength: null,
+    user: "Guest (Not logged in)",
+    action: "None",
+    userAgent: ua
+  };
+
   const authenticatedSession = authController.authenticateUser(request);
     
     if (!authenticatedSession) {
@@ -21,6 +35,9 @@ function showSignupPage(request, response) {
         logger.info("User is not logged in");
 
         logger.info("Showing signup page");
+
+        tracker.updateTracker(request, response, metrics);
+       
         let isDarkMode = themeController.IsDarkMode(request);
         response.render("register.hbs", { isDarkMode: isDarkMode });
         
@@ -31,6 +48,8 @@ function showSignupPage(request, response) {
 
   //Refresh the cookie to not expire
   authController.refreshSession(request, response)
+
+  tracker.updateTracker(request, response, metrics);
 
   response.redirect('/home');
 }

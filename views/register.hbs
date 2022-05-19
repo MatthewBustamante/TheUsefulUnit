@@ -71,11 +71,16 @@
   </div>
 </body>
 <script>
+document.title = 'Register - Friend Finder';
+
   {{#if isDarkMode}}
     var element = document.body; element.classList.toggle("dark-mode");
   {{/if}}
 </script>
 <style>
+form {
+    min-width: 400px;
+  }
   body { 
     background-color: white; 
     color: black;
