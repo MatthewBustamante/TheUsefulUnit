@@ -42,7 +42,7 @@ async function showHome(request, response) {
     }
   }
   
-  response.render('allActivities.hbs', {activities: activities, message: "Welcome, " + authenticatedSession.userSession.username, username: authenticatedSession.userSession.username});
+  response.status(201).render('allActivities.hbs', {activities: activities, message: "Welcome, " + authenticatedSession.userSession.username, username: authenticatedSession.userSession.username});
 }
 
 router.get(routeRoot, showHome);
