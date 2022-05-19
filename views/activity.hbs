@@ -55,7 +55,8 @@
                             <textarea class="form-control" required name="comment" id="comment" rows="4" maxlength="1500" placeholder="Leave a comment..."></textarea>
                         </div>
                         <hr class="my-4"/>
-                        <button class="w-100 btn btn-lg btn-primary" id="create" title="Click to add a comment." type="submit" formmethod="POST" formaction="/comments/{{activity.id}}">Add Comment</button>
+                        <button class="w-100 btn btn-lg btn-primary" id="create" title="Click to add a comment." type="submit" formmethod="POST" formaction="/comments/{{activity.id}}">Post Comment</button>
+                        <button class="w-100 btn btn-lg btn-primary" id="draft" title="Click to save a draft of this comment." type="submit" formmethod="POST" formaction="/comments/draft">Save Draft</button>
                     </form>
                 </div>
                 <br><br>
@@ -86,6 +87,10 @@
     </div>
     
     <style>
+        #draft {
+            margin-top: 1rem;
+        }
+
         .list-group {
             display:inline-block;
         }
