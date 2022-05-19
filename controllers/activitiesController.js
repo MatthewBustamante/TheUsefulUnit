@@ -682,13 +682,28 @@ async function draftComment(request, response) {
       logger.info("draft cookie found, content replaced with current draft");
     }
 
-    response.redirect("/activities");
+    response.redirect("/activity/" + request.params.id);
   } catch (error) {
     logger.error(error);
   }
 }
 
-router.post("/commentsDraft", draftComment);
+router.post("/draft/:id", draftComment);
+
+async function clearDraft(request, response) {
+  try {
+    // if no draft cookie exists create one and set it to current content
+    if (request.cookies.draft) {
+      response.cookie("draft", "", { expires: new Date() });
+    }
+
+    response.redirect("/activity/" + request.params.id);
+  } catch (error) {
+    logger.error(error);
+  }
+}
+
+router.post("/draft/:id/clear", clearDraft);
 
 module.exports = {
   router,
