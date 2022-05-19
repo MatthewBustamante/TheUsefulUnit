@@ -10,6 +10,14 @@ const authController = require("./authController");
 function showLoginForm(request, response) {
   logger.info("Login controller called (page)");
 
+  let metrics = {
+    pageVisited: "",
+    visitedAt: new Date(),
+    pageVisitLength: null,
+    user: null,
+    action: null
+  };
+
   const authenticatedSession = authController.authenticateUser(request);
     
     if (!authenticatedSession) {
