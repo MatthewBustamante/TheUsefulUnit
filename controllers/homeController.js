@@ -5,18 +5,7 @@ const logger = require("../logger");
 const authController = require("../controllers/authController");
 const activityModel = require("../models/activitiesModel");
 const userModel = require("../models/usersModel");
-
-function IsDarkMode(request) {
-  //check if the theme cookie exists
-  if (request.cookies.theme) {
-    //if the theme cookie exists and is dark then return true
-    if (request.cookies.theme === "dark") {
-      return true;
-    }
-  }
-  //if the theme cookie does not exist or is light then return false
-  return false;
-}
+const themeController = require("./themeController");
 
 /**
  * Renders the home page
@@ -29,7 +18,7 @@ async function showHome(request, response) {
   if (!authenticatedSession) {
     //response.sendStatus(401); //Unauthorized access
     logger.info("User is not logged in");
-    let isDarkMode = IsDarkMode(request);
+    let isDarkMode = themeController.IsDarkMode(request);
     response.render("home.hbs", { isDarkMode: isDarkMode });
 
     return;

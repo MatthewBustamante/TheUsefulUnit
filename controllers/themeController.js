@@ -26,7 +26,20 @@ function toggleDarkMode(request, response) {
 
 router.get("/theme", toggleDarkMode);
 
+function IsDarkMode(request) {
+  //check if the theme cookie exists
+  if (request.cookies.theme) {
+    //if the theme cookie exists and is dark then return true
+    if (request.cookies.theme === "dark") {
+      return true;
+    }
+  }
+  //if the theme cookie does not exist or is light then return false
+  return false;
+}
+
 module.exports = {
   router,
   routeRoot,
+  IsDarkMode,
 };
