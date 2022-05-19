@@ -55,7 +55,7 @@ function showAbout(request, response) {
 
   tracker.updateTracker(request, response, metrics);
 
-  response.render("about.hbs", {message: "Welcome, " + authenticatedSession.userSession.username, username: authenticatedSession.userSession.username});
+  response.render("about.hbs", {username: authenticatedSession.userSession.username});
 }
 
 router.get("/about", showAbout);

@@ -27,6 +27,7 @@
                 
                 <div class="panel panel-primary" id="result_panel">
     <div class="panel-heading"><h3 class="panel-title">Joined Users:</h3>
+    <br>
     </div>
     <div class="panel-body">
         <ul class="list-group">
@@ -56,6 +57,7 @@
                         <button class="w-100 btn btn-lg btn-primary" id="create" title="Click to add a comment." type="submit" formmethod="POST" formaction="/comments/{{activity.id}}">Add Comment</button>
                     </form>
                 </div>
+                <br><br>
                 <div class="commentsOuterContainer">
                     <div class="commentsInnerContainer">
                         {{#each comments}}
@@ -83,8 +85,13 @@
     </div>
     
     <style>
+        .list-group {
+            display:inline-block;
+        }
+
         .activityInfo {
             text-align: left;
+            margin: 1rem;
         }
 
         .formContainer {
@@ -94,6 +101,7 @@
 
         .mainForm {
             width: 30%;
+            min-width: 500px;
         }
 
         .commentsOuterContainer {

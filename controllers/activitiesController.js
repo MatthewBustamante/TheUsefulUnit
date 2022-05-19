@@ -58,7 +58,7 @@ async function showAddActivityForm(request, response) {
 
   tracker.updateTracker(request, response, metrics);
 
-  response.render("addActivity.hbs", {message: "Welcome, " + authenticatedSession.userSession.username, username: authenticatedSession.userSession.username});
+  response.render("addActivity.hbs", {username: authenticatedSession.userSession.username});
 }
 router.get("/activity", showAddActivityForm);
 
@@ -339,7 +339,7 @@ async function showActivity(request, response) {
 
       tracker.updateTracker(request, response, metrics);
       
-      response.render("activity.hbs", {message: "Welcome, " + session.userSession.username, username: session.userSession.username, activity: activity, usersJoined: usersJoined, joined: joined, comments: comments});
+      response.render("activity.hbs", {username: session.userSession.username, activity: activity, usersJoined: usersJoined, joined: joined, comments: comments});
   
       logger.info("App has shown an activity");
     }
