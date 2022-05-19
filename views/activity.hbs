@@ -1,4 +1,5 @@
 <body>
+    <input type="hidden" id="activityName" value={{activity.name}}>
     <div class="container">
         <div class="content">
             <div class="px-4 py-5 my-5 text-center">
@@ -27,6 +28,7 @@
                 
                 <div class="panel panel-primary" id="result_panel">
     <div class="panel-heading"><h3 class="panel-title">Joined Users:</h3>
+    <br>
     </div>
     <div class="panel-body">
         <ul class="list-group">
@@ -53,9 +55,11 @@
                             <textarea class="form-control" required name="comment" id="comment" rows="4" maxlength="1500" placeholder="Leave a comment..."></textarea>
                         </div>
                         <hr class="my-4"/>
-                        <button class="w-100 btn btn-lg btn-primary" id="create" title="Click to add a comment." type="submit" formmethod="POST" formaction="/comments/{{activity.id}}">Add Comment</button>
+                        <button class="w-100 btn btn-lg btn-primary" id="create" title="Click to post this comment." type="submit" formmethod="POST" formaction="/comments/{{activity.id}}">Post Comment</button>
+                        <button class="w-100 btn btn-lg btn-primary" id="draft" title="Click to save a draft of this comment." type="submit" formmethod="POST" formaction="/comments/draft">Save Draft</button>
                     </form>
                 </div>
+                <br><br>
                 <div class="commentsOuterContainer">
                     <div class="commentsInnerContainer">
                         {{#each comments}}
@@ -83,8 +87,17 @@
     </div>
     
     <style>
+        #draft {
+            margin-top: 1rem;
+        }
+
+        .list-group {
+            display:inline-block;
+        }
+
         .activityInfo {
             text-align: left;
+            margin: 1rem;
         }
 
         .formContainer {
@@ -94,6 +107,7 @@
 
         .mainForm {
             width: 30%;
+            min-width: 500px;
         }
 
         .commentsOuterContainer {
@@ -128,11 +142,17 @@
         }
     </style>
 </body>
+
 <script>
+    var name = document.getElementById("activityName").value;
+    let title = name + ' - Friend Finder';
+    document.title = title;
+    
   {{#if isDarkMode}}
     var element = document.body; element.classList.toggle("dark-mode");
   {{/if}}
 </script>
+
 <style>
   body { 
     background-color: white; 

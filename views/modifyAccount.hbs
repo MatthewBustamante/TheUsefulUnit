@@ -38,6 +38,10 @@
     </div>
   </div>
   <style>
+    form {
+      min-width: 400px;
+    }
+
     .imgContainer {
       display: flex;
       justify-content: center;
@@ -50,6 +54,8 @@
   </style>
 </body>
 <script>
+document.title = 'Modify Account - Friend Finder';
+
   {{#if isDarkMode}}
     var element = document.body; element.classList.toggle("dark-mode");
   {{/if}}

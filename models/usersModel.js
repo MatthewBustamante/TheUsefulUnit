@@ -108,7 +108,7 @@ async function UpdateUserInformations(id, username, email, newPassword, newPassw
     if (!bcrypt.compareSync(oldPassword, currentPassword.HashedPassword)) {
       const error = new ERRORS.ValidationError();
       error.message = "Old password is incorrect";
-      throw error;
+      return null;
     }
 
     // Validate the new user information
@@ -128,7 +128,7 @@ async function UpdateUserInformations(id, username, email, newPassword, newPassw
     return { username: username, email: email };
   } catch (error) {
     logger.error(error);
-    throw error;
+    return null;
   }
 }
 

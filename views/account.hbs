@@ -1,6 +1,6 @@
 <body>
-    <div class="container">
-        <div class="content">
+    <div class="content">
+        <div class="container">
             <div class="px-4 py-5 my-5 text-center">
                 <h3 style="font-weight:bold;">Account Settings</h3>
                 <img src="/images/gear.png" style="height:10%;width:10%;margin:2em;">
@@ -19,10 +19,50 @@
                         <a role="button" class="btn btn-primary btn-lg px-4 gap-3" href="/user/delete">Delete Account</a>
                     </div>
                 </div>
+                <br><br>
+                <div class="panel panel-primary" id="result_panel">
+            <div class="panel-heading"><h3 class="panel-title">Activities Joined:</h3>
+            <br>
+            </div>
+            <div class="panel-body">
+            <ul class="list-group">
+            {{#if activitiesJoined}}
+            {{#each activitiesJoined}}
+            <li class="list-group-item"><a href="/activity/{{this.ActivityID}}"><strong>{{this.Name}}</strong></a></li>
+            {{/each}}
+            {{else}}
+            <p>You haven't joined any activities.</p>
+            {{/if}}
+            </ul>
+            </div>
+            </div>
+
+            <br><br>
+            
+            <div class="panel panel-primary" id="result_panel">
+            <div class="panel-heading"><h3 class="panel-title">Activities Created:</h3>
+            <br>
+            </div>
+            <div class="panel-body">
+            <ul class="list-group">
+            {{#if activitiesCreated}}
+            {{#each activitiesCreated}}
+            <li class="list-group-item"><a href="/activity/{{this.ActivityID}}"><strong>{{this.Name}}</strong></a></li>
+            {{/each}}
+            {{else}}
+            <p>You haven't created any activities.</p>
+            {{/if}}
+            </ul>
+            </div>
+            </div>
             </div>
         </div>
     </div>
     <style>
+        .list-group {
+            display:inline-block;
+        }
+
         .userInfoOuter {
             display: flex;
             justify-content: center;
@@ -34,6 +74,8 @@
     </style>
 </body>
 <script>
+document.title = 'My Account - Friend Finder';
+
   {{#if isDarkMode}}
     var element = document.body; element.classList.toggle("dark-mode");
   {{/if}}

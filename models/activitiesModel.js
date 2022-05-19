@@ -14,7 +14,12 @@ const logger = require("../utilities/logger");
  */
 async function createActivity(name, description, startTime, endTime, ownerID) {         //FINISHED TEST
   const connection = DATABASES.getConnection();
-  //create a new activity in the database
+  await connection.execute(`INSERT INTO Activities (Name, Description, StartTime, EndTime, OwnerID) VALUES (?, ?, ?, ?, ?);`, [name, description, startTime, endTime, ownerID])
+    .then(logger.info("Successfully created activity [model]"))
+    .catch((error) => {
+      logger.error(new ERRORS.DatabaseWriteError(error));
+    });
+  /* //create a new activity in the database
   const sqlQuery = `INSERT INTO Activities (Name, Description, StartTime, EndTime, OwnerID) VALUES ('${name}', '${description}', '${startTime}', '${endTime}', '${ownerID}')`;
   try {
     await connection.execute(sqlQuery);
@@ -22,12 +27,20 @@ async function createActivity(name, description, startTime, endTime, ownerID) { 
   } catch (error) {
     logger.error(error);
     throw error;
-  }
+  } */
+
+  const activityID = await connection.execute(`SELECT ActivityID FROM Activities WHERE Name = ? AND Description = ? AND StartTime = ? AND EndTime = ? AND OwnerID = ?;`, [name, description, startTime, endTime, ownerID])
+    .then(logger.info("Id of the new activity created retrieved [model]"))
+    .catch((error) => {
+      logger.error(new ERRORS.DatabaseWriteError(error));
+    });
+
+
   //return the new activity Created
-  const sqlQuery2 = `SELECT ActivityID FROM Activities WHERE Name = '${name}' AND Description = '${description}' AND StartTime = '${startTime}' AND EndTime = '${endTime}' AND OwnerID = '${ownerID}'`;
+  //const sqlQuery2 = `SELECT ActivityID FROM Activities WHERE Name = '${name}' AND Description = '${description}' AND StartTime = '${startTime}' AND EndTime = '${endTime}' AND OwnerID = '${ownerID}'`;
   try {
-    const activityID = await connection.execute(sqlQuery2);
-    logger.info("Id of the new activity created retrieved");
+    //const activityID = await connection.execute(sqlQuery2);
+    //logger.info("Id of the new activity created retrieved");
     return {
       id: activityID,
       name: name,
@@ -97,6 +110,7 @@ async function deleteExpiredActivities(){                     //FINISHED TEST
 
   //delete all the comments that have expiredActivitiesIDS as their activityID
   for(let i = 0; i < expiredActivitiesIDS[0].length; i++){
+    
     const sqlQuery2 = `DELETE FROM Comments WHERE ActivityID = ${expiredActivitiesIDS[0][i].ActivityID}`;
     try {
       await connection.execute(sqlQuery2);
@@ -226,7 +240,7 @@ async function deleteActivity(activityID) {                           //FINISHED
  * @param {*} userID id of the user to fetch their joined activities
  * @returns returns all the activities that the given user has joined
  */
-async function getJoinedActivities(userID) {                          //FINISHED TEST
+ async function getJoinedActivities(userID) {
   const connection = DATABASES.getConnection();
   const sqlQuery = `SELECT * FROM Activities WHERE ActivityID IN (SELECT ActivityID from UserActivity where UserID = ${userID})`;
   try {
