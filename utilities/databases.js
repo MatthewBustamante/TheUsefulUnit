@@ -21,6 +21,7 @@ async function initialize(dbname, reset) {
     .then(LOGGER.info("Connected to database"))
     .catch((error) => {
       LOGGER.error(error);
+      return;
     });
 
   // If the reset flag is set, reset the database
@@ -63,6 +64,8 @@ async function initialize(dbname, reset) {
   // Create the users table
   let sqlQuery =
     "CREATE TABLE IF NOT EXISTS Users( UserID INT AUTO_INCREMENT, Username VARCHAR(30), Email VARCHAR(150), HashedPassword VARCHAR(150), PRIMARY KEY (UserID));";
+
+
   await connection
     .execute(sqlQuery)
     .then(LOGGER.info("Created table users"))
