@@ -3,7 +3,7 @@ const router = express.Router();
 const routeRoot = "/";
 const logger = require("../logger");
 const authController = require("./authController");
-const tracker = require("../utilities/tracker")
+const tracker = require("../utilities/tracker");
 const themeController = require("../controllers/themeController");
 
 /**
@@ -13,7 +13,7 @@ function showLoginForm(request, response) {
   logger.info("Login controller called (page)");
 
   //Tracking user agent
-  let ua = request.headers['user-agent'];
+  let ua = request.headers["user-agent"];
 
   //Tracking metrics
   var metrics = {
@@ -22,38 +22,40 @@ function showLoginForm(request, response) {
     pageVisitLength: null,
     user: null,
     action: "None",
-    userAgent: ua
+    userAgent: ua,
   };
 
   const authenticatedSession = authController.authenticateUser(request);
-    
-    if (!authenticatedSession) {
-        //response.sendStatus(401); //Unauthorized access
-        logger.info("User is not logged in");
 
-        metrics.user = "Guest (Not logged in)";
+  if (!authenticatedSession) {
+    //response.sendStatus(401); //Unauthorized access
+    logger.info("User is not logged in");
 
-        logger.info("Showing signup page");
+    metrics.user = "Guest (Not logged in)";
 
-        tracker.updateTracker(request, response, metrics);
+    logger.info("Showing signup page");
 
-        let isDarkMode = themeController.IsDarkMode(request);
+    tracker.updateTracker(request, response, metrics);
 
-        response.render("login.hbs", {isDarkMode: isDarkMode});
-        
-        return;
-    }
+    let isDarkMode = themeController.IsDarkMode(request);
 
-  logger.info("User " + authenticatedSession.userSession.username + " is logged in");
+    response.render("login.hbs", { isDarkMode: isDarkMode });
+
+    return;
+  }
+
+  logger.info(
+    "User " + authenticatedSession.userSession.username + " is logged in"
+  );
 
   metrics.user = authenticatedSession.userSession.username;
 
   //Refresh the cookie to not expire
-  authController.refreshSession(request, response)
+  authController.refreshSession(request, response);
 
   tracker.updateTracker(request, response, metrics);
 
-  response.redirect('/home');
+  response.redirect("/home");
 }
 
 router.get("/login", showLoginForm);

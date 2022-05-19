@@ -6,7 +6,7 @@ const logger = require("../logger");
 const uuid = require("uuid");
 const errors = require("../utilities/errors");
 const bcrypt = require("bcrypt");
-const tracker = require("../utilities/tracker")
+const tracker = require("../utilities/tracker");
 const themeController = require("../controllers/themeController");
 
 const sessions = {};
@@ -33,7 +33,7 @@ async function createUser(request, response) {
     logger.info("Authentication controller called (create user)");
 
     //Tracking user agent
-    let ua = request.headers['user-agent'];
+    let ua = request.headers["user-agent"];
 
     //Tracking metrics
     var metrics = {
@@ -42,7 +42,7 @@ async function createUser(request, response) {
       pageVisitLength: null,
       user: "Guest (Not logged in)",
       action: "Create user",
-      userAgent: ua
+      userAgent: ua,
     };
 
     if (
@@ -64,7 +64,10 @@ async function createUser(request, response) {
       //Render success page
       let isDarkMode = themeController.IsDarkMode(request);
 
-      response.render('login.hbs', {message: "Successfully created user, please log in to continue", isDarkMode: isDarkMode});
+      response.render("login.hbs", {
+        message: "Successfully created user, please log in to continue",
+        isDarkMode: isDarkMode,
+      });
 
       logger.info("Authentication controller: Successfully created user");
 
@@ -88,7 +91,11 @@ async function createUser(request, response) {
     //Render fail page
     let isDarkMode = themeController.IsDarkMode(request);
 
-    response.render('register.hbs', {error: error.message, status: response.statusCode, isDarkMode: isDarkMode});
+    response.render("register.hbs", {
+      error: error.message,
+      status: response.statusCode,
+      isDarkMode: isDarkMode,
+    });
 
     logger.error(error.message + " (" + response.statusCode + ")");
   }
@@ -107,7 +114,7 @@ async function login(request, response) {
     logger.info("Authentication controller called (login)");
 
     //Tracking user agent
-    let ua = request.headers['user-agent'];
+    let ua = request.headers["user-agent"];
 
     //Tracking metrics
     var metrics = {
@@ -116,23 +123,25 @@ async function login(request, response) {
       pageVisitLength: null,
       user: "Guest (Not logged in)",
       action: "Log in",
-      userAgent: ua
+      userAgent: ua,
     };
 
-        if (request.body.identifier != undefined && request.body.password != undefined) {
-            
-            //Get user by username/email from database
-            let user = await userModel.getUser(request.body.identifier);
+    if (
+      request.body.identifier != undefined &&
+      request.body.password != undefined
+    ) {
+      //Get user by username/email from database
+      let user = await userModel.getUser(request.body.identifier);
 
-            if(!user) {
-              throw new errors.ValidationError(
-                "Invalid username / password given for user: " +
-                  request.body.identifier
-              );
-            }
+      if (!user) {
+        throw new errors.ValidationError(
+          "Invalid username / password given for user: " +
+            request.body.identifier
+        );
+      }
 
-            //Get the hashed version of the password from database
-            const expectedPassword = user.HashedPassword;
+      //Get the hashed version of the password from database
+      const expectedPassword = user.HashedPassword;
 
       //Hashes entered password then compares it to the hashed password on the database
       if (
@@ -145,12 +154,16 @@ async function login(request, response) {
         const sessionId = createSession(user.Username, 2);
 
         // Save cookie that will expire.
-        response.cookie("sessionId", sessionId, {expires: sessions[sessionId].expiresAt, secure: true, httpOnly: true});
+        response.cookie("sessionId", sessionId, {
+          expires: sessions[sessionId].expiresAt,
+          secure: true,
+          httpOnly: true,
+        });
 
         tracker.updateTracker(request, response, metrics);
 
         //Render success page (call home controller, validate user with cookie, calls activities view)
-        response.redirect('/home');
+        response.redirect("/home");
 
         logger.info(
           "Authentication controller: Successfully logged into user " +
@@ -184,7 +197,11 @@ async function login(request, response) {
     tracker.updateTracker(request, response, metrics);
 
     //Render fail page
-    response.render('login.hbs', {error: error.message, status: response.statusCode, isDarkMode: isDarkMode});
+    response.render("login.hbs", {
+      error: error.message,
+      status: response.statusCode,
+      isDarkMode: isDarkMode,
+    });
 
     logger.error(error.message + " (" + response.statusCode + ")");
   }
@@ -202,7 +219,7 @@ async function logout(request, response) {
   logger.info("Authentication controller called (logout)");
 
   //Tracking user agent
-  let ua = request.headers['user-agent'];
+  let ua = request.headers["user-agent"];
 
   //Tracking metrics
   var metrics = {
@@ -211,7 +228,7 @@ async function logout(request, response) {
     pageVisitLength: null,
     user: null,
     action: "Log out",
-    userAgent: ua
+    userAgent: ua,
   };
 
   const authenticatedSession = authenticateUser(request);
@@ -307,7 +324,11 @@ function refreshSession(request, response) {
 
   // Set the session cookie to the new id we generated, with a
   // renewed expiration time
-  response.cookie("sessionId", newSessionId, {expires: sessions[newSessionId].expiresAt, secure: true, httpOnly: true});
+  response.cookie("sessionId", newSessionId, {
+    expires: sessions[newSessionId].expiresAt,
+    secure: true,
+    httpOnly: true,
+  });
 
   return newSessionId;
 }
