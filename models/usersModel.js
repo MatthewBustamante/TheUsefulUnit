@@ -7,9 +7,9 @@ const saltRounds = 10;
 
 /**
  * Creates a new user and adds it to the database
- * @param {*} username
- * @param {*} email
- * @param {*} password
+ * @param {String} username the username of the new user
+ * @param {String} email the email of the new user
+ * @param {String} password the password of the new user
  * @returns the user's id, username and email that was created
  */
 async function createUser(username, email, unhashedpassword, passwordrepeat) {

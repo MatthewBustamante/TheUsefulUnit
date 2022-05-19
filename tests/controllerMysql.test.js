@@ -138,3 +138,12 @@ afterEach(async () => {
     await connection.close();
   }
 });
+
+//#region homeController endpoints
+test("GET / - Home Controller - success", async () => {
+    // hit the endpoint
+    let testResponse = await testRequest.get("/");
+
+    // check the status code
+    expect(testResponse.status).toBe(200);
+});
