@@ -84,6 +84,11 @@
       <li class="nav-item">
         <a class="nav-link" href="/logout">Logout</a>
       </li>
+        <li class="nav-item">
+        <a class="nav-link" href="/theme">
+          <img id="theme" src="/images/DarkMode.png" alt="logo" />
+        </a>
+      </li>
     </ul>
     {{else}}
     <ul class="navbar-right">
@@ -94,7 +99,9 @@
         <a class="nav-link" href="/register">Sign up</a>
       </li>
       <li class="nav-item">
-       <button id="darkModeToggle"></button>
+        <a class="nav-link" href="/theme">
+          <img id="theme" src="/images/DarkMode.png" alt="logo" />
+        </a>
       </li>
     </ul>
     {{/if}}
@@ -104,6 +111,11 @@
     @media screen and (min-width: 600px) {
         #logo {
             width: 150px;
+            height: auto;
+        }
+
+        #theme {
+            width: 20px;
             height: auto;
         }
 
@@ -119,6 +131,11 @@
     @media screen and (max-width: 600px) {
         #logo {
             width: 100px;
+            height: auto;
+        }
+
+        #theme {
+            width: 10px;
             height: auto;
         }
     }
