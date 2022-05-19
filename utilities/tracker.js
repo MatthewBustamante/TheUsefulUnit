@@ -9,14 +9,27 @@
 //- User agent information (browser, operating system, etc)
 function updateTracker(request, response, metrics) {
     let original = []; // On first-use will be an empty array to which we add one thing later on
+    let calculatePageVistLength = false;
 	
     //If there is a stored tracking cookie, then get its value
-    if (request.cookies) {
+    if(request.cookies) {
         const trackedValue = request.cookies['tracking'];
-        if (trackedValue) {
+        if(trackedValue) {
             //Get the object by converting the JSON
             original = JSON.parse(trackedValue);
+            calculatePageVistLength = true;
         }
+    }
+
+    if(calculatePageVistLength) {
+        //Get the difference (in milliseconds) between the time between last page visited and now
+        let pagetimeDifference = Math.abs(Date.parse(original[original.length - 1].visitedAt) - new Date());
+
+        //Round the milliseconds to 1 decimal place
+        let secondsRounded = Math.round((pagetimeDifference / 1000) * 10) / 10
+
+        //Set the value
+        original[original.length - 1].pageVisitLength = secondsRounded + " seconds spent on page";
     }
 	
     //Add tracking information to the end of the array of values

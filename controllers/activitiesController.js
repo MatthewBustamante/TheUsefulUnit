@@ -18,11 +18,30 @@ const routeRoot = "/";
 async function showAddActivityForm(request, response) {
   logger.info("Activities controller called (add activity page)");
 
+  //Tracking user agent
+  let ua = request.headers['user-agent'];
+
+  //Tracking metrics
+  var metrics = {
+    pageVisited: "Add Activities Page",
+    visitedAt: new Date(),
+    pageVisitLength: null,
+    user: null,
+    action: "None",
+    userAgent: ua
+  };
+
   const authenticatedSession = authController.authenticateUser(request);
     
     if (!authenticatedSession) {
         //response.sendStatus(401); //Unauthorized access
         logger.info("User is not logged in");
+
+        metrics.user = "Guest (Not logged in)";
+
+        response.status(401)
+
+        tracker.updateTracker(request, response, metrics);
 
         response.render("login.hbs", {error: "You must be logged in to perform that action", status: 401});
         
@@ -31,8 +50,12 @@ async function showAddActivityForm(request, response) {
 
   logger.info("User " + authenticatedSession.userSession.username + " is logged in");
 
+  metrics.user = authenticatedSession.userSession.username;
+
   //Refresh the cookie to not expire
   authController.refreshSession(request, response);
+
+  tracker.updateTracker(request, response, metrics);
 
   response.render("addActivity.hbs", {message: "Welcome, " + authenticatedSession.userSession.username, username: authenticatedSession.userSession.username});
 }
@@ -47,11 +70,30 @@ router.get("/activity", showAddActivityForm);
 async function joinActivity(request, response) {
   logger.info("Activities controller called (join activity)");
 
+  //Tracking user agent
+  let ua = request.headers['user-agent'];
+
+  //Tracking metrics
+  var metrics = {
+    pageVisited: "None [User Attempted CRUD Action]",
+    visitedAt: new Date(),
+    pageVisitLength: null,
+    user: null,
+    action: "Join activity",
+    userAgent: ua
+  };
+
   const authenticatedSession = authController.authenticateUser(request);
     
     if (!authenticatedSession) {
         //response.sendStatus(401); //Unauthorized access
         logger.info("User is not logged in");
+
+        metrics.user = "Guest (Not logged in)";
+
+        response.status(401);
+
+        tracker.updateTracker(request, response, metrics);
 
         response.render("login.hbs", {error: "You must be logged in to perform that action", status: 401});
         
@@ -60,6 +102,8 @@ async function joinActivity(request, response) {
 
   logger.info("User " + authenticatedSession.userSession.username + " is logged in");
 
+  metrics.user = authenticatedSession.userSession.username;
+
   //Refresh the cookie to not expire
   authController.refreshSession(request, response);
 
@@ -67,6 +111,8 @@ async function joinActivity(request, response) {
   let user = await userModel.getUser(authenticatedSession.userSession.username);
 
   await model.addUserToActivity(user.UserID, activityID);
+
+  tracker.updateTracker(request, response, metrics);
 
   response.redirect("/activity/" + activityID);
 }
@@ -82,11 +128,30 @@ router.post("/activities/:id/join", joinActivity);
  async function leaveActivity(request, response) {
   logger.info("Activities controller called (leave activity)");
 
+  //Tracking user agent
+  let ua = request.headers['user-agent'];
+
+  //Tracking metrics
+  var metrics = {
+    pageVisited: "None [User Attempted CRUD Action]",
+    visitedAt: new Date(),
+    pageVisitLength: null,
+    user: null,
+    action: "Leave activity",
+    userAgent: ua
+  };
+
   const authenticatedSession = authController.authenticateUser(request);
     
     if (!authenticatedSession) {
         //response.sendStatus(401); //Unauthorized access
         logger.info("User is not logged in");
+
+        metrics.user = "Guest (Not logged in)";
+
+        response.status(401)
+
+        tracker.updateTracker(request, response, metrics);
 
         response.render("login.hbs", {error: "You must be logged in to perform that action", status: 401});
         
@@ -95,6 +160,8 @@ router.post("/activities/:id/join", joinActivity);
 
   logger.info("User " + authenticatedSession.userSession.username + " is logged in");
 
+  metrics.user = authenticatedSession.userSession.username;
+
   //Refresh the cookie to not expire
   authController.refreshSession(request, response);
 
@@ -102,6 +169,8 @@ router.post("/activities/:id/join", joinActivity);
   let user = await userModel.getUser(authenticatedSession.userSession.username);
 
   await model.deleteUserFromActivity(user.UserID, activityID);
+
+  tracker.updateTracker(request, response, metrics);
 
   response.redirect("/activity/" + activityID);
 }
@@ -116,12 +185,26 @@ router.post("/activities/:id/leave", leaveActivity);
  * @param {*} response
  */
 async function createActivity(request, response) {
+  //Tracking user agent
+  let ua = request.headers['user-agent'];
+
+  //Tracking metrics
+  var metrics = {
+    pageVisited: "None [User Attempted CRUD Action]",
+    visitedAt: new Date(),
+    pageVisitLength: null,
+    user: null,
+    action: "Create activity",
+    userAgent: ua
+  };
   
   let session = authController.authenticateUser(request);
 
   if(session) {
     //Refresh the cookie to not expire
     authController.refreshSession(request, response);
+
+    metrics.user = session.userSession.username;
 
     let user = await userModel.getUser(session.userSession.username);
   
@@ -134,8 +217,12 @@ async function createActivity(request, response) {
     let start = Date.parse(request.body.start);
     let end = Date.parse(request.body.end);
 
-    if(start >  end || end < start || isNaN(start) || isNaN(end)) {
-      response.render('addActivity.hbs', {error: "Invalid dates", status: 400});
+    if(isNaN(start) || isNaN(end) || start == end || start > end || end < start) {
+      response.status(400);
+
+      tracker.updateTracker(request, response, metrics);
+
+      response.render('addActivity.hbs', {error: "Invalid dates (cannot be the same, start must be before end)", status: 400});
       return;
     }
 
@@ -145,9 +232,17 @@ async function createActivity(request, response) {
 
     logger.info('User has created an activity');
 
+    tracker.updateTracker(request, response, metrics);
+
     response.redirect('/activity/' + activity.id[0][0].ActivityID);
   }
   else {
+    metrics.user = "Guest (Not logged in)";
+
+    response.status(401);
+
+    tracker.updateTracker(request, response, metrics);
+
     response.render('login.hbs', {error: "You must be logged in to perform that action", status: 401});
   }
 }

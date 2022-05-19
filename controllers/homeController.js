@@ -13,10 +13,11 @@ const tracker = require("../utilities/tracker")
 async function showHome(request, response) {
     logger.info("Home controller called");
 
+    //Tracking user agent
     let ua = request.headers['user-agent'];
 
     //Tracking metrics
-    let metrics = {
+    var metrics = {
       pageVisited: "",
       visitedAt: new Date(),
       pageVisitLength: null,
@@ -31,7 +32,7 @@ async function showHome(request, response) {
         //response.sendStatus(401); //Unauthorized access
         logger.info("User is not logged in");
 
-        metrics.pageVisited = "Home Page - Information"
+        metrics.pageVisited = "Home Page - Welcome"
         metrics.user = "Guest (Not logged in)";
         metrics.action = "None";
 
