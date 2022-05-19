@@ -131,8 +131,14 @@ async function updateUser(request, response) {
 
       var userInfo = {
         username: user.Username,
-        email: user.Email
+        email: user.Email,
+        userID: request.params.id
       };
+
+      if(!user) {
+        respoonse.status(500)
+        response.render('modifyAccount.hbs', {error: "Error updating user", status: 500, username: session.userSession.username, userInfo: userInfo});
+      }
 
       const expectedPassword = user.HashedPassword;
 
@@ -151,9 +157,10 @@ async function updateUser(request, response) {
         if(user) {
           userInfo = {
             username: request.body.username,
-            email: request.body.email
+            email: request.body.email,
+            userID: user.UserID
           }
-          response.render("account.hbs", {message: "Successfully updated account", username: session.userSession.username, userInfo: userInfo});
+          response.render("account.hbs", {message: "Successfully updated account", username: userInfo.username, userInfo: userInfo});
         } else {
           response.status(400)
           response.render('modifyAccount.hbs', {error: "Invalid information provided", status: 400, username: session.userSession.username, userInfo: userInfo});

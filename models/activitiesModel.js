@@ -97,9 +97,21 @@ async function deleteExpiredActivities(){
 
   //delete all the comments that have expiredActivitiesIDS as their activityID
   for(let i = 0; i < expiredActivitiesIDS[0].length; i++){
+    
     const sqlQuery2 = `DELETE FROM Comments WHERE ActivityID = ${expiredActivitiesIDS[0][i].ActivityID}`;
     try {
       await connection.execute(sqlQuery2);
+    } catch (error) {
+      logger.error(error);
+      throw error;
+    }
+  }
+
+   //delete from the UserActivity table all the activities that have expiredActivitiesIDS as their activityID
+   for(let i = 0; i < expiredActivitiesIDS[0].length; i++){
+    const sqlQuery3 = `DELETE FROM UserActivity WHERE ActivityID = ${expiredActivitiesIDS[0][i].ActivityID}`;
+    try {
+      await connection.execute(sqlQuery3);
     } catch (error) {
       logger.error(error);
       throw error;
