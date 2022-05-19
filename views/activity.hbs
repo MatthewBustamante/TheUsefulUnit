@@ -1,4 +1,5 @@
 <body>
+    <input type="hidden" id="activityName" value={{activity.name}}>
     <div class="container">
         <div class="content">
             <div class="px-4 py-5 my-5 text-center">
@@ -136,3 +137,9 @@
         }
     </style>
 </body>
+
+<script>
+    var name = document.getElementById("activityName").value;
+    let title = name + ' - Friend Finder';
+    document.title = title;
+</script>
