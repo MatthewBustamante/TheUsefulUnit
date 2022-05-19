@@ -32,25 +32,20 @@ function showAbout(request, response) {
     //response.sendStatus(401); //Unauthorized access
     logger.info("User is not logged in");
 
-        metrics.pageVisited = "About Page"
-        metrics.user = "Guest (Not logged in)";
-        metrics.action = "None";
+    metrics.pageVisited = "About Page"
+    metrics.user = "Guest (Not logged in)";
+    metrics.action = "None";
 
-        tracker.updateTracker(request, response, metrics);
-
-        response.render("about.hbs");
-        
-        return;
-    }
-  
-    logger.info("Showing about page");
+    tracker.updateTracker(request, response, metrics);
 
     let isDarkMode = themeController.IsDarkMode(request);
 
-    response.render("about.hbs", { isDarkMode: isDarkMode });
+    response.render("about.hbs", {isDarkMode: isDarkMode});
 
     return;
   }
+
+  logger.info("Showing about page");
 
   logger.info(
     "User " + authenticatedSession.userSession.username + " is logged in"
@@ -67,7 +62,7 @@ function showAbout(request, response) {
 
   tracker.updateTracker(request, response, metrics);
 
-  response.render("about.hbs", {username: authenticatedSession.userSession.username, isDarkMode: isDarkMode});
+  response.render("about.hbs", { username: authenticatedSession.userSession.username, isDarkMode: isDarkMode });
 }
 
 router.get("/about", showAbout);
