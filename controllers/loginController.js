@@ -3,6 +3,7 @@ const router = express.Router();
 const routeRoot = "/";
 const logger = require("../logger");
 const authController = require("./authController");
+const themeController = require("../controllers/themeController");
 
 /**
  * Renders the login page
@@ -17,8 +18,8 @@ function showLoginForm(request, response) {
         logger.info("User is not logged in");
 
         logger.info("Showing signup page");
-
-        response.render("login.hbs");
+        let isDarkMode = themeController.IsDarkMode(request);
+        response.render("login.hbs", { isDarkMode: isDarkMode });
         
         return;
     }

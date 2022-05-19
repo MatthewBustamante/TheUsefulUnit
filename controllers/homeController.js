@@ -5,7 +5,7 @@ const logger = require("../logger");
 const authController = require("../controllers/authController");
 const activityModel = require("../models/activitiesModel");
 const userModel = require("../models/usersModel");
-const themeController = require("./themeController");
+const themeController = require("../controllers/themeController");
 
 /**
  * Renders the home page
@@ -45,10 +45,13 @@ async function showHome(request, response) {
     };
   }
 
+  let isDarkMode = themeController.IsDarkMode(request);
+
   response.render("allActivities.hbs", {
     activities: activities,
     message: "Welcome, " + authenticatedSession.userSession.username,
     username: authenticatedSession.userSession.username,
+    isDarkMode: isDarkMode
   });
 }
 
