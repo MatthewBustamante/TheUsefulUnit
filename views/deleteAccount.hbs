@@ -12,7 +12,7 @@
                 
         <form class="form" action="/users/{{userInfo.userID}}?_method=DELETE" method="POST">
             <input type="hidden" name="_method" value="DELETE">
-            <p class="confirm">Please enter your password before confirming:</p>
+            <p id="label" class="confirm">Please enter your password before confirming:</p>
             <input class="confirm" type="password" required for="password" name="password">
             <br>
             <br>
@@ -57,5 +57,9 @@ document.title = 'Delete Account - Friend Finder';
   }
    .dark-mode form{
     color:black;
+  }
+
+  .dark-mode #label{
+    color:white;
   }
 </style>
