@@ -65,3 +65,6 @@ This website has not yet been hosted online but all the structure is there. We h
 1. Click on an individual Activity.
 2. Locate your comment in the Comments section.
 3. Click the 'Delete' button (NOTE: only creators of the Comment can delete the object).
+
+## Credit
+This website was developped by [Abdessalam Aithaqi](https://github.com/AbdessalamAithaqi), [Benjamin Morelli-Kirshner](https://github.com/BenM-K), [Matthew Bustamante](https://github.com/MatthewBustamante) and [Joshua](https://github.com/jco898)
